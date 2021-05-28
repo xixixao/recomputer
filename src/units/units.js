@@ -1,0 +1,137 @@
+import { textAt } from "../core/evaluate/astCursor.js";
+import { Dictionary } from "../core/evaluate/Dictionary.js";
+import { Units } from "../core/evaluate/Units.js";
+import * as Term from "../core/parser/parser.terms.js";
+import { allSymbolsPattern, matchToken } from "../core/parser/tokens";
+
+export function testImplicitExponentiate(assertEvals) {
+  assertEvals(`1m3`, `1m^3`);
+}
+
+export function docs() {
+  return `
+## Units
+.Units can be any of the predefined units which are listed in later sections, or a custom unit which is a single word:
+(12 potato / year) * 1 month
+.A single digit can be suffixed to a unit for easy exponentiation:
+14m2
+`;
+}
+const TERM = Term.Unit;
+
+export function tokenizerPrefixUnit({ prefixes }) {
+  const prefixPattern = new RegExp(`^(${prefixes.join("|")})`);
+  return (line, token) => matchToken(line, prefixPattern, token, TERM);
+}
+
+const VALID_FIRST_CHAR = /\S/.source;
+const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
+export function tokenizerUnit(tokenConfig) {
+  const allSymbolOr = allSymbolsPattern(tokenConfig);
+
+  const first_char_pattern = `(?!${allSymbolOr})${VALID_FIRST_CHAR}`;
+  const more_chars_pattern = `${first_char_pattern}((?:(?!${allSymbolOr})${VALID_END_CHAR})+)*`;
+  const unitPattern = new RegExp(
+    `^(${more_chars_pattern}|${first_char_pattern})`
+  );
+  return (line, token) => matchToken(line, unitPattern, token, TERM);
+}
+
+export function evaluateUnit() {
+  return {
+    node: TERM,
+    evaluate: (state) => {
+      const text = textAt(state);
+      const [symbol, exponent] = computeUnitExponent(text);
+      const [prefixSymbol, prefixUnit, symbolWithoutPrefix, unit] =
+        computeUnitPrefix(state, symbol);
+      const symbolSingular = getSingularSymbol(symbolWithoutPrefix, unit);
+      return Units.fromUnit(
+        symbolSingular,
+        unit,
+        exponent,
+        prefixSymbol,
+        prefixUnit
+      );
+    },
+  };
+}
+
+function computeUnitExponent(text) {
+  const exponentMatch = text.match(/^(.*)([1-9])$/);
+  const [_, symbol, exponentText] = exponentMatch ?? ["", text, "1"];
+  const exponent = +exponentText;
+  return [symbol, exponent];
+}
+
+function getSingularSymbol(symbol, unit) {
+  if (unit == null) {
+    return symbol;
+  }
+  const definedSingular = unit.pluralToSingular.get(symbol);
+  if (definedSingular != null) {
+    return definedSingular;
+  }
+  return symbol;
+}
+
+function computeUnitPrefix(state, symbolWithPrefix) {
+  const unit = lookupUnit(state, symbolWithPrefix);
+  if (unit == null) {
+    const prefixSymbol = state.measures.prefixDictionary.search(
+      0,
+      (i) => symbolWithPrefix[i]
+    );
+    if (prefixSymbol != null) {
+      const symbol = symbolWithPrefix.slice(prefixSymbol?.length ?? 0);
+      const unit = lookupUnit(state, symbol);
+      if (unit != null) {
+        return [
+          prefixSymbol,
+          state.measures.prefixLookup.get(prefixSymbol),
+          symbol,
+          unit,
+        ];
+      }
+    }
+  }
+  return [null, null, symbolWithPrefix, unit];
+}
+
+function lookupUnit(state, symbol) {
+  const unitName = state.measures.symbolToUnitName.get(symbol);
+  return state.measures.unitNameToUnit.get(unitName);
+}
+
+const SET = new Set();
+
+export function prepareUnits(measures) {
+  const unitNameToUnit = new Map();
+  const symbolToUnitName = new Map();
+  Object.values(measures).forEach(({ units }) => {
+    units.forEach((unit) => {
+      unitNameToUnit.set(unit.name, unit);
+      (unit.prefixSymbols ?? SET).forEach((symbol) => {
+        symbolToUnitName.set(symbol, unit.name);
+      });
+      (unit.postfixSymbols ?? SET).forEach((symbol) => {
+        symbolToUnitName.set(symbol, unit.name);
+      });
+    });
+  });
+
+  const prefixLookup = new Map();
+  measures.magnitude.units.forEach((unit) =>
+    unit.prefixes.forEach((prefix) => {
+      prefixLookup.set(prefix, unit);
+    })
+  );
+
+  const prefixDictionary = new Dictionary();
+  [0, 1].forEach((i) => {
+    measures.magnitude.units.forEach((unit) => {
+      prefixDictionary.add(unit.prefixes[i], 0);
+    });
+  });
+  return { unitNameToUnit, symbolToUnitName, prefixDictionary, prefixLookup };
+}

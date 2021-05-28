@@ -1,0 +1,77 @@
+// TODO: Split up grammar into modules
+
+@top Document { (
+  BlankLine |
+  Statement |
+  Comment newline
+)* }
+
+BlankLine { newline }
+
+Statement {
+  (
+    Assignment | Expression { expression }
+  ) Comment? (NestedStatements | newline) }
+
+Assignment { Name "=" expression }
+
+NestedStatements { indent (newline | Statement)+ dedent }
+
+expression {
+  Reference |
+  Number |
+  Unit |
+  Parens { "(" Expression { expression } ")" } |
+  BinaryExpression
+}
+
+@precedence {
+  exp @left
+  implicitMult @left
+  mult @left
+  add @left
+  bin @left
+  block @left
+}
+
+BinaryExpression {
+  expression !exp ArithOp { "^" } expression |
+  expression !implicitMult ImplicitOp {} expression |
+  expression !mult ArithOp { "*" | "/" | "%" } expression |
+  expression !add ArithOp { "+" | minus } expression |
+  expression !bin BinOp expression
+  // expression !compare CompareOp expression |
+  // expression !and LogicOp { "&&" } expression |
+  // expression !or LogicOp { "||" } expression
+}
+
+Comment {
+  StrongComment { strongCommentStart (URL | commentContent)* } |
+  NormalComment { NormalCommentStart (URL | commentContent)* }
+}
+
+@skip { ws }
+
+@tokens {
+  ws { $[ \u{9}]+ }
+}
+
+@external tokens nameTID from "./tokens" { Name }
+@external tokens commentTID from "./tokens" {
+  commentContent,
+  URL
+}
+@external tokens commentStartTID from "./tokens" {
+  strongCommentStart,
+  NormalCommentStart
+}
+@external tokens expressionTID from "./tokens" {
+  Number,
+  Reference,
+  Unit,
+  BinOp,
+  minus
+}
+
+@context trackIndent from "../../nesting/indent"
+@external tokens indentation from "../../nesting/indent" { newline, indent, dedent }

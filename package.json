@@ -1,0 +1,27 @@
+{
+  "name": "recomputer",
+  "version": "0.0.1",
+  "description": "Advanced calculator",
+  "main": "editor/editor.js",
+  "type": "module",
+  "scripts": {
+    "build": "git checkout site && git reset --hard 678fc3c && git checkout master . && npx snowpack build && find build/* -maxdepth 0 ! -name 'index.html' ! -name 'src' -exec rm -r {} + && mv build docs; find ./* -maxdepth 0 ! -name 'docs' ! -name '.git' ! -name '.gitignore' ! -name 'node_modules' -exec rm -r {} + && touch docs/.nojekyll && echo 'recomputer.io' > docs/CNAME && git add . && git commit -m 'Built'",
+    "start": "snowpack dev",
+    "parser": "lezer-generator src/core/parser/grammar.lezer -o src/core/parser/parser.js",
+    "currencies": "node --es-module-specifier-resolution=node src/currency/build/buildCurrencies.js > src/core/evaluate/measures/currencyUnits.js"
+  },
+  "keywords": [
+    "calc"
+  ],
+  "author": "xixixao",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.26.0",
+    "lezer-generator": "^0.13.3",
+    "snowpack": "^3.5.2"
+  },
+  "dependencies": {
+    "@codemirror/basic-setup": "^0.18.1",
+    "@codemirror/gutter": "^0.18.3"
+  }
+}
