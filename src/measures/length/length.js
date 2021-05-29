@@ -10,7 +10,7 @@ export function docs() {
   return `
 ### Space (Length, Area, Volume...)
 # Meters, litres and imperial units are supported:
-10m + 2 inches in ft
+10m + 2 inches in ~ft
 10m3 in l
 `;
 }

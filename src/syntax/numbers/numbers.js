@@ -57,6 +57,9 @@ ${BigNum.fromNumber(6543210.05)}
 # Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
 5K + 10M
 5% * 100
+# Rational numbers (fractions) that cannot be printed exactly as decimal will be printed as fractions. To force a decimal printing use the \`~\` (tilde) symbol:
+10/6
+~10/6
 `;
 }
 

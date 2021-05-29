@@ -4,9 +4,9 @@ export function docs() {
   return `
 ### Time
 # Seconds, minutes, hours, days, weeks, months and years.
-second + minute + hour + hour
+second + minute + hour
 1 day + 1 week
-1 month in days
+1 month in years
 1 year in days
 `;
 }
