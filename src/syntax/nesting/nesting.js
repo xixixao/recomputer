@@ -9,8 +9,8 @@ x`,
 
 export function docs() {
   return `
-## Nesting
-.You can nest expressions to limit their scope and declare them below their use:
+### Nesting
+# You can nest expressions to limit their scope and declare them below their use:
 result = tax * rate
 \ttax = 5%
 \trate = $9 / month

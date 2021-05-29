@@ -10,10 +10,12 @@ BlankLine { newline }
 
 Statement {
   (
-    Assignment | Expression { expression }
+    Assignment | Expression
   ) Comment? (NestedStatements | newline) }
 
 Assignment { Name "=" expression }
+
+Expression { expression }
 
 NestedStatements { indent (newline | Statement)+ dedent }
 
@@ -21,9 +23,11 @@ expression {
   Reference |
   Number |
   Unit |
-  Parens { "(" Expression { expression } ")" } |
+  Parens |
   BinaryExpression
 }
+
+Parens { "(" expression ")" }
 
 @precedence {
   exp @left
@@ -45,10 +49,10 @@ BinaryExpression {
   // expression !or LogicOp { "||" } expression
 }
 
-Comment {
-  StrongComment { strongCommentStart (URL | commentContent)* } |
-  NormalComment { NormalCommentStart (URL | commentContent)* }
-}
+Comment { StrongComment | NormalComment }
+
+StrongComment { strongCommentStart (URL | commentContent)* }
+NormalComment { NormalCommentStart (URL | commentContent)* }
 
 @skip { ws }
 
@@ -73,5 +77,5 @@ Comment {
   minus
 }
 
-@context trackIndent from "../../nesting/indent"
-@external tokens indentation from "../../nesting/indent" { newline, indent, dedent }
+@context trackIndent from "../../syntax/nesting/indent"
+@external tokens indentation from "../../syntax/nesting/indent" { newline, indent, dedent }

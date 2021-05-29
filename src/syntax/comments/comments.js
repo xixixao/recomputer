@@ -1,6 +1,6 @@
 import { tags } from "@codemirror/highlight";
-import { matchToken } from "../core/parser/tokens";
-import * as Term from "../core/parser/parser.terms.js";
+import { matchToken } from "../../core/parser/tokens";
+import * as Term from "../../core/parser/parser.terms.js";
 
 export function testStrongComments(assertEvals) {
   assertEvals(`## Comment\n3`, `3`);

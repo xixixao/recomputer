@@ -1,15 +1,14 @@
-import * as operators from "../../operators/operatorList";
-import * as measures from "../evaluate/measures";
+import * as operators from "../../syntax/operators/operatorList";
+import { measures } from "../../measures/measures";
 import { configuredParser } from "../parser/language";
 import { evaluateDocument } from "../evaluate/evaluate";
 
-const measureList = Object.values(measures);
 const operatorList = Object.values(operators);
 
 const parserConfig = {
   // Prefixes need to be treated differently from names, because
   // postfix units can be exponentiated, so "m3" is "m^3", but "$3" is "3 $"
-  prefixes: measureList
+  prefixes: measures
     .map(({ units }) =>
       units.map((unit) => Array.from(unit.prefixSymbols)).flat()
     )

@@ -1,5 +1,5 @@
-import { Value } from "../core/evaluate/Value";
-import { BigNum } from "../core/evaluate/BigNum";
+import { Value } from "../../core/evaluate/Value";
+import { BigNum } from "../../core/evaluate/BigNum";
 
 export const add = {
   symbol: "+",

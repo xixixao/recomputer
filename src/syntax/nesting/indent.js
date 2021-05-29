@@ -1,5 +1,5 @@
 import { ExternalTokenizer, ContextTracker } from "lezer";
-import * as Token from "../core/parser/parser.terms.js";
+import * as Token from "../../core/parser/parser.terms.js";
 
 const newline = 10,
   carriageReturn = 13,

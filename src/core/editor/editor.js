@@ -15,7 +15,7 @@ import {
 } from "../../storage/localStorage";
 import { editorInputOverride } from "./commands";
 import { highlightedLines } from "../ui/editor/highlightEditorActiveLine";
-import { currency } from "../evaluate/measures";
+import { measure as currency } from "../../measures/currency/currency";
 import { forceEvaluateAnnotation } from "./forceEvaluate";
 import { docs } from "../docs";
 import { linkify } from "../ui/editor/linkify";

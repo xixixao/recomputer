@@ -1,8 +1,8 @@
-import * as Term from "../core/parser/parser.terms.js";
-import { matchToken, allSymbolsPattern } from "../core/parser/tokens";
-import { BigNum } from "../core/evaluate/BigNum";
-import { Value } from "../core/evaluate/Value";
-import { textAt } from "../core/evaluate/astCursor";
+import * as Term from "../../core/parser/parser.terms.js";
+import { matchToken, allSymbolsPattern } from "../../core/parser/tokens";
+import { BigNum } from "../../core/evaluate/BigNum";
+import { Value } from "../../core/evaluate/Value";
+import { textAt } from "../../core/evaluate/astCursor";
 import { decimalSeparator, groupSeparator } from "./separators.js";
 
 export function testIntegers(assertEvals) {
@@ -50,11 +50,11 @@ export function testApproximation(assertEvals) {
 
 export function docs() {
   return `
-## Numbers
-.You can use arbitrarily large decimal numbers, with decimal point and group (thousand) separators depending on your browser's language (usually the language of your OS). Spaces can be used as well:
+### Numbers
+# You can use arbitrarily large decimal numbers, with decimal point and group (thousand) separators depending on your browser's language (usually the language of your OS). Spaces can be used as well:
 ${BigNum.fromNumber(6543210.05)}
 100 000
-.Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
+# Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
 5K + 10M
 5% * 100
 `;

@@ -1,7 +1,7 @@
-import { textAt } from "../core/evaluate/astCursor";
-import { evaluateExpression } from "../core/evaluate/evaluate";
-import { Value } from "../core/evaluate/Value";
-import * as Term from "../core/parser/parser.terms";
+import { textAt } from "../../core/evaluate/astCursor";
+import { evaluateExpression } from "../../core/evaluate/evaluate";
+import { Value } from "../../core/evaluate/Value";
+import * as Term from "../../core/parser/parser.terms";
 import * as operators from "./operatorList";
 
 export function testAdd(assertEvals) {
@@ -35,10 +35,10 @@ export function docs() {
   );
   operatorsWithDocs.sort((a, b) => a.docsPos - b.docsPos);
   return `
-## Operators and Functions
-.Standard mathematical operators and functions are available:
+### Operators and Functions
+# Standard mathematical operators and functions are available:
 ${operatorsWithDocs
-  .map(({ example, docs }) => `${example} .${docs}`)
+  .map(({ example, docs }) => `${example} # ${docs}`)
   .join("\n")}
 `;
 }

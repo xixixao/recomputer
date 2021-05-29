@@ -1,6 +1,10 @@
 import { Units } from "./Units";
 import { BigNum } from "./BigNum";
-import { convertUnits, divide, multiply } from "../../operators/operatorList";
+import {
+  convertUnits,
+  divide,
+  multiply,
+} from "../../syntax/operators/operatorList";
 
 export class Value {
   constructor(number, unit) {

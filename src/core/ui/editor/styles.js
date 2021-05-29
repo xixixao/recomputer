@@ -1,6 +1,6 @@
 import { EditorView } from "@codemirror/basic-setup";
 import { tags, HighlightStyle } from "@codemirror/highlight";
-import { commentsHighlight } from "../../../comments/comments";
+import { commentsHighlight } from "../../../syntax/comments/comments";
 import { resultsFocusClass } from "../../editor/syncFocus";
 
 export const editorStyles = () => [

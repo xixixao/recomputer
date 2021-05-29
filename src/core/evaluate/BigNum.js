@@ -1,4 +1,4 @@
-import { decimalSeparator } from "../../numbers/separators";
+import { decimalSeparator } from "../../syntax/numbers/separators";
 
 const currentLocaleNumberFormat = Intl.NumberFormat(window.navigator.locale);
 

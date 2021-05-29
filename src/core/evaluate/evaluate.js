@@ -1,12 +1,12 @@
 import { forEachStatement, textAt } from "./astCursor";
 import * as Term from "../parser/parser.terms";
-import { evaluateNumber } from "../../numbers/numbers";
+import { evaluateNumber } from "../../syntax/numbers/numbers";
 import {
   evaluateBinaryExpression,
   prepareOperators,
-} from "../../operators/operators";
-import { evaluateUnit, prepareUnits } from "../../units/units";
-import { evaluateReference } from "../../names/names";
+} from "../../syntax/operators/operators";
+import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
+import { evaluateReference } from "../../syntax/names/names";
 
 export const evaluateDocument = (operators, measures) => {
   const operatorLookup = prepareOperators(operators);
@@ -40,7 +40,7 @@ function evaluateStatement(state) {
     forEachStatement(state, evaluateStatement);
   }
   cursor.prevSibling();
-  // console.log(textAt(state));
+  // console.log("statement", cursor.name, textAt(state));
 
   switch (cursor.type.id) {
     case Term.Expression: {
@@ -90,10 +90,7 @@ function evaluateParens() {
       const { cursor } = state;
       let value = null;
       if (cursor.firstChild()) {
-        if (cursor.firstChild()) {
-          value = evaluateExpression(state);
-          cursor.parent();
-        }
+        value = evaluateExpression(state);
         cursor.parent();
       }
       return value;

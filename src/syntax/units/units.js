@@ -1,8 +1,42 @@
-import { textAt } from "../core/evaluate/astCursor.js";
-import { Dictionary } from "../core/evaluate/Dictionary.js";
-import { Units } from "../core/evaluate/Units.js";
-import * as Term from "../core/parser/parser.terms.js";
-import { allSymbolsPattern, matchToken } from "../core/parser/tokens";
+import { textAt } from "../../core/evaluate/astCursor.js";
+import { Dictionary } from "../../core/evaluate/Dictionary.js";
+import { Units } from "../../core/evaluate/Units.js";
+import * as Term from "../../core/parser/parser.terms.js";
+import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
+
+export function testPrefixes(assertEvals) {
+  assertEvals(`$1`, `$1.00`);
+  assertEvals(`$3`, `$3.00`);
+  assertEvals(`4$`, `$4.00`);
+  assertEvals(`$(2+3)`, `$5.00`);
+  assertEvals(`(2+4)$`, `$6.00`);
+  assertEvals(`$3^3`, `$27.00`);
+  assertEvals(
+    `x = 3
+$x`,
+    `$3.00`
+  );
+  assertEvals(
+    `x = 3
+  x $`,
+    `$3.00`
+  );
+}
+
+export function testUnitSimplification(assertEvals) {
+  assertEvals(`(m / s) * s`, `1m`);
+  assertEvals(`3kg m / 3m`, `1kg`);
+}
+
+export function testMultipleUnits(assertEvals) {
+  assertEvals(`1m s`, `1m*s`);
+}
+
+export function testAddRates(assertEvals) {
+  assertEvals(`1m/s + 1km/s`, `1,001m/s`);
+  assertEvals(`2/year + 1/month`, `14 / year`);
+  assertEvals(`1/month + 24/year`, `3 / month`);
+}
 
 export function testImplicitExponentiate(assertEvals) {
   assertEvals(`1m3`, `1m^3`);
@@ -10,10 +44,10 @@ export function testImplicitExponentiate(assertEvals) {
 
 export function docs() {
   return `
-## Units
-.Units can be any of the predefined units which are listed in later sections, or a custom unit which is a single word:
+### Units
+# Units can be any of the predefined units which are listed in later sections, or a custom unit which is a single word:
 (12 potato / year) * 1 month
-.A single digit can be suffixed to a unit for easy exponentiation:
+# A single digit can be suffixed to a unit for easy exponentiation:
 14m2
 `;
 }
@@ -108,7 +142,7 @@ const SET = new Set();
 export function prepareUnits(measures) {
   const unitNameToUnit = new Map();
   const symbolToUnitName = new Map();
-  Object.values(measures).forEach(({ units }) => {
+  measures.forEach(({ units }) => {
     units.forEach((unit) => {
       unitNameToUnit.set(unit.name, unit);
       (unit.prefixSymbols ?? SET).forEach((symbol) => {
@@ -121,7 +155,8 @@ export function prepareUnits(measures) {
   });
 
   const prefixLookup = new Map();
-  measures.magnitude.units.forEach((unit) =>
+  const magnitude = measures.find((measure) => measure.name === "magnitude");
+  magnitude.units.forEach((unit) =>
     unit.prefixes.forEach((prefix) => {
       prefixLookup.set(prefix, unit);
     })
@@ -129,7 +164,7 @@ export function prepareUnits(measures) {
 
   const prefixDictionary = new Dictionary();
   [0, 1].forEach((i) => {
-    measures.magnitude.units.forEach((unit) => {
+    magnitude.units.forEach((unit) => {
       prefixDictionary.add(unit.prefixes[i], 0);
     });
   });

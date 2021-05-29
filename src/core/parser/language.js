@@ -13,7 +13,7 @@ import {
 import { parser } from "./parser";
 
 import { analyzeDocument } from "../evaluate/analyze";
-import { commentStyleTags } from "../../comments/comments";
+import { commentStyleTags } from "../../syntax/comments/comments";
 
 export function language(parser) {
   return new LanguageSupport(

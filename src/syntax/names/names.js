@@ -1,6 +1,6 @@
-import { textAt } from "../core/evaluate/astCursor.js";
-import * as Term from "../core/parser/parser.terms.js";
-import { matchToken, allSymbolsPattern } from "../core/parser/tokens";
+import { textAt } from "../../core/evaluate/astCursor.js";
+import * as Term from "../../core/parser/parser.terms.js";
+import { matchToken, allSymbolsPattern } from "../../core/parser/tokens";
 
 export function testNotPrefix(assertEvals) {
   assertEvals(
@@ -36,8 +36,8 @@ x + y`,
 
 export function docs() {
   return `
-## Names
-.Values can be assigned names. Names can contain any characters, except for the equal sign, and cannot start with a digit:
+### Names
+# Values can be assigned names. Names can contain any characters, except for the equal sign, and cannot start with a digit:
 x = 3
 my income = $100
 result 4 = 1/2

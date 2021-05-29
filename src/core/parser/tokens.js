@@ -5,13 +5,13 @@ import {
   tokenizerCommentLink,
   tokenizerNormalStart,
   tokenizerStrongStart,
-} from "../../comments/comments";
-import { tokenizerMinus, tokenizerNumber } from "../../numbers/numbers";
-import { tokenizerPrefixUnit, tokenizerUnit } from "../../units/units";
+} from "../../syntax/comments/comments";
+import { tokenizerMinus, tokenizerNumber } from "../../syntax/numbers/numbers";
+import { tokenizerPrefixUnit, tokenizerUnit } from "../../syntax/units/units";
 import {
   tokenizerNameDeclaration,
   tokenizerReference,
-} from "../../names/names";
+} from "../../syntax/names/names";
 
 export const nameTID = "name";
 export const nameTokenizer = buildLineTokenizer([tokenizerNameDeclaration]);
