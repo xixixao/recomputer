@@ -1,5 +1,6 @@
 import { EditorView } from "@codemirror/basic-setup";
 import { tags, HighlightStyle } from "@codemirror/highlight";
+import { commentsHighlight } from "../../../comments/comments";
 import { resultsFocusClass } from "../../editor/syncFocus";
 
 export const editorStyles = () => [
@@ -24,9 +25,7 @@ const sharedHighlight = HighlightStyle.define([
     // padding: "0 2px",
   },
   { tag: tags.atom, color: "#b6ddf6" },
-  { tag: tags.blockComment, color: "#f7bf2f" },
-  { tag: tags.lineComment, color: "#e3e3e3" },
-  { tag: tags.docComment, color: "#777" },
+  ...commentsHighlight,
 ]);
 
 const textColor = "#e3e3e3";

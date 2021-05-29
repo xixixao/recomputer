@@ -13,6 +13,7 @@ import {
 import { parser } from "./parser";
 
 import { analyzeDocument } from "../evaluate/analyze";
+import { commentStyleTags } from "../../comments/comments";
 
 export function language(parser) {
   return new LanguageSupport(
@@ -30,9 +31,7 @@ export const configuredParser = (tokenConfig) => {
   const p = parser.configure({
     props: [
       styleTags({
-        "NormalComment/...": t.lineComment,
-        NormalCommentStart: t.docComment,
-        "StrongComment/...": t.blockComment,
+        ...commentStyleTags,
         Name: t.variableName,
         Reference: t.variableName,
         Number: t.number,
