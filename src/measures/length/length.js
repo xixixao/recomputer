@@ -13,9 +13,10 @@ export function testLengthMeasure(assertEvals) {
 export function docs() {
   return `
 ### Length, Area, Volume
-# Meters, litres and imperial units are supported:
-10m + 2 inches in ~ft
-10m3 in l
+# Meters, ares, litres and imperial units (inches, feet, yards, miles, acres, teaspoons, tablespoons, fluid-ounces, cups, pints, quarts and gallons) are supported:
+~10m + 2 inches + 3ft + 4yd + 5mi
+~10ha + 5ac
+~10l + 5L + 1tsp + 2tbsp + 3floz + 3 cups + 1pt + 1qt + 1gal
 `;
 }
 
@@ -30,6 +31,11 @@ export const measure = prepareMeasure({
       postfixSymbols: ["a", ["are", "ares"]],
       baseUnitValue: 100,
       baseUnitExponent: 2,
+    },
+    litre: {
+      postfixSymbols: ["l", "L", ["litre", "litres"], ["liter", "liters"]],
+      baseUnitValue: 0.001,
+      baseUnitExponent: 3,
     },
     inch: {
       postfixSymbols: [["inch", "inches"]],
@@ -52,9 +58,39 @@ export const measure = prepareMeasure({
       baseUnitValue: 4046.8564224,
       baseUnitExponent: 2,
     },
-    litre: {
-      postfixSymbols: ["l", "L", ["litre", "litres"], ["liter", "liters"]],
-      baseUnitValue: 0.001,
+    teaSpoon: {
+      postfixSymbols: ["tsp", ["teaspoon", "teaspoons"]],
+      baseUnitValue: 0.00000492892159375,
+      baseUnitExponent: 3,
+    },
+    tableSpoon: {
+      postfixSymbols: ["Tbsp", "tbsp", ["tablespoon", "tablespoons"]],
+      baseUnitValue: 0.00001478676478125,
+      baseUnitExponent: 3,
+    },
+    fluidOunce: {
+      postfixSymbols: ["floz", ["fluidounce", "fluidounces"]],
+      baseUnitValue: 0.0000295735295625,
+      baseUnitExponent: 3,
+    },
+    cup: {
+      postfixSymbols: [["cup", "cups"]],
+      baseUnitValue: 0.0002365882365,
+      baseUnitExponent: 3,
+    },
+    pint: {
+      postfixSymbols: ["pt", ["pint", "pints"]],
+      baseUnitValue: 0.000473176473,
+      baseUnitExponent: 3,
+    },
+    quart: {
+      postfixSymbols: ["qt", ["quart", "quarts"]],
+      baseUnitValue: 0.000946352946,
+      baseUnitExponent: 3,
+    },
+    gallon: {
+      postfixSymbols: ["gal", ["gallon", "gallons"]],
+      baseUnitValue: 0.003785411784,
       baseUnitExponent: 3,
     },
   },

@@ -57,6 +57,8 @@ export class BigNum {
     );
   }
 
+  // TODO: Consider limiting this to some reasonable number of significant
+  // digits in the printed fraction.
   toStringParts(precision) {
     const { numerator, denominator } = this;
     if (this.approximate) {
@@ -78,6 +80,8 @@ export class BigNum {
     };
   }
 
+  // TODO: Change this to significant digits, so that
+  // 0.00000000123 counts as 3 not 11 - or better even use 1.23E-8
   fractionString(precision) {
     const { numerator, denominator } = this;
 

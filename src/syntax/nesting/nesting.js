@@ -14,6 +14,6 @@ export function docs() {
 result = tax * rate
 \ttax = 5%
 \trate = $9 / month
-rate . no corresponding value exists
+rate # no corresponding value exists
 `;
 }

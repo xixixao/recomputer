@@ -36,8 +36,12 @@ export const measure = prepareAsyncMeasure({
         const rates = result[baseCurrency];
         Object.keys(rates).forEach((currency) => {
           const currencyUnit = units.get(currency);
-          currencyUnit.baseUnitValue = 1 / rates[currency];
-          currencyUnit.baseUnitValueApproximate = true;
+          if (currencyUnit != null) {
+            currencyUnit.baseUnitValue = 1 / rates[currency];
+            currencyUnit.baseUnitValueApproximate = true;
+          } else {
+            console.log(`New currency rate for ${currency}`);
+          }
         });
       });
   },
