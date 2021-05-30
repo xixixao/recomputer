@@ -92,8 +92,16 @@ export class Value {
     return Value.applyBinary(multiply, a, b);
   }
 
+  multiply(b) {
+    return Value.multiply(this, b);
+  }
+
   static divide(a, b) {
     return Value.applyBinary(divide, a, b);
+  }
+
+  divide(b) {
+    return Value.divide(this, b);
   }
 
   // Supported exponentiations

@@ -141,6 +141,10 @@ export class BigNum {
     return new BigNum(this.denominator, this.numerator, this.approximate);
   }
 
+  inverseIf(shouldInverse) {
+    return !shouldInverse ? this : this.inverse();
+  }
+
   add(b) {
     return new BigNum(
       this.numerator * b.denominator + b.numerator * this.denominator,

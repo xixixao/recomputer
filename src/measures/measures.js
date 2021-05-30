@@ -4,6 +4,7 @@ import * as magnitude from "./magnitude/magnitude";
 import * as time from "./time/time";
 import * as mass from "./mass/mass";
 import * as temperature from "./temperature/temperature";
+import * as derived from "./derived/derived";
 
 export function testConvertUnits(assertEvals) {
   assertEvals(`3000g in kg`, `3kg`);
@@ -21,6 +22,7 @@ export const modules = {
   time,
   mass,
   temperature,
+  // derived,
 };
 
 export const measures = Object.values(modules).map(({ measure }) => measure);
