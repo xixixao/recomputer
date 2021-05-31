@@ -199,8 +199,19 @@ function UnitsValue(compounds) {
 // decomposed is not such a bad deal
 function combineCompounds(model, compound, normalizedCompounds) {
   model?.unit?.use != null ? model.unit.use() : 0;
-  // TODO: Simple for now
+
   if (model.unit.measureName !== compound.unit.measureName) {
+    if (compound.unit.definition != null || model.unit.definition != null) {
+      // use definition of each
+      // definitions are Values
+      // I can combine them, applying exponents
+      // then look at the resulting .compounds
+      // and do my 0 exponent check
+      // if it works I'll push them all , and the derived unit with 0 exponent
+      // what if I have N^2 / kg?
+      // this should be N^1 * m / s^2
+      // to do this I would have to do one exponent at a time
+    }
     return null;
   }
 
