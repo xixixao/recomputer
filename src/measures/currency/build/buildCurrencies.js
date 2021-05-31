@@ -1,4 +1,4 @@
-import { locales } from "../../core/build/locales.js";
+import { locales } from "../../../core/build/locales.js";
 import { currencyCodes } from "./currencyCodes.js";
 
 // Run this to get the list of currencies with all supported symbols
