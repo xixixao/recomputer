@@ -33,6 +33,7 @@ export function testMultipleUnits(assertEvals) {
 }
 
 export function testAddRates(assertEvals) {
+  assertEvals(`1m + 1km`, `1,001m`);
   assertEvals(`1m/s + 1km/s`, `1,001m/s`);
   assertEvals(`2/year + 1/month`, `14 / year`);
   assertEvals(`1/month + 24/year`, `3 / month`);
@@ -40,6 +41,7 @@ export function testAddRates(assertEvals) {
 
 export function testImplicitExponentiate(assertEvals) {
   assertEvals(`1m3`, `1m^3`);
+  assertEvals(`2m/s2`, `2m/s^2`);
 }
 
 export function docs() {
@@ -143,7 +145,7 @@ export function prepareUnits(measures) {
   const unitNameToUnit = new Map();
   const symbolToUnitName = new Map();
   measures.forEach(({ units }) => {
-    units.forEach((unit) => {
+    Object.values(units).forEach((unit) => {
       unitNameToUnit.set(unit.name, unit);
       (unit.prefixSymbols ?? SET).forEach((symbol) => {
         symbolToUnitName.set(symbol, unit.name);
@@ -156,7 +158,7 @@ export function prepareUnits(measures) {
 
   const prefixLookup = new Map();
   const magnitude = measures.find((measure) => measure.name === "magnitude");
-  magnitude.units.forEach((unit) =>
+  Object.values(magnitude.units).forEach((unit) =>
     unit.prefixes.forEach((prefix) => {
       prefixLookup.set(prefix, unit);
     })
@@ -164,7 +166,7 @@ export function prepareUnits(measures) {
 
   const prefixDictionary = new Dictionary();
   [0, 1].forEach((i) => {
-    magnitude.units.forEach((unit) => {
+    Object.values(magnitude.units).forEach((unit) => {
       prefixDictionary.add(unit.prefixes[i], 0);
     });
   });

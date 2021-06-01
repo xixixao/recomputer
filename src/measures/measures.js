@@ -22,7 +22,7 @@ export const modules = {
   time,
   mass,
   temperature,
-  // derived,
+  derived,
 };
 
 export const measures = Object.values(modules).map(({ measure }) => measure);

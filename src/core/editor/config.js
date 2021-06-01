@@ -10,7 +10,9 @@ const parserConfig = {
   // postfix units can be exponentiated, so "m3" is "m^3", but "$3" is "3 $"
   prefixes: measures
     .map(({ units }) =>
-      units.map((unit) => Array.from(unit.prefixSymbols)).flat()
+      Object.values(units)
+        .map((unit) => Array.from(unit.prefixSymbols))
+        .flat()
     )
     .flat()
     // TODO: Push this to config

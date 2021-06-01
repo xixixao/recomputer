@@ -4,7 +4,7 @@ export function docs() {
   return `
 ### Mass
 # Grams, tons and imperial units (ounces, pounds, stones, short tons) are supported:
-~oz + lb + st + shortton in kg
+~oz + lb + st + ton in kg
 150t in Mg
 `;
 }
@@ -17,7 +17,7 @@ export const measure = prepareMeasure({
       baseUnitValue: 1,
     },
     ton: {
-      postfixSymbols: ["t", ["ton", "tons"]],
+      postfixSymbols: ["t", ["tonne", "tonnes"]],
       baseUnitValue: 1000000,
     },
     ounce: {

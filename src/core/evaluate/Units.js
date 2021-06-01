@@ -80,6 +80,10 @@ export class Units {
     ]);
   }
 
+  static fromCompound(compound) {
+    return new Units([compound]);
+  }
+
   multiply(b) {
     return UnitsValue(this.compounds.concat(b.compounds));
   }
@@ -113,23 +117,46 @@ export class Units {
 }
 
 // Very mutable algo, so beware!
-function UnitsValue(compounds) {
-  // This is mutated
-  let normalizedCompounds = [];
-  let scalar = BigNum.one();
-  compounds.forEach((compound) => {
+function UnitsValue(compounds, initialScalar) {
+  // Mutated throughout
+  let scalar = initialScalar ?? BigNum.one();
+  // Handle approx symbol
+  const nonApproximate = compounds.filter((compound) => {
     if (compound.symbol === "~") {
       scalar = scalar.toApproximate();
-      return;
+      return false;
     }
-
-    let combinationScalar = null;
-    for (const modelCompound of normalizedCompounds) {
-      combinationScalar = combineCompounds(
-        modelCompound,
-        compound,
-        normalizedCompounds
+    return true;
+  });
+  // Optimize simple compounds
+  if (nonApproximate.length <= 1) {
+    return Value.from(scalar, new Units(nonApproximate));
+  }
+  // Expand derived units
+  const expandedCompounds = compounds.map((compound) =>
+    compound.unit.definition != null ? { ...compound, exponent: 0 } : compound
+  );
+  compounds.forEach((compound) => {
+    if (compound.unit.exponent !== 0 && compound.unit.definition != null) {
+      const exponentiatedDefinition = compound.unit.definition.exponentiate(
+        Value.fromNumber(BigNum.fromInteger(compound.exponent))
       );
+      expandedCompounds.push(
+        ...exponentiatedDefinition.unit.compounds.map((compound) => ({
+          ...compound,
+          fromDerived: true,
+        }))
+      );
+    }
+  });
+
+  // Normalize
+  // Compounds in this Map are mutated by `combineCompounds`
+  const normalizedCompounds = new MapArray();
+  expandedCompounds.forEach((compound) => {
+    let combinationScalar = null;
+    for (const modelCompound of normalizedCompounds.values()) {
+      combinationScalar = combineCompounds(modelCompound, compound);
       if (combinationScalar != null) {
         break;
       }
@@ -137,84 +164,35 @@ function UnitsValue(compounds) {
     if (combinationScalar != null) {
       scalar = scalar.multiply(combinationScalar);
     } else {
-      normalizedCompounds.push({ ...compound });
+      normalizedCompounds.add(compound.unit.measureName, { ...compound });
     }
   });
 
-  // TODO: Recombine derived units
-  return Value.from(scalar, new Units(normalizedCompounds));
+  // Recombine derived units
+  normalizedCompounds.forEach((compound) => {
+    if (compound.unit.definition != null) {
+      let combinationScalar = recombineDerivedCompound(
+        compound,
+        normalizedCompounds
+      );
+      if (combinationScalar != null) {
+        scalar = scalar.multiply(combinationScalar);
+      }
+    }
+  });
+  // Clean up unused derived sub units
+  const cleanedNormalizedCompounds = Array.from(
+    normalizedCompounds.values()
+  ).filter((compound) => compound.exponent !== 0 || !compound.fromDerived);
+  return Value.from(scalar, new Units(cleanedNormalizedCompounds));
 }
 
-// This is how L / m3 turns into scalar while
-// L / m2 stays the same - because the exponentConversion is 3/2,
-// which is not an integer,
-// similarly we will want for N / kg to give something valid
-// while N * kg will give something invalid,
-// but also N / kg if we want m / s2 will need to return additional
-// units - so that the resulting array is [N^0, m^1, s^-2],
-//                                          ^ this will need to stay
-//                                           in the unit Value
-//                                           so any later calculation
-//                                           uses it. And will
-//    need to be handled during printing.
-// which should allow (N / kg) * kg
-// So basically L (and other simple units like that) are only
-// divisible by same exponent, and introduced units always stay, so:
-//  L / m2 => [L^1, m^-2]
-//  L / m3 => [L^0, m^0]
-//  (L / m3) * cm => 0.01*[l^1, m^1]
-//  (L / cm3) * m => 0.01*[l^1, cm^1]
-//  (L / m3) * cm * m2 => [l^1, m^0]
-//  N / kg => [N^0, kg^0, m^1, s^-2]
-//  So we will have n^1 and combine it with kg^-1
-//  N is defined kg * m * s-2
-//    so we will need to try any incoming unit against N and it's definition
-//    we might have N * N, which should work like any other unit
-//    but if the unit is different, then we need to use the definition
-//    then we get non-null set of new units iff any sub-unit has 0 exponent
-// N / hz^2 => [N^0, kg^1, m^1, s^0, hz^0]
-// # Does this work for all units?
-// Go back to L. L definition is m^3.
-// L * L => L^2
-// L / m
-// Different units, so decompose L, m^3 + m^-1,
-//  then check if we get ^0,
-// we don't (we get m^2), so we keep both, and get
-// => [L^1, m^-1]
-// N / kg
-// Different units, so decompose N, [kg^1, m^1, s^-2],
-// combine to get [kg^0, m^1, s^-2], we got 0, we get
-// => [N^0, kg^0, m^1, s^-2]
-//
-// # Handling multiple units
-// This is all nice, but it doesn't consider multiple units
-// say (N/kg) * kg
-// should give N
-// we have [N^0, kg^0, m^1, s^-2] and [kg^1]
-// which is [N^0, kg^1, m^1, s^-2]
-// so for compound units we need to start from left and find combinations
-// (L/m^3)m^3 should be [L^0, m^0] and [m^3]
-// which should give [L^0, m^3] which then combines to [L^1]
-// although this steps is perhaps optional, because (N/kg)*kg ending up
-// decomposed is not such a bad deal
-function combineCompounds(model, compound, normalizedCompounds) {
+function combineCompounds(model, compound) {
   model?.unit?.use != null ? model.unit.use() : 0;
 
   if (model.unit.measureName !== compound.unit.measureName) {
-    if (compound.unit.definition != null || model.unit.definition != null) {
-      // use definition of each
-      // definitions are Values
-      // I can combine them, applying exponents
-      // then look at the resulting .compounds
-      // and do my 0 exponent check
-      // if it works I'll push them all , and the derived unit with 0 exponent
-      // what if I have N^2 / kg?
-      // this should be N^1 * m / s^2
-      // to do this I would have to do one exponent at a time
-    }
     return null;
   }
-
   if (compound.exponent === 0) {
     return BigNum.one();
   }
@@ -223,12 +201,8 @@ function combineCompounds(model, compound, normalizedCompounds) {
   if (exponentConversion % 1 !== 0) {
     return null;
   }
-  const unitConversion = convertUnitSymbols(
-    model,
-    compound,
-    exponentConversion
-  );
-  const prefixConversion = convertPrefixes(model, compound);
+  const unitConversion = convertUnitValues(model, compound, exponentConversion);
+  const prefixConversion = convertPrefixes(model, compound, exponentConversion);
   model.exponent += exponentConversion;
   return unitConversion.multiply(prefixConversion);
 }
@@ -248,7 +222,7 @@ function convertUnitExponents(model, compound) {
   return compound.exponent;
 }
 
-function convertUnitSymbols(model, compound, exponent) {
+function convertUnitValues(model, compound, exponentConversion) {
   if (
     model != null &&
     model.symbol !== compound.symbol &&
@@ -259,31 +233,76 @@ function convertUnitSymbols(model, compound, exponent) {
       compound.unit.baseUnitValue,
       compound.unit.baseUnitValueApproximate
     )
+      .exponentiate(BigNum.fromInteger(compound.exponent))
       .divide(
         BigNum.fromNumber(
           model.unit.baseUnitValue,
           model.unit.baseUnitValueApproximate
-        )
-      )
-      .exponentiate(BigNum.fromInteger(exponent));
+        ).exponentiate(BigNum.fromInteger(exponentConversion))
+      );
   }
   return BigNum.one();
 }
 
-function convertPrefixes(model, compound) {
+function convertPrefixes(model, compound, exponentConversion) {
   if (
     model != null &&
     model.prefix?.symbol != compound.prefix?.symbol &&
     (model.prefix?.symbol != null || compound.prefix?.symbol)
   ) {
     const conversionBase10 =
-      (compound.prefix?.unit.base10 ?? 0 - model.prefix?.unit.base10 ?? 0) *
-      compound.exponent;
+      (compound.prefix?.unit.base10 ?? 0) * compound.exponent -
+      (model.prefix?.unit.base10 ?? 0) * exponentConversion;
     return BigNum.fromInteger(10).exponentiate(
       BigNum.fromInteger(conversionBase10)
     );
   }
   return BigNum.one();
+}
+
+function recombineDerivedCompound(derivedCompound, compounds) {
+  // First find the exponent for the derived unit
+  let maxExponents = Infinity;
+  let exponentsSign = null;
+  const modelCompounds = derivedCompound.unit.definition.unit.compounds;
+  for (const model of modelCompounds) {
+    let filled = false;
+    for (const compound of compounds.get(model.unit.measureName)) {
+      if (compound.unit.name !== model.unit.name) {
+        continue;
+      }
+      const exponent = compound.exponent / model.exponent;
+      if (exponent === 0 || exponent % 1 !== 0) {
+        continue;
+      }
+      const exponentSign = Math.sign(exponent);
+      if (exponentsSign != null && exponentsSign !== exponentSign) {
+        continue;
+      }
+      exponentsSign = exponentSign;
+      maxExponents = Math.min(maxExponents, Math.abs(exponent));
+      filled = true;
+      break;
+    }
+    if (!filled) {
+      return null;
+    }
+  }
+
+  const derivedExponent = maxExponents * exponentsSign;
+  let scalar = BigNum.one();
+  derivedCompound.exponent += derivedExponent;
+  for (const model of modelCompounds) {
+    for (const compound of compounds.get(model.unit.measureName)) {
+      if (compound.unit.name === model.unit.name) {
+        compound.exponent -= derivedExponent * model.exponent;
+        scalar = scalar.multiply(
+          convertPrefixes(model, compound, derivedExponent)
+        );
+      }
+    }
+  }
+  return scalar;
 }
 
 function printCompoundValue(valueOrParts, compound, position) {
@@ -333,10 +352,11 @@ function printUnit(
     plural != null || (unit.singularToPlural == null && symbol.length >= 4);
   const isSingle = isSignular ?? numerator === "1";
   const longGap = position.isNumerator && position.isFirst && isLong ? " " : "";
+  const positiveExponent = Math.abs(exponent);
   const unitString = `${longGap}${prefix != null ? prefix.symbol : ""}${
     // TODO: Proper pluralization, using cldr-json at least for time
     position.isNumerator && !isSingle && plural != null ? plural : symbol
-  }${exponent > 1 ? `^${exponent}` : ""}`;
+  }${positiveExponent > 1 ? `^${positiveExponent}` : ""}`;
   const multiplySymbol = position.isFirst ? "" : "*";
   return {
     numerator: `${numerator}${
@@ -357,4 +377,32 @@ function printParts({ numerator, denominator, hasLongUnit }) {
   const gap = hasLongUnit ? " " : "";
   const divideSymbol = gap + "/" + gap;
   return `${numerator}${divideSymbol}${denominator}`;
+}
+
+class MapArray {
+  constructor() {
+    this.map = new Map();
+  }
+
+  forEach(fn) {
+    this.map.forEach((array) => array.forEach(fn));
+  }
+
+  *values() {
+    for (const array of this.map.values()) {
+      for (const value of array) {
+        yield value;
+      }
+    }
+  }
+
+  add(key, value) {
+    const array = this.map.get(key) ?? [];
+    array.push(value);
+    this.map.set(key, array);
+  }
+
+  get(key) {
+    return this.map.get(key) ?? [];
+  }
 }

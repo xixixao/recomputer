@@ -18,8 +18,7 @@ export function prepareAsyncMeasure(config) {
 }
 
 export function prepareMeasure({ name, units }, use) {
-  const unitNameToUnit = new Map();
-  const unitList = [];
+  const preparedUnits = {};
   for (const [
     unitName,
     { prefixSymbols, postfixSymbols, symbols, ...unit },
@@ -41,12 +40,10 @@ export function prepareMeasure({ name, units }, use) {
       singularToPlural: new Map(withPlural),
       use,
     };
-    unitNameToUnit.set(unitName, unitWithName);
-    unitList.push(unitWithName);
+    preparedUnits[unitName] = unitWithName;
   }
   return {
     name,
-    unitNameToUnit,
-    units: unitList,
+    units: preparedUnits,
   };
 }

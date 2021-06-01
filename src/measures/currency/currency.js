@@ -32,10 +32,10 @@ export const measure = prepareAsyncMeasure({
       )
       .then((response) => response.json())
       .then((result) => {
-        const units = currency.unitNameToUnit;
+        const units = currency.units;
         const rates = result[baseCurrency];
         Object.keys(rates).forEach((currency) => {
-          const currencyUnit = units.get(currency);
+          const currencyUnit = units[currency];
           if (currencyUnit != null) {
             currencyUnit.baseUnitValue = 1 / rates[currency];
             currencyUnit.baseUnitValueApproximate = true;

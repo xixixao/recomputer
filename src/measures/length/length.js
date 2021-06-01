@@ -5,7 +5,11 @@ export function testLengthMeasure(assertEvals) {
   assertEvals(`1 acre in m2`, `4,046.8564224m^2`);
   assertEvals(`1000m2 in km2`, `0.001km^2`);
   assertEvals(`1l in m3`, `0.001m^3`);
+  assertEvals(`1000cm3 in m3`, `0.001m^3`);
   assertEvals(`1000cm3 in m`, `0.001m^3`);
+  assertEvals(`L/m`, `1L/m`);
+  assertEvals(`L/dm in dm2`, `1dm^2`);
+  assertEvals(`L in dm in dm3`, `1dm^3`);
 }
 
 export function docs() {
