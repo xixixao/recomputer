@@ -15,8 +15,10 @@ export function testDerivedUnits(assertEvals) {
   assertEvals(`m*N/kg`, `1m^2/s^2`);
   assertEvals(`(1/kg)*N`, `1m/s^2`);
   assertEvals(`N*m*g`, `1N*m*g`);
-  // assertEvals(`L / m`);
-  // assertEvals(`Pa * m2`);
+}
+
+export function testOtherDerivedUnits(assertEvals) {
+  assertEvals(`Hz in s`, `1/s`);
 }
 
 export function docs() {
@@ -40,6 +42,10 @@ export const measure = prepareMeasure({
       )
         .multiply(Units.fromUnit("m", length.units.meter))
         .multiply(Units.fromUnit("s", time.units.second, -2)),
+    },
+    hertz: {
+      postfixSymbols: ["Hz", "hertz"],
+      definition: Units.fromUnit("s", time.units.second, -1),
     },
   },
 });

@@ -151,11 +151,11 @@ function UnitsValue(compounds, initialScalar) {
   });
 
   // Normalize
-  // Compounds in this Map are mutated by `combineCompounds`
-  const normalizedCompounds = new MapArray();
+  // Compounds in this array are mutated by `combineCompounds`
+  const normalizedCompounds = [];
   expandedCompounds.forEach((compound) => {
     let combinationScalar = null;
-    for (const modelCompound of normalizedCompounds.values()) {
+    for (const modelCompound of normalizedCompounds) {
       combinationScalar = combineCompounds(modelCompound, compound);
       if (combinationScalar != null) {
         break;
@@ -164,16 +164,17 @@ function UnitsValue(compounds, initialScalar) {
     if (combinationScalar != null) {
       scalar = scalar.multiply(combinationScalar);
     } else {
-      normalizedCompounds.add(compound.unit.measureName, { ...compound });
+      normalizedCompounds.push({ ...compound });
     }
   });
 
   // Recombine derived units
-  normalizedCompounds.forEach((compound) => {
+  normalizedCompounds.forEach((compound, index) => {
     if (compound.unit.definition != null) {
       let combinationScalar = recombineDerivedCompound(
         compound,
-        normalizedCompounds
+        normalizedCompounds,
+        index
       );
       if (combinationScalar != null) {
         scalar = scalar.multiply(combinationScalar);
@@ -181,9 +182,9 @@ function UnitsValue(compounds, initialScalar) {
     }
   });
   // Clean up unused derived sub units
-  const cleanedNormalizedCompounds = Array.from(
-    normalizedCompounds.values()
-  ).filter((compound) => compound.exponent !== 0 || !compound.fromDerived);
+  const cleanedNormalizedCompounds = normalizedCompounds.filter(
+    (compound) => compound.exponent !== 0 || !compound.fromDerived
+  );
   return Value.from(scalar, new Units(cleanedNormalizedCompounds));
 }
 
@@ -260,15 +261,16 @@ function convertPrefixes(model, compound, exponentConversion) {
   return BigNum.one();
 }
 
-function recombineDerivedCompound(derivedCompound, compounds) {
+function recombineDerivedCompound(derivedCompound, compounds, index) {
   // First find the exponent for the derived unit
   let maxExponents = Infinity;
   let exponentsSign = null;
   const modelCompounds = derivedCompound.unit.definition.unit.compounds;
   for (const model of modelCompounds) {
     let filled = false;
-    for (const compound of compounds.get(model.unit.measureName)) {
-      if (compound.unit.name !== model.unit.name) {
+    for (let i = index + 1; i < compounds.length; i++) {
+      const compound = compounds[i];
+      if (model.unit.name !== compound.unit.name) {
         continue;
       }
       const exponent = compound.exponent / model.exponent;
@@ -293,12 +295,14 @@ function recombineDerivedCompound(derivedCompound, compounds) {
   let scalar = BigNum.one();
   derivedCompound.exponent += derivedExponent;
   for (const model of modelCompounds) {
-    for (const compound of compounds.get(model.unit.measureName)) {
+    for (let i = index + 1; i < compounds.length; i++) {
+      const compound = compounds[i];
       if (compound.unit.name === model.unit.name) {
         compound.exponent -= derivedExponent * model.exponent;
         scalar = scalar.multiply(
           convertPrefixes(model, compound, derivedExponent)
         );
+        break;
       }
     }
   }
