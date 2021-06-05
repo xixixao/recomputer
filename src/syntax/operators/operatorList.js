@@ -1,5 +1,6 @@
 import { Value } from "../../core/evaluate/Value";
 import { BigNum } from "../../core/evaluate/BigNum";
+import { Units } from "../../core/evaluate/Units";
 
 export const add = {
   symbol: "+",
@@ -65,8 +66,16 @@ export const convertUnits = {
   symbol: "in",
   regex: "\\bin\\b",
   apply: (left, right) => {
-    const scale = Value.divide(left, right);
-    return Value.multiply(right, scale);
+    const unit = Units.fromCompounds(
+      right.unit.compounds
+        .filter(({ fromDerived }) => !fromDerived)
+        .map((compound) => ({
+          ...compound,
+          exponent: 0,
+          required: true,
+        }))
+    );
+    return Value.multiply(unit, left);
   },
 };
 

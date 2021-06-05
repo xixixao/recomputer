@@ -67,21 +67,27 @@ export class Units {
 
   static fromUnit(symbol, unit, exponent, prefixSymbol, prefixUnit) {
     // console.log(symbol, unit, prefixSymbol, prefixUnit);
-    return UnitsValue([
-      {
-        symbol,
-        unit: unit ?? { measureName: symbol },
-        prefix:
-          prefixSymbol != null
-            ? { symbol: prefixSymbol, unit: prefixUnit }
-            : null,
-        exponent: exponent ?? 1,
-      },
-    ]);
+    return Value.fromUnit(
+      new Units([
+        Units.compound(symbol, unit, exponent, prefixSymbol, prefixUnit),
+      ])
+    );
   }
 
-  static fromCompound(compound) {
-    return new Units([compound]);
+  static compound(symbol, unit, exponent, prefixSymbol, prefixUnit) {
+    return {
+      symbol,
+      unit: unit ?? { measureName: symbol },
+      prefix:
+        prefixSymbol != null
+          ? { symbol: prefixSymbol, unit: prefixUnit }
+          : null,
+      exponent: exponent ?? 1,
+    };
+  }
+
+  static fromCompounds(compounds) {
+    return Value.fromUnit(new Units(compounds));
   }
 
   multiply(b) {
@@ -133,19 +139,28 @@ function UnitsValue(compounds, initialScalar) {
     return Value.from(scalar, new Units(nonApproximate));
   }
   // Expand derived units
+  // const expandedCompounds = [];
+  compounds.forEach((compound) => expandDefinition(compound));
   const expandedCompounds = compounds.map((compound) =>
     compound.unit.definition != null ? { ...compound, exponent: 0 } : compound
   );
   compounds.forEach((compound) => {
-    if (compound.unit.exponent !== 0 && compound.unit.definition != null) {
-      const exponentiatedDefinition = compound.unit.definition.exponentiate(
-        Value.fromNumber(BigNum.fromInteger(compound.exponent))
-      );
+    // expandedCompounds.push(
+    //   compound.unit.definition != null ? { ...compound, exponent: 0 } : compound
+    // );
+    if (
+      compound.unit.exponent !== 0 &&
+      compound.unit.expandedDefinition != null
+    ) {
+      // TODO: I'm not handling scalars in definitions
       expandedCompounds.push(
-        ...exponentiatedDefinition.unit.compounds.map((compound) => ({
-          ...compound,
-          fromDerived: true,
-        }))
+        ...compound.unit.expandedDefinition.unit.compounds.map(
+          ({ required: _, exponent, ...childCompound }) => ({
+            ...childCompound,
+            fromDerived: true,
+            exponent: exponent * compound.exponent,
+          })
+        )
       );
     }
   });
@@ -170,7 +185,7 @@ function UnitsValue(compounds, initialScalar) {
 
   // Recombine derived units
   normalizedCompounds.forEach((compound, index) => {
-    if (compound.unit.definition != null) {
+    if (compound.unit.expandedDefinition != null) {
       let combinationScalar = recombineDerivedCompound(
         compound,
         normalizedCompounds,
@@ -185,7 +200,53 @@ function UnitsValue(compounds, initialScalar) {
   const cleanedNormalizedCompounds = normalizedCompounds.filter(
     (compound) => compound.exponent !== 0 || !compound.fromDerived
   );
+  if (
+    cleanedNormalizedCompounds.some(
+      (compound) => compound.required && compound.exponent === 0
+    )
+  ) {
+    return null;
+  }
   return Value.from(scalar, new Units(cleanedNormalizedCompounds));
+}
+
+function expandDefinition(compound) {
+  if (
+    compound.unit.exponent !== 0 &&
+    compound.unit.definition != null &&
+    compound.unit.expandedDefinition == null
+  ) {
+    const expandedCompounds = [];
+    collectCompounds(compound, 1, expandedCompounds);
+    // TODO: I'm not handling scalars in definitions
+    compound.unit.expandedDefinition = Units.fromCompounds(expandedCompounds);
+  }
+}
+function collectCompounds(compound, parentExponent, expandedCompounds) {
+  compound.unit.definition.unit.compounds.forEach(
+    ({ exponent, ...childCompound }) => {
+      const isDerived = childCompound.unit.definition != null;
+      expandedCompounds.push({
+        ...childCompound,
+        fromDerived: true,
+        exponent: isDerived ? 0 : exponent * parentExponent,
+      });
+    }
+  );
+  compound.unit.definition.unit.compounds.forEach(
+    ({ exponent, ...childCompound }) => {
+      const isDerived = childCompound.unit.definition != null;
+
+      if (isDerived) {
+        collectCompounds(
+          childCompound,
+          exponent * parentExponent,
+          expandedCompounds
+        );
+        expandDefinition(childCompound);
+      }
+    }
+  );
 }
 
 function combineCompounds(model, compound) {
@@ -261,28 +322,45 @@ function convertPrefixes(model, compound, exponentConversion) {
   return BigNum.one();
 }
 
-function recombineDerivedCompound(derivedCompound, compounds, index) {
+function recombineDerivedCompound(derivedCompound, compounds, _index) {
   // First find the exponent for the derived unit
   let maxExponents = Infinity;
   let exponentsSign = null;
-  const modelCompounds = derivedCompound.unit.definition.unit.compounds;
+  const modelCompounds = derivedCompound.unit.expandedDefinition.unit.compounds;
   for (const model of modelCompounds) {
+    if (model.unit.definition != null) {
+      continue;
+    }
     let filled = false;
-    for (let i = index + 1; i < compounds.length; i++) {
+    for (let i = /* index + 1 */ 0; i < compounds.length; i++) {
       const compound = compounds[i];
       if (model.unit.name !== compound.unit.name) {
         continue;
       }
-      const exponent = compound.exponent / model.exponent;
-      if (exponent === 0 || exponent % 1 !== 0) {
+      const exponent = Math.floor(compound.exponent / model.exponent);
+      if (!derivedCompound.required && exponent === 0) {
+        continue;
+      }
+      const exponentRemainder = compound.exponent % model.exponent;
+      if (
+        !derivedCompound.required &&
+        exponentRemainder === 0 &&
+        compound.required
+      ) {
         continue;
       }
       const exponentSign = Math.sign(exponent);
-      if (exponentsSign != null && exponentsSign !== exponentSign) {
+      if (
+        !derivedCompound.required &&
+        exponentsSign != null &&
+        exponentsSign !== exponentSign
+      ) {
         continue;
       }
-      exponentsSign = exponentSign;
-      maxExponents = Math.min(maxExponents, Math.abs(exponent));
+      if (exponentsSign == null) {
+        exponentsSign = exponentSign;
+      }
+      maxExponents = Math.min(maxExponents, Math.max(1, Math.abs(exponent)));
       filled = true;
       break;
     }
@@ -295,7 +373,7 @@ function recombineDerivedCompound(derivedCompound, compounds, index) {
   let scalar = BigNum.one();
   derivedCompound.exponent += derivedExponent;
   for (const model of modelCompounds) {
-    for (let i = index + 1; i < compounds.length; i++) {
+    for (let i = /* index + 1 */ 0; i < compounds.length; i++) {
       const compound = compounds[i];
       if (compound.unit.name === model.unit.name) {
         compound.exponent -= derivedExponent * model.exponent;
