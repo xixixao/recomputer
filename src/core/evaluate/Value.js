@@ -32,6 +32,10 @@ export class Value {
     return Value.fromNumber(BigNum.one());
   }
 
+  toValue() {
+    return this;
+  }
+
   toString() {
     const { number, unit } = this;
     // const isOne = number.isOne();
@@ -69,6 +73,8 @@ export class Value {
   }
 
   static applyBinary(operator, a, b) {
+    a = a?.toValue();
+    b = b?.toValue();
     if (a == null || b == null) {
       return null;
     }

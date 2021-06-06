@@ -20,6 +20,10 @@ class List {
   toString() {
     return sum(this.array).toString();
   }
+
+  toValue() {
+    return sum(this.array);
+  }
 }
 
 function sum(array) {
