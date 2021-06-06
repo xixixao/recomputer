@@ -3,6 +3,7 @@ import { measures } from "../../measures/measures";
 import { configuredParser } from "../parser/language";
 import { evaluateDocument } from "../evaluate/evaluate";
 import { LAST_RESULT_SYMBOL } from "../../syntax/preceding/preceding";
+import { LIST_SYMBOL } from "../../syntax/list/list";
 
 const operatorList = Object.values(operators);
 
@@ -22,7 +23,7 @@ const parserConfig = {
   names: operatorList
     .filter((operator) => operator.regex == null)
     .map((operator) => operator.symbol)
-    .concat(LAST_RESULT_SYMBOL),
+    .concat([LAST_RESULT_SYMBOL, LIST_SYMBOL]),
   operators: operatorList
     .filter((operator) => operator.regex != null)
     .map((operator) => operator.regex),

@@ -18,6 +18,10 @@ export class BigNum {
     this.approximate = approximate ?? false;
   }
 
+  static zero() {
+    return new BigNum(0n, 1n);
+  }
+
   static one() {
     return new BigNum(1n, 1n);
   }

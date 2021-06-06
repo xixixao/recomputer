@@ -8,6 +8,7 @@ import {
 import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
 import { evaluateReference } from "../../syntax/names/names";
 import { saveLastResult } from "../../syntax/preceding/preceding";
+import { addToList } from "../../syntax/list/list";
 
 export const evaluateDocument = (operators, measures) => {
   const operatorLookup = prepareOperators(operators);
@@ -81,6 +82,7 @@ export function evaluateExpression(state) {
   if (evaluate != null) {
     const value = evaluate(state);
     saveLastResult(state, value);
+    addToList(state, value);
     return value;
   }
 }

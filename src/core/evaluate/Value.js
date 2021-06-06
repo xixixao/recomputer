@@ -24,6 +24,10 @@ export class Value {
     return new Value(BigNum.one(), unit);
   }
 
+  static zero() {
+    return Value.fromNumber(BigNum.zero());
+  }
+
   static one() {
     return Value.fromNumber(BigNum.one());
   }
