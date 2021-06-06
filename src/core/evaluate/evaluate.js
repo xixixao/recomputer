@@ -47,7 +47,6 @@ function evaluateStatement(state) {
     case Term.Expression: {
       cursor.firstChild();
       const value = evaluateExpression(state);
-      saveLastResult(state, value);
       state.results.set(statementPos, value);
       cursor.parent();
       return;
@@ -80,7 +79,9 @@ export function evaluateExpression(state) {
   // console.log("expression", cursor.name, textAt(state));
   const evaluate = expressionEvaluatorsByNodeID.get(cursor.type.id);
   if (evaluate != null) {
-    return evaluate(state);
+    const value = evaluate(state);
+    saveLastResult(state, value);
+    return value;
   }
 }
 
