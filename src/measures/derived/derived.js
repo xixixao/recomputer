@@ -45,7 +45,10 @@ export function testOtherDerivedUnits(assertEvals) {
 export function docs() {
   return `
 ### Derived units
-# TBD
+# The following derived units are supported:
+${Object.values(measures)
+  .map(({ docs }) => docs())
+  .join("\n")}
 `;
 }
 

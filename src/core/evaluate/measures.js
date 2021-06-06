@@ -17,7 +17,8 @@ export function prepareAsyncMeasure(config) {
   return mutable;
 }
 
-export function prepareMeasure({ name, units }, use) {
+export function prepareMeasure(measure, use) {
+  const { name, units } = measure;
   const preparedUnits = {};
   for (const [
     unitName,
@@ -43,7 +44,7 @@ export function prepareMeasure({ name, units }, use) {
     preparedUnits[unitName] = unitWithName;
   }
   return {
-    name,
+    ...measure,
     units: preparedUnits,
   };
 }

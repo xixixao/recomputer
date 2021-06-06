@@ -8,6 +8,9 @@ import { measure as electricCurrent } from "../electricity/electricity";
 
 export const frequency = prepareMeasure({
   name: "frequency",
+  docs() {
+    return "Hz in s # frequency";
+  },
   units: {
     hertz: {
       postfixSymbols: ["Hz", "hertz"],
@@ -18,6 +21,9 @@ export const frequency = prepareMeasure({
 
 export const force = prepareMeasure({
   name: "force",
+  docs() {
+    return "N in kg # force";
+  },
   units: {
     newton: {
       postfixSymbols: ["N", ["newton", "newtons"]],
@@ -32,6 +38,9 @@ export const force = prepareMeasure({
 
 export const pressure = prepareMeasure({
   name: "pressure",
+  docs() {
+    return "Pa in N # pressure";
+  },
   units: {
     pascal: {
       postfixSymbols: ["Pa", ["pascal", "pascals"]],
@@ -45,6 +54,9 @@ export const pressure = prepareMeasure({
 
 export const energy = prepareMeasure({
   name: "energy",
+  docs() {
+    return "J in N # energy";
+  },
   units: {
     joule: {
       postfixSymbols: ["J", ["joule", "joules"]],
@@ -58,6 +70,9 @@ export const energy = prepareMeasure({
 
 export const power = prepareMeasure({
   name: "power",
+  docs() {
+    return "W in J # power";
+  },
   units: {
     watt: {
       postfixSymbols: ["W", ["watt", "watts"]],
@@ -71,6 +86,9 @@ export const power = prepareMeasure({
 
 export const charge = prepareMeasure({
   name: "charge",
+  docs() {
+    return "C in A # charge";
+  },
   units: {
     coulomb: {
       postfixSymbols: ["C", ["coulomb", "coulombs"]],
@@ -84,6 +102,9 @@ export const charge = prepareMeasure({
 
 export const voltage = prepareMeasure({
   name: "voltage",
+  docs() {
+    return "V in W # voltage";
+  },
   units: {
     volt: {
       postfixSymbols: ["V", ["volt", "volts"]],
