@@ -1,6 +1,7 @@
 import { textAt } from "../../core/evaluate/astCursor.js";
 import * as Term from "../../core/parser/parser.terms.js";
 import { matchToken, allSymbolsPattern } from "../../core/parser/tokens";
+import { maybeResetList } from "../list/list.js";
 
 export function testNotPrefix(assertEvals) {
   assertEvals(
@@ -96,6 +97,10 @@ function matchName(line, token, indent, names, nameEndPattern) {
 export function evaluateReference() {
   return {
     node: Term.Reference,
-    evaluate: (state) => state.values.get(textAt(state)),
+    evaluate: (state) => {
+      const name = textAt(state);
+      const value = maybeResetList(state, name);
+      return value ?? state.values.get(name);
+    },
   };
 }

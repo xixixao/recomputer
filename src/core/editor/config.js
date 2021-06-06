@@ -1,11 +1,14 @@
 import * as operators from "../../syntax/operators/operatorList";
+import * as listFunctions from "../../syntax/list/listFunctions";
 import { measures } from "../../measures/measures";
 import { configuredParser } from "../parser/language";
 import { evaluateDocument } from "../evaluate/evaluate";
 import { LAST_RESULT_SYMBOL } from "../../syntax/preceding/preceding";
 import { LIST_SYMBOL } from "../../syntax/list/list";
 
-const operatorList = Object.values(operators);
+const operatorList = Object.values(operators).concat(
+  Object.values(listFunctions)
+);
 
 const parserConfig = {
   // Prefixes need to be treated differently from names, because
