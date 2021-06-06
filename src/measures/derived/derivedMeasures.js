@@ -4,6 +4,7 @@ import { measure as mass } from "../mass/mass";
 import { measure as magnitude } from "../magnitude/magnitude";
 import { measure as length } from "../length/length";
 import { measure as time } from "../time/time";
+import { measure as electricCurrent } from "../electricity/electricity";
 
 export const frequency = prepareMeasure({
   name: "frequency",
@@ -63,6 +64,32 @@ export const power = prepareMeasure({
       definition: Units.fromCompounds([
         Units.compound("J", energy.units.joule),
         Units.compound("s", time.units.second, -1),
+      ]),
+    },
+  },
+});
+
+export const charge = prepareMeasure({
+  name: "charge",
+  units: {
+    coulomb: {
+      postfixSymbols: ["C", ["coulomb", "coulombs"]],
+      definition: Units.fromCompounds([
+        Units.compound("s", time.units.second),
+        Units.compound("A", electricCurrent.units.ampere),
+      ]),
+    },
+  },
+});
+
+export const voltage = prepareMeasure({
+  name: "voltage",
+  units: {
+    volt: {
+      postfixSymbols: ["V", ["volt", "volts"]],
+      definition: Units.fromCompounds([
+        Units.compound("W", power.units.watt),
+        Units.compound("A", electricCurrent.units.ampere, -1),
       ]),
     },
   },

@@ -164,7 +164,6 @@ function UnitsValue(compounds, initialScalar) {
       );
     }
   });
-
   // Normalize
   // Compounds in this array are mutated by `combineCompounds`
   const normalizedCompounds = [];
@@ -459,32 +458,4 @@ function printParts({ numerator, denominator, hasLongUnit }) {
   const gap = hasLongUnit ? " " : "";
   const divideSymbol = gap + "/" + gap;
   return `${numerator}${divideSymbol}${denominator}`;
-}
-
-class MapArray {
-  constructor() {
-    this.map = new Map();
-  }
-
-  forEach(fn) {
-    this.map.forEach((array) => array.forEach(fn));
-  }
-
-  *values() {
-    for (const array of this.map.values()) {
-      for (const value of array) {
-        yield value;
-      }
-    }
-  }
-
-  add(key, value) {
-    const array = this.map.get(key) ?? [];
-    array.push(value);
-    this.map.set(key, array);
-  }
-
-  get(key) {
-    return this.map.get(key) ?? [];
-  }
 }

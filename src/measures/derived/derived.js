@@ -33,6 +33,8 @@ export function testOtherDerivedUnits(assertEvals) {
   assertEvals(`J in m`, `1m^2*kg/s^2`);
   assertEvals(`J / m`, `1J/m`);
   assertEvals(`W * s`, `1W*s`);
+  assertEvals(`C/s`, `1A`);
+  assertEvals(`V*A`, `1W`);
   // Current approach doesn't simplify to these:
   // assertEvals(`J / m`, `1N`);
   // assertEvals(`W * s`, `1N*m`);
