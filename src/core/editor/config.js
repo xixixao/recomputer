@@ -2,6 +2,7 @@ import * as operators from "../../syntax/operators/operatorList";
 import { measures } from "../../measures/measures";
 import { configuredParser } from "../parser/language";
 import { evaluateDocument } from "../evaluate/evaluate";
+import { LAST_RESULT_SYMBOL } from "../../syntax/preceding/preceding";
 
 const operatorList = Object.values(operators);
 
@@ -21,7 +22,7 @@ const parserConfig = {
   names: operatorList
     .filter((operator) => operator.regex == null)
     .map((operator) => operator.symbol)
-    .concat("_"),
+    .concat(LAST_RESULT_SYMBOL),
   operators: operatorList
     .filter((operator) => operator.regex != null)
     .map((operator) => operator.regex),

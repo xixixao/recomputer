@@ -7,6 +7,7 @@ import {
 } from "../../syntax/operators/operators";
 import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
 import { evaluateReference } from "../../syntax/names/names";
+import { saveLastResult } from "../../syntax/preceding/preceding";
 
 export const evaluateDocument = (operators, measures) => {
   const operatorLookup = prepareOperators(operators);
@@ -46,7 +47,7 @@ function evaluateStatement(state) {
     case Term.Expression: {
       cursor.firstChild();
       const value = evaluateExpression(state);
-      state.values.set("_", value);
+      saveLastResult(state, value);
       state.results.set(statementPos, value);
       cursor.parent();
       return;

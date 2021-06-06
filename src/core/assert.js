@@ -1,6 +1,7 @@
 import { stringToDoc } from "./parser/language";
 import { evaluator, editorParser } from "./editor/config";
 import { stringInput } from "lezer-tree";
+import { LAST_RESULT_SYMBOL } from "../syntax/preceding/preceding";
 
 export function assertEvals(docString, result) {
   try {
@@ -8,7 +9,7 @@ export function assertEvals(docString, result) {
     const ast = editorParser.parse(stringInput(docString));
     let cursor = ast.cursor();
     let getValue = evaluator({ doc: stringToDoc(docString), cursor });
-    const value = getValue.byName("_");
+    const value = getValue.byName(LAST_RESULT_SYMBOL);
     if (value !== result) {
       throw new Error(
         `Test failed, expected \`${result}\` but got \`${value}\``
