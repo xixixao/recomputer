@@ -63,9 +63,9 @@ export function addToList(state, value) {
 }
 
 export function maybeResetList(state, name) {
-  if (name == LIST_SYMBOL) {
+  if (name == null || name == LIST_SYMBOL) {
     const list = state.values.get(name);
-    state.values.set(name, null);
+    state.values.set(LIST_SYMBOL, null);
     return list;
   }
   return null;
