@@ -11,63 +11,59 @@ export const resultDisplay = (evaluator, views) => (update) => {
   const editorDoc = editorView.state.doc;
   const resultsView = views.results;
   const resultsDoc = resultsView?.state.doc;
-  if (
-    update.docChanged ||
-    update.geometryChanged ||
-    update.viewportChanged ||
-    !views.isInitialized ||
-    shouldForceEvaluate(update)
-  ) {
+  let changes = null;
+  let effects = null;
+  let ast = null;
+  const hasContentChanged =
+    update.docChanged || !views.isInitialized || shouldForceEvaluate(update);
+  if (hasContentChanged) {
     views.isInitialized = true;
-    const ast = syntaxTree(editorView.state);
+    ast = syntaxTree(editorView.state);
     const cursor = ast.cursor();
     const getValue = evaluator({ doc: editorDoc, cursor });
 
     const erasePreviousResults = { from: 0, to: resultsDoc.length };
-    const changes = [erasePreviousResults];
-    let lineNumber = 1;
-    const lineNumberToHeight = [];
-    const handleLine = (state) => {
-      const { cursor } = state;
-      const from = cursor.from;
-      switch (cursor.type.id) {
-        case Term.Comment:
-        case Term.BlankLine:
-        case Term.Statement: {
-          if (lineNumber > 1) {
-            changes.push({ from: 0, insert: "\n" });
-          }
-          const lineHeight = lineHeightForPos(editorView, from);
-          if (lineHeight > 1) {
-            lineNumberToHeight[lineNumber] = lineHeight;
-          }
-          lineNumber++;
+    changes = [erasePreviousResults];
+    // let lineNumber = 1;
+
+    processAst({
+      ast,
+      doc: editorDoc,
+      onEveryLine: (from, lineNumber) => {
+        if (lineNumber > 1) {
+          changes.push({ from: 0, insert: "\n" });
         }
-      }
-      switch (cursor.type.id) {
-        case Term.Statement: {
-          const value = getValue.byPos(from);
-          if (value != null && value !== "") {
-            changes.push({ from: 0, insert: value });
-          }
-          cursor.firstChild();
-          cursor.nextSibling();
-          if (cursor.type.id === Term.NestedStatements) {
-            forEachLine(state, handleLine);
-          }
-          cursor.parent();
+      },
+      onLastEmptyLine: () => {
+        changes.push({ from: 0, insert: "\n" });
+      },
+      onEveryStatement: (from) => {
+        const value = getValue.byPos(from);
+        if (value != null && value !== "") {
+          changes.push({ from: 0, insert: value });
         }
-      }
-    };
-    forEachLine({ cursor: ast.cursor() }, handleLine);
-    if (editorDoc.sliceString(editorDoc.length - 1) === "\n") {
-      changes.push({ from: 0, insert: "\n" });
-    }
-    views.results.dispatch({
-      changes,
-      effects: lineHeightEffect.of(lineNumberToHeight),
+      },
     });
   }
+  if (hasContentChanged || update.geometryChanged || update.viewportChanged) {
+    ast ??= syntaxTree(editorView.state);
+    const lineNumberToHeight = [];
+    processAst({
+      ast,
+      doc: editorDoc,
+      onEveryLine: (from, lineNumber) => {
+        const lineHeight = lineHeightForPos(editorView, from);
+        if (lineHeight > 1) {
+          lineNumberToHeight[lineNumber] = lineHeight;
+        }
+      },
+    });
+    effects = lineHeightEffect.of(lineNumberToHeight);
+  }
+  if (changes != null || effects != null) {
+    views.results.dispatch({ changes, effects });
+  }
+
   if (update.selectionSet) {
     const lineNumbers = editorView.state.selection.ranges
       .filter((range) => range.empty)
@@ -78,6 +74,45 @@ export const resultDisplay = (evaluator, views) => (update) => {
     });
   }
 };
+
+const noop = () => {};
+
+function processAst({
+  ast,
+  doc,
+  onEveryLine = noop,
+  onEveryStatement = noop,
+  onLastEmptyLine = noop,
+}) {
+  let lineNumber = 1;
+  const handleLine = (state) => {
+    const { cursor } = state;
+    const from = cursor.from;
+    switch (cursor.type.id) {
+      case Term.Comment:
+      case Term.BlankLine:
+      case Term.Statement: {
+        onEveryLine(from, lineNumber);
+        lineNumber++;
+      }
+    }
+    switch (cursor.type.id) {
+      case Term.Statement: {
+        onEveryStatement(from);
+        cursor.firstChild();
+        cursor.nextSibling();
+        if (cursor.type.id === Term.NestedStatements) {
+          forEachLine(state, handleLine);
+        }
+        cursor.parent();
+      }
+    }
+  };
+  forEachLine({ cursor: ast.cursor() }, handleLine);
+  if (doc.sliceString(doc.length - 1) === "\n") {
+    onLastEmptyLine();
+  }
+}
 
 function lineHeightForPos(view, pos) {
   const line = view.visualLineAt(pos);
