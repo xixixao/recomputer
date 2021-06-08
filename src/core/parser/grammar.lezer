@@ -11,7 +11,7 @@ BlankLine { newline }
 Statement {
   (
     Assignment | Expression
-  ) Comment? (NestedStatements | newline) }
+  ) Comment? NestedStatements? newline }
 
 Assignment { Name "=" expression }
 
