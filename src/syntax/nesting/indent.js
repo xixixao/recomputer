@@ -30,6 +30,19 @@ function getIndentInner(input, pos) {
   }
 }
 
+export const newlines = new ExternalTokenizer(
+  (input, token, stack) => {
+    let next = input.get(token.start);
+    if (next >= 0 && (next === newline || next === carriageReturn)) {
+      const depth = getIndent(input, token.start + 1);
+      if (depth < 0 || depth === stack.context.depth) {
+        token.accept(Token.newline, token.start + 1);
+      }
+    }
+  },
+  { contextual: true, fallback: true }
+);
+
 export const indentation = new ExternalTokenizer((input, token, stack) => {
   let ch = input.get(token.start);
   if (ch != newline && ch != carriageReturn && ch >= 0) {
@@ -37,14 +50,13 @@ export const indentation = new ExternalTokenizer((input, token, stack) => {
   }
   const depth = getIndent(input, token.start + 1);
   const noIndent = depth < 0 || depth === stack.context.depth;
-  token.accept(
-    noIndent
-      ? Token.newline
-      : depth < stack.context.depth
-      ? Token.dedent
-      : Token.indent,
-    token.start + 1
-  );
+  if (!noIndent) {
+    const isDedent = depth < stack.context.depth;
+    token.accept(
+      isDedent ? Token.dedent : Token.indent,
+      isDedent ? token.start : token.start + 1
+    );
+  }
 });
 
 function IndentLevel(parent, depth) {

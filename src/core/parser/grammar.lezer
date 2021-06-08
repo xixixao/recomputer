@@ -78,4 +78,5 @@ NormalComment { NormalCommentStart (URL | commentContent)* }
 }
 
 @context trackIndent from "../../syntax/nesting/indent"
-@external tokens indentation from "../../syntax/nesting/indent" { newline, indent, dedent }
+@external tokens indentation from "../../syntax/nesting/indent" { indent, dedent }
+@external tokens newlines from "../../syntax/nesting/indent" { newline }
