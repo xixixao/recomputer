@@ -228,6 +228,18 @@ export class BigNum {
   floor() {
     return new BigNum(this.numerator / this.denominator, 1n);
   }
+
+  ceil() {
+    const { numerator, denominator } = this;
+    const fill = numerator % denominator > 0 ? 1n : 0n;
+    return new BigNum(numerator / denominator + fill, 1n);
+  }
+
+  round() {
+    const { numerator, denominator } = this;
+    const fill = 2n * (numerator % denominator) >= denominator ? 1n : 0n;
+    return new BigNum(numerator / denominator + fill, 1n);
+  }
 }
 
 function largestCommonDivisor(a, b) {

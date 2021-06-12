@@ -87,6 +87,22 @@ export const floor = {
   apply: (value) => Value.from(value.number.floor(), value.unit),
 };
 
+export const ceil = {
+  symbol: "ceil",
+  docs: "The closest bigger integer value.",
+  docsPos: "6.1",
+  example: "ceil 4.49",
+  apply: (value) => Value.from(value.number.ceil(), value.unit),
+};
+
+export const round = {
+  symbol: "round",
+  docs: "The closest integer value.",
+  docsPos: "6.2",
+  example: "round 4.49",
+  apply: (value) => Value.from(value.number.round(), value.unit),
+};
+
 export const sqrt = {
   symbol: "sqrt",
   docs: "The square (2nd) root.",
@@ -103,3 +119,101 @@ export const root = {
   regex: "\\brt\\b",
   apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
 };
+
+export const exp = {
+  symbol: "exp",
+  docs: "The number e to the power of the value.",
+  docsPos: "9",
+  example: "exp 3",
+  apply: floatOperator(Math.exp),
+};
+
+export const log = {
+  symbol: "log",
+  docs: "The natural logarithm of the value.",
+  docsPos: "10",
+  example: "log 3",
+  apply: floatOperator(Math.log),
+};
+
+export const log2 = {
+  symbol: "log2",
+  docs: "The base-2 logarithm of the value.",
+  docsPos: "11",
+  example: "log2 3",
+  apply: floatOperator(Math.log2),
+};
+
+export const log10 = {
+  symbol: "log10",
+  docs: "The base-10 logarithm of the value.",
+  docsPos: "12",
+  example: "log10 3",
+  apply: floatOperator(Math.log10),
+};
+
+// TODO: Document trig functions
+export const sin = {
+  symbol: "sin",
+  apply: floatOperator(Math.sin),
+};
+
+export const sinh = {
+  symbol: "sinh",
+  apply: floatOperator(Math.sinh),
+};
+
+export const asin = {
+  symbol: "asin",
+  apply: floatOperator(Math.asin),
+};
+
+export const asinh = {
+  symbol: "asinh",
+  apply: floatOperator(Math.asinh),
+};
+
+export const cos = {
+  symbol: "cos",
+  apply: floatOperator(Math.cos),
+};
+
+export const cosh = {
+  symbol: "cosh",
+  apply: floatOperator(Math.cosh),
+};
+
+export const acos = {
+  symbol: "acos",
+  apply: floatOperator(Math.acos),
+};
+
+export const acosh = {
+  symbol: "acosh",
+  apply: floatOperator(Math.acosh),
+};
+
+export const tan = {
+  symbol: "tan",
+  apply: floatOperator(Math.tan),
+};
+
+export const tanh = {
+  symbol: "tanh",
+  apply: floatOperator(Math.tanh),
+};
+
+export const atan = {
+  symbol: "atan",
+  apply: floatOperator(Math.atan),
+};
+
+export const atanh = {
+  symbol: "atanh",
+  apply: floatOperator(Math.atanh),
+};
+
+function floatOperator(fn) {
+  return (value) =>
+    Value.fromNumber(BigNum.fromNumber(fn(value.number.toFloat()), true));
+}
