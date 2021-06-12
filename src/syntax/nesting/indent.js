@@ -35,7 +35,10 @@ export const newlines = new ExternalTokenizer(
     let next = input.get(token.start);
     if (next >= 0 && (next === newline || next === carriageReturn)) {
       const depth = getIndent(input, token.start + 1);
-      if (depth < 0 || depth === stack.context.depth) {
+      if (
+        (stack.context.depth === 0 && depth < 0) ||
+        depth === stack.context.depth
+      ) {
         token.accept(Token.newline, token.start + 1);
       }
     }
@@ -49,7 +52,8 @@ export const indentation = new ExternalTokenizer((input, token, stack) => {
     return;
   }
   const depth = getIndent(input, token.start + 1);
-  const noIndent = depth < 0 || depth === stack.context.depth;
+  const noIndent =
+    (stack.context.depth === 0 && depth < 0) || depth === stack.context.depth;
   if (!noIndent) {
     const isDedent = depth < stack.context.depth;
     token.accept(

@@ -17,7 +17,7 @@ Assignment { Name "=" expression }
 
 Expression { expression }
 
-NestedStatements { indent (newline | Statement)+ dedent }
+NestedStatements { indent (BlankLine | Statement)+ dedent }
 
 expression {
   Reference |

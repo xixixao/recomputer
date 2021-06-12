@@ -88,7 +88,7 @@ export const resultDisplay = (evaluator, views) => (update) => {
     }
     if (resultsDoc.lines >= lineNumber) {
       changes.push({
-        from: resultsDoc.line(lineNumber).from - 1,
+        from: Math.max(0, resultsDoc.line(lineNumber).from - 1),
         to: resultsDoc.length,
       });
     }
