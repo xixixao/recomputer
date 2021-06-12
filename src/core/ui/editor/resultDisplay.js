@@ -6,6 +6,8 @@ import { highlightLineEffect } from "./highlightEditorActiveLine";
 import { shouldForceEvaluate } from "../../editor/forceEvaluate";
 import { forEachLine } from "../../evaluate/astCursor";
 
+let resultsContentCache = null;
+
 export const resultDisplay = (evaluator, views) => (update) => {
   const editorView = update.view;
   const editorDoc = editorView.state.doc;
@@ -22,28 +24,22 @@ export const resultDisplay = (evaluator, views) => (update) => {
     const cursor = ast.cursor();
     const getValue = evaluator({ doc: editorDoc, cursor });
 
-    const erasePreviousResults = { from: 0, to: resultsDoc.length };
-    changes = [erasePreviousResults];
-    // let lineNumber = 1;
+    const resultsContent = [];
 
     processAst({
       ast,
       doc: editorDoc,
       onEveryLine: (from, lineNumber) => {
-        if (lineNumber > 1) {
-          changes.push({ from: 0, insert: "\n" });
-        }
+        resultsContent[lineNumber] = "";
       },
-      onLastEmptyLine: () => {
-        changes.push({ from: 0, insert: "\n" });
-      },
-      onEveryStatement: (from) => {
+      onEveryStatement: (from, lineNumber) => {
         const value = getValue.byPos(from);
         if (value != null && value !== "") {
-          changes.push({ from: 0, insert: value });
+          resultsContent[lineNumber] = value;
         }
       },
     });
+    resultsContentCache = resultsContent;
   }
   if (hasContentChanged || update.geometryChanged || update.viewportChanged) {
     ast ??= syntaxTree(editorView.state);
@@ -59,6 +55,43 @@ export const resultDisplay = (evaluator, views) => (update) => {
       },
     });
     effects = lineHeightEffect.of(lineNumberToHeight);
+
+    // const editorViewportFrom = editorView.viewport.from;
+
+    const startLine = resultsDoc.line(
+      1
+      // TODO: Consider only updating viewport
+      // Math.max(
+      //   Math.min(resultsDoc.lines, editorDoc.lineAt(editorViewportFrom).number),
+      //   resultsDoc.lineAt(resultsView.viewport.from).number
+      // )
+    );
+    const startLineNumber = startLine.number;
+    changes = [];
+    let lineNumber = startLineNumber;
+    for (; resultsContentCache[lineNumber] != null; lineNumber++) {
+      const currentResultLine = resultsDoc.line(
+        Math.min(lineNumber, resultsDoc.lines)
+      );
+      const shouldAddNewline =
+        resultsContentCache[lineNumber + 1] != null &&
+        resultsDoc.lines <= lineNumber;
+      const newResult = resultsContentCache[lineNumber];
+      if (newResult !== currentResultLine.text || shouldAddNewline) {
+        const text = newResult + (shouldAddNewline ? "\n" : "");
+        changes.push({
+          from: currentResultLine.from,
+          to: currentResultLine.to,
+          insert: text,
+        });
+      }
+    }
+    if (resultsDoc.lines >= lineNumber) {
+      changes.push({
+        from: resultsDoc.line(lineNumber).from - 1,
+        to: resultsDoc.length,
+      });
+    }
   }
   if (changes != null || effects != null) {
     views.results.dispatch({ changes, effects });
@@ -77,13 +110,7 @@ export const resultDisplay = (evaluator, views) => (update) => {
 
 const noop = () => {};
 
-function processAst({
-  ast,
-  doc,
-  onEveryLine = noop,
-  onEveryStatement = noop,
-  onLastEmptyLine = noop,
-}) {
+function processAst({ ast, doc, onEveryLine = noop, onEveryStatement = noop }) {
   let lineNumber = 1;
   const handleLine = (state) => {
     const { cursor } = state;
@@ -98,7 +125,7 @@ function processAst({
     }
     switch (cursor.type.id) {
       case Term.Statement: {
-        onEveryStatement(from);
+        onEveryStatement(from, lineNumber - 1);
         cursor.firstChild();
         cursor.nextSibling();
         if (cursor.type.id === Term.NestedStatements) {
@@ -110,7 +137,7 @@ function processAst({
   };
   forEachLine({ cursor: ast.cursor() }, handleLine);
   if (doc.sliceString(doc.length - 1) === "\n") {
-    onLastEmptyLine();
+    onEveryLine(doc.length, lineNumber);
   }
 }
 
@@ -119,20 +146,14 @@ function lineHeightForPos(view, pos) {
   return Math.floor(line.height / view.defaultLineHeight);
 }
 
+const lineHeightEffect = StateEffect.define();
+
 const lineNumberToHeight = StateField.define({
   create: () => {
     return {};
   },
-  update(value, tr) {
-    const effect = tr.effects[0];
-    if (effect?.is(lineHeightEffect)) {
-      return effect.value;
-    }
-    return value;
-  },
+  update: stateFieldUpdateFromEffect(lineHeightEffect),
 });
-
-const lineHeightEffect = StateEffect.define();
 
 export function resultLineAdjustment(views) {
   return [
@@ -157,4 +178,15 @@ export function resultLineAdjustment(views) {
     }),
     lineNumberToHeight.extension,
   ];
+}
+
+function stateFieldUpdateFromEffect(syncEffect) {
+  return (value, transaction) => {
+    for (const effect of transaction.effects) {
+      if (effect.is(syncEffect)) {
+        return effect.value;
+      }
+    }
+    return value;
+  };
 }

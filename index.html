@@ -57,13 +57,17 @@
 
     #leftPane {
       flex-grow: 1;
-      max-width: 80%;
+      /* max-width leads to dynamic sizing which breaks long documents*/
+      width: 70%;
+      /* max-width: 80%; */
+
       /* min-width: 50rem; */
     }
 
     #rightPane {
       flex-grow: 1;
-      max-width: 50%;
+      /* max-width: 50%; */
+      width: 30%;
     }
 
     #footer {
