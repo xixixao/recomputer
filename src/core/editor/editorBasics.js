@@ -1,6 +1,5 @@
 import {
   highlightSpecialChars,
-  drawSelection,
   highlightActiveLine,
   keymap,
 } from "@codemirror/view";
@@ -16,11 +15,12 @@ import { commentKeymap } from "@codemirror/comment";
 import { rectangularSelection } from "@codemirror/rectangular-selection";
 import { defaultHighlightStyle } from "@codemirror/highlight";
 import { lintKeymap } from "@codemirror/lint";
+import { drawBetterSelection } from "./drawBetterSelection";
 
 export const editorBasics = [
   highlightSpecialChars(),
   history(),
-  drawSelection(),
+  drawBetterSelection(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
   defaultHighlightStyle.fallback,
