@@ -56,7 +56,6 @@ const sharedCodemirrorStyles = EditorView.theme(
     },
     ".cm-cursor-primary, .cm-cursor-secondary": {
       borderLeftColor: textColor,
-      backgroundColor: textColor,
     },
     ".cm-activeLine": {
       backgroundColor: "transparent",
