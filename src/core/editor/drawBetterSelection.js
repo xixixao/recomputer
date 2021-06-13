@@ -205,7 +205,7 @@ function measureRange(view, range) {
       // between.push(piece(leftSide, top.bottom, rightSide, bottom.top));
       while (visualStart.to < visualEnd.from - 1) {
         const line = view.visualLineAt(visualStart.to + 1);
-        between.push(pieces(drawForLine(visualStart.to, null, line)));
+        between.push(pieces(drawForLine(visualStart.to, null, line, true)));
         visualStart = line;
       }
       between = between.flat();
@@ -230,15 +230,19 @@ function measureRange(view, range) {
     return pieces;
   }
   // Gets passed from/to in line-local positions
-  function drawForLine(from, to, line) {
+  function drawForLine(from, to, line, isMiddle) {
     let top = 1e9,
       bottom = -1e9,
       horizontal = [];
     function addSpan(from, fromOpen, to, toOpen, dir) {
       let fromCoords = view.coordsAtPos(from, from == line.to ? -1 : 1);
       let toCoords = view.coordsAtPos(to, to == line.from ? 1 : -1);
-      top = Math.min(fromCoords.top, toCoords.top, top);
-      bottom = Math.max(fromCoords.bottom, toCoords.bottom, bottom);
+      top =
+        Math.min(fromCoords.top, toCoords.top, top) -
+        (fromOpen || isMiddle ? 5 : 0);
+      bottom =
+        Math.max(fromCoords.bottom, toCoords.bottom, bottom) +
+        (toOpen || isMiddle ? 5 : 0);
       if (dir == Direction.LTR)
         horizontal.push(
           ltr && fromOpen ? leftSide : fromCoords.left,
