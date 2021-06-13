@@ -21,7 +21,7 @@ For bug reports file an issue.
 
 _Why yet another smart calculator?_
 
-- Soulver: Native only. Free only 30 days. Not open-source. By far the best of the alternatives. Differs in some design decisions. It leans more towards free text-like input, while Recomputer is more strict (and less error prone).
+- Soulver: Native, macOS only. Free only 30 days. Not open-source. By far the best of the alternatives. Differs in some design decisions. It leans more towards free text-like input, while Recomputer is more strict (and less error prone).
 - Numi: Doesn't support all rates, in general the grammar doesn't handle a lot of expressions. Multi-word names are not sometimes recognized.
 - [Math Notepad](https://mathnotepad.com/): A Jupyter-like interface, enter needs to be hit to see results. No currency support.
 - calcula.tech: Latex reprinting of input, requires `= ?` to see results.
@@ -33,5 +33,7 @@ _Why yet another smart calculator?_
 ## Acknowledgements
 
 [marijnh](https://github.com/marijnh) for CodeMirror.next
+
 [fawazahmed0](https://github.com/fawazahmed0) for currency API
+
 [Soulver](https://soulver.app/) and [Numi](https://numi.app/) for inspiration
