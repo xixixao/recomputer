@@ -205,7 +205,7 @@ function measureRange(view, range) {
       // between.push(piece(leftSide, top.bottom, rightSide, bottom.top));
       while (visualStart.to < visualEnd.from - 1) {
         const line = view.visualLineAt(visualStart.to + 1);
-        between.push(pieces(drawForLine(visualStart.to, null, line, true)));
+        between.push(pieces(drawForLine(null, null, line, true)));
         visualStart = line;
       }
       between = between.flat();
