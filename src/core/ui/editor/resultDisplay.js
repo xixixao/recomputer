@@ -96,8 +96,7 @@ export const resultDisplay = (evaluator, views) => (update) => {
   if (changes != null || effects != null) {
     views.results.dispatch({ changes, effects });
   }
-
-  if (update.selectionSet) {
+  if (hasContentChanged || update.selectionSet) {
     const lineNumbers = editorView.state.selection.ranges
       .filter((range) => range.empty)
       .map((range) => editorDoc.lineAt(range.from).number);
