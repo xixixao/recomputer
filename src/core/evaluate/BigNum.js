@@ -186,7 +186,7 @@ export class BigNum {
 
   exponentiate(b) {
     const exponent = b.toInteger();
-    if (exponent == null) {
+    if (exponent == null || this.approximate) {
       const a = this.toFloat();
       const floatExponent = b.toFloat();
       if (a == null || floatExponent == null) {

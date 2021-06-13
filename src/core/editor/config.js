@@ -5,6 +5,7 @@ import { configuredParser } from "../parser/language";
 import { evaluateDocument } from "../evaluate/evaluate";
 import { LAST_RESULT_SYMBOL } from "../../syntax/preceding/preceding";
 import { LIST_SYMBOL } from "../../syntax/list/list";
+import { constants } from "../../syntax/constants/constants";
 
 const operatorList = Object.values(operators).concat(
   Object.values(listFunctions)
@@ -26,7 +27,8 @@ const parserConfig = {
   names: operatorList
     .filter((operator) => operator.regex == null)
     .map((operator) => operator.symbol)
-    .concat([LAST_RESULT_SYMBOL, LIST_SYMBOL]),
+    .concat([LAST_RESULT_SYMBOL, LIST_SYMBOL])
+    .concat(Array.from(constants().keys())),
   operators: operatorList
     .filter((operator) => operator.regex != null)
     .map((operator) => operator.regex),

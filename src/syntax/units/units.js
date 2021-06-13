@@ -48,7 +48,7 @@ export function docs() {
   return `
 ### Units
 # Units can be any of the predefined units which are listed in later sections, or a custom unit which is a single word:
-(12 potato / year) * 1 month
+(36 potatoes / year) * 1 month
 # A single digit can be suffixed to a unit for easy exponentiation:
 14m2
 `;

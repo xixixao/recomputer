@@ -9,6 +9,7 @@ import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
 import { evaluateReference } from "../../syntax/names/names";
 import { saveLastResult } from "../../syntax/preceding/preceding";
 import { addToList, maybeResetList } from "../../syntax/list/list";
+import { constants } from "../../syntax/constants/constants";
 
 export const evaluateDocument = (operators, measures) => {
   const operatorLookup = prepareOperators(operators);
@@ -21,7 +22,7 @@ export const evaluateDocument = (operators, measures) => {
       doc,
       cursor,
       results: new Map(),
-      values: new Map(),
+      values: constants(),
     };
 
     forEachStatement(state, evaluateStatement, () => maybeResetList(state));

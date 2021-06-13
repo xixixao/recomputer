@@ -5,6 +5,7 @@ import * as comments from "./comments/comments";
 import * as units from "./units/units";
 import * as operators from "./operators/operators";
 import * as nesting from "./nesting/nesting";
+import * as constants from "./constants/constants";
 import * as list from "./list/list";
 
 export function docs() {
@@ -21,5 +22,6 @@ export const modules = {
   comments,
   nesting,
   operators,
+  constants,
   list,
 };
