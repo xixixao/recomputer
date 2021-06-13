@@ -11,6 +11,9 @@ export function testIntegers(assertEvals) {
 
 export function testNegative(assertEvals) {
   assertEvals(`-123`, `-123`);
+  assertEvals(`-1/2`, `-0.5`);
+  assertEvals(`-2/3`, `-2/3`);
+  assertEvals(`~-2/3`, `-0.66666666666666`);
 }
 
 export function testDecimalPoint(assertEvals) {

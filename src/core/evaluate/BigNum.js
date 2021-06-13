@@ -13,8 +13,10 @@ export class BigNum {
       throw new Error(`denominator is not bigint: ${denominator}`);
     }
     const divisor = largestCommonDivisor(numerator, denominator);
-    this.numerator = numerator / divisor;
-    this.denominator = denominator / divisor;
+    const n = numerator / divisor;
+    const d = denominator / divisor;
+    this.numerator = d < 0 ? -n : n;
+    this.denominator = d < 0 ? -d : d;
     this.approximate = approximate ?? false;
   }
 
@@ -35,8 +37,11 @@ export class BigNum {
   }
 
   static fromString(string, approximate) {
-    const [integer, decimal] = string.split(".");
-    const denominator = Math.pow(10, decimal?.length ?? 0);
+    const [integer, decimal, exponent] = string.split(/\.|e/);
+    const denominator = Math.pow(
+      10,
+      (decimal?.length ?? 0) - parseInt(exponent ?? "0")
+    );
     return new BigNum(
       BigInt(`${integer}${decimal ?? ""}`),
       BigInt(denominator),
@@ -45,20 +50,15 @@ export class BigNum {
   }
 
   toStringWithoutLocaleFormat(precision) {
-    const { numerator, denominator } = this;
-    return decimalString(this, numerator / denominator, precision);
+    const { denominator } = this;
+    const numerator = this.positiveNumerator();
+    const { fraction } = this.fractionString(precision);
+    return decimalString(this, String(numerator / denominator), fraction);
   }
 
   toString(precision) {
-    const { numerator, denominator } = this;
-    // if Im whole decimal
-    //   print decimal
-    // otherwise need to print separately the numerator and denominator
-    return decimalString(
-      this,
-      currentLocaleNumberFormat.format(numerator / denominator),
-      precision
-    );
+    const { fraction } = this.fractionString(precision);
+    return decimalStringInLocale(this, fraction);
   }
 
   // TODO: Consider limiting this to some reasonable number of significant
@@ -70,13 +70,8 @@ export class BigNum {
     }
     const { fraction, isExact } = this.fractionString(precision);
     if (isExact) {
-      const integerString = currentLocaleNumberFormat.format(
-        numerator / denominator
-      );
-      return {
-        numerator:
-          integerString + (fraction == null ? "" : decimalSeparator + fraction),
-      };
+      console.log(decimalStringInLocale(this, fraction), this.signString());
+      return { numerator: decimalStringInLocale(this, fraction) };
     }
     return {
       numerator: currentLocaleNumberFormat.format(numerator),
@@ -87,8 +82,8 @@ export class BigNum {
   // TODO: Change this to significant digits, so that
   // 0.00000000123 counts as 3 not 11 - or better even use 1.23E-8
   fractionString(precision) {
-    const { numerator, denominator } = this;
-
+    const { denominator } = this;
+    const numerator = this.positiveNumerator();
     let remainder = (numerator % denominator) * 10n;
     if (remainder === 0n) {
       return { fraction: null, isExact: true };
@@ -100,8 +95,16 @@ export class BigNum {
       fraction += remainder / denominator;
       remainder = (remainder % denominator) * 10n;
     }
-
     return { fraction, isExact: remainder === 0n };
+  }
+
+  signString() {
+    return this.numerator < 0 ? "-" : "";
+  }
+
+  positiveNumerator() {
+    const { numerator } = this;
+    return numerator < 0 ? -numerator : numerator;
   }
 
   toInteger() {
@@ -250,12 +253,21 @@ function largestCommonDivisor(a, b) {
   return largestCommonDivisor(b, a % b);
 }
 
-function decimalString(number, integerString, precision) {
-  const { fraction } = number.fractionString(precision);
+function decimalStringInLocale(number, fraction) {
+  const { denominator } = number;
+  const integerString = currentLocaleNumberFormat.format(
+    number.positiveNumerator() / denominator
+  );
+  return decimalString(number, integerString, fraction);
+}
+
+function decimalString(number, integerString, fraction) {
+  const signedIntegerString = number.signString() + integerString;
   if (fraction == null) {
-    return integerString;
+    return signedIntegerString;
   }
-  return integerString + decimalSeparator + fraction;
+  console.log(number, signedIntegerString, fraction);
+  return signedIntegerString + decimalSeparator + fraction;
 }
 
 // function order(x) {
