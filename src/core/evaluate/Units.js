@@ -140,11 +140,11 @@ function UnitsValue(compounds, initialScalar) {
   }
   // Expand derived units
   // const expandedCompounds = [];
-  compounds.forEach((compound) => expandDefinition(compound));
-  const expandedCompounds = compounds.map((compound) =>
+  nonApproximate.forEach((compound) => expandDefinition(compound));
+  const expandedCompounds = nonApproximate.map((compound) =>
     compound.unit.definition != null ? { ...compound, exponent: 0 } : compound
   );
-  compounds.forEach((compound) => {
+  nonApproximate.forEach((compound) => {
     // expandedCompounds.push(
     //   compound.unit.definition != null ? { ...compound, exponent: 0 } : compound
     // );
