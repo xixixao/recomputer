@@ -70,7 +70,6 @@ export class BigNum {
     }
     const { fraction, isExact } = this.fractionString(precision);
     if (isExact) {
-      console.log(decimalStringInLocale(this, fraction), this.signString());
       return { numerator: decimalStringInLocale(this, fraction) };
     }
     return {
@@ -266,7 +265,6 @@ function decimalString(number, integerString, fraction) {
   if (fraction == null) {
     return signedIntegerString;
   }
-  console.log(number, signedIntegerString, fraction);
   return signedIntegerString + decimalSeparator + fraction;
 }
 
