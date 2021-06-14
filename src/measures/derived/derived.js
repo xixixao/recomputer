@@ -35,6 +35,7 @@ export function testOtherDerivedUnits(assertEvals) {
   assertEvals(`W * s`, `1W*s`);
   assertEvals(`C/s`, `1A`);
   assertEvals(`V*A`, `1W`);
+  assertEvals(`A in C`, `1C/s`);
   // Current approach doesn't simplify to these:
   // assertEvals(`J / m`, `1N`);
   // assertEvals(`W * s`, `1N*m`);

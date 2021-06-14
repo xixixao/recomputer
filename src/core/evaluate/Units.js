@@ -356,7 +356,7 @@ function recombineDerivedCompound(derivedCompound, compounds, _index) {
       ) {
         continue;
       }
-      if (exponentsSign == null) {
+      if (exponentsSign == null && exponentSign !== 0) {
         exponentsSign = exponentSign;
       }
       maxExponents = Math.min(maxExponents, Math.max(1, Math.abs(exponent)));
