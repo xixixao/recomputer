@@ -79,6 +79,12 @@ export const convertUnits = {
   },
 };
 
+export const convertUnits2 = {
+  symbol: "to",
+  regex: "\\bto\\b",
+  apply: convertUnits.apply,
+};
+
 export const floor = {
   symbol: "floor",
   docs: "The closest smaller integer value.",
