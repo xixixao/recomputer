@@ -393,11 +393,20 @@ function printCompoundValue(valueOrParts, compound, position) {
       return { numerator: printCurrencyValue(valueOrParts, compound) };
     }
   }
-  const parts =
-    valueOrParts instanceof BigNum
-      ? valueOrParts.toStringParts()
-      : valueOrParts;
-  return printUnit(parts, compound, position);
+  return printUnit(printNormalValue(valueOrParts), compound, position);
+}
+
+// TODO: We can probably move this back to BigNum given we're not really
+// combining the number fraction with unit fraction
+function printNormalValue(valueOrParts) {
+  if (!(valueOrParts instanceof BigNum)) {
+    return valueOrParts;
+  }
+  const parts = valueOrParts.toStringParts();
+  const { numerator, denominator } = parts;
+  const isFraction = denominator != null;
+  const number = numerator + (isFraction ? `/${denominator}` : "");
+  return { numerator: number, isFraction };
 }
 
 // TODO: Consider that we're ignoring symbol here,
@@ -424,7 +433,14 @@ function printCurrencyValue(value, compound) {
 }
 
 function printUnit(
-  { numerator, denominator, isSignular, hasLongUnit },
+  {
+    numerator,
+    denominator,
+    denominatorCount,
+    isSignular,
+    hasLongUnit,
+    isFraction,
+  },
   { symbol, unit, prefix, exponent },
   position
 ) {
@@ -439,23 +455,31 @@ function printUnit(
     position.isNumerator && !isSingle && plural != null ? plural : symbol
   }${positiveExponent > 1 ? `^${positiveExponent}` : ""}`;
   const multiplySymbol = position.isFirst ? "" : "*";
+  const fractionGap =
+    position.isNumerator && position.isFirst && isFraction ? " " : "";
   return {
-    numerator: `${numerator}${
+    numerator: `${numerator}${fractionGap}${
       position.isNumerator ? multiplySymbol + unitString : ""
     }`,
     denominator: `${denominator ?? ""}${
       position.isDenominator ? multiplySymbol + unitString : ""
     }`,
+    denominatorCount:
+      (denominatorCount ?? 0) + (position.isDenominator ? 1 : 0),
     isSignular: isSingle,
     hasLongUnit: hasLongUnit || isLong,
+    isFraction,
   };
 }
 
-function printParts({ numerator, denominator, hasLongUnit }) {
+function printParts({ numerator, denominator, hasLongUnit, denominatorCount }) {
   if ((denominator ?? "") === "") {
     return numerator;
   }
-  const gap = hasLongUnit ? " " : "";
-  const divideSymbol = gap + "/" + gap;
-  return `${numerator}${divideSymbol}${denominator}`;
+  const dividorGap = hasLongUnit ? " " : "";
+  const divideSymbol = dividorGap + "/" + dividorGap;
+  const shouldWrapDenominator = denominatorCount > 1;
+  return `${numerator}${divideSymbol}${
+    shouldWrapDenominator ? "(" : ""
+  }${denominator}${shouldWrapDenominator ? ")" : ""}`;
 }

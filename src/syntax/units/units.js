@@ -25,7 +25,7 @@ $x`,
 
 export function testUnitSimplification(assertEvals) {
   assertEvals(`(m / s) * s`, `1m`);
-  assertEvals(`3kg m / 3m`, `1kg`);
+  assertEvals(`3kg m / (3m)`, `1kg`);
 }
 
 export function testMultipleUnits(assertEvals) {
@@ -42,6 +42,10 @@ export function testAddRates(assertEvals) {
 export function testImplicitExponentiate(assertEvals) {
   assertEvals(`1m3`, `1m^3`);
   assertEvals(`2m/s2`, `2m/s^2`);
+}
+
+export function testPrintingDenominator(assertEvals) {
+  assertEvals(`2/3N/kg2`, `2/3 m/(kg*s^2)`);
 }
 
 export function docs() {

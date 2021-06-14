@@ -63,17 +63,15 @@ function computeOperation(state) {
   const left = evaluateExpression(state);
   cursor.nextSibling();
   const operatorText = textAt(state);
-  cursor.nextSibling();
+  const hasInfixOperator = cursor.nextSibling();
   const right = evaluateExpression(state);
-  if (operatorText === "" && leftType === Term.Reference) {
+  if (!hasInfixOperator && leftType === Term.Reference) {
     const operator = state.operators.get(leftText);
     if (operator != null) {
       return Value.applyUnary(state.operators.get(leftText), right);
     }
   }
-  const operator = state.operators.get(
-    operatorText === "" ? "*" : operatorText
-  );
+  const operator = state.operators.get(!hasInfixOperator ? "*" : operatorText);
   return Value.applyBinary(operator, left, right);
 }
 

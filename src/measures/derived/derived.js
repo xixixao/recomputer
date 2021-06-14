@@ -4,7 +4,7 @@ export function testDerivedUnits(assertEvals) {
   assertEvals(`N/kg`, `1m/s^2`);
   assertEvals(`N*s2`, `1kg*m`);
   assertEvals(`N*s`, `1kg*m/s`);
-  assertEvals(`N/kg2`, `1m/kg*s^2`);
+  assertEvals(`N/kg2`, `1m/(kg*s^2)`);
   assertEvals(`N*kg`, `1N*kg`);
   assertEvals(`N / (m kg/s2)`, `1`);
   assertEvals(`m*N/kg`, `1m^2/s^2`);

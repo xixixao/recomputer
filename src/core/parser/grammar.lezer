@@ -31,7 +31,6 @@ Parens { "(" expression ")" }
 
 @precedence {
   exp @left
-  implicitMult @left
   mult @left
   add @left
   bin @left
@@ -40,8 +39,7 @@ Parens { "(" expression ")" }
 
 BinaryExpression {
   expression !exp ArithOp { "^" } expression |
-  expression !implicitMult ImplicitOp {} expression |
-  expression !mult ArithOp { "*" | "/" | "%" } expression |
+  expression !mult ArithOp { "*" | "/" | "%" }? expression |
   expression !add ArithOp { "+" | minus } expression |
   expression !bin BinOp expression
   // expression !compare CompareOp expression |
