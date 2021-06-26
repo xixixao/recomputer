@@ -52,7 +52,7 @@ export const commentStyleTags = {
 };
 
 export const commentsHighlight = [
-  { tag: tags.blockComment, color: "#f7bf2f" },
+  { tag: tags.blockComment, color: "#f7bf2f", fontWeight: "bold" },
   { tag: tags.lineComment, color: "#e3e3e3" },
   // { tag: tags.docComment, color: "#777" },
 ];
