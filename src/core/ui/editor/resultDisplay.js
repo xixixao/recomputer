@@ -6,8 +6,6 @@ import { highlightLineEffect } from "./highlightEditorActiveLine";
 import { shouldForceEvaluate } from "../../editor/forceEvaluate";
 import { forEachLine } from "../../evaluate/astCursor";
 
-let resultsContentCache = null;
-
 export const resultDisplay = (evaluator, views) => (update) => {
   const editorView = update.view;
   const editorDoc = editorView.state.doc;
@@ -39,8 +37,9 @@ export const resultDisplay = (evaluator, views) => (update) => {
         }
       },
     });
-    resultsContentCache = resultsContent;
+    views.resultsContentCache = resultsContent;
   }
+  const resultsContentCache = views.resultsContentCache;
   if (hasContentChanged || update.geometryChanged || update.viewportChanged) {
     ast ??= syntaxTree(editorView.state);
     const lineNumberToHeight = [];

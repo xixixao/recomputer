@@ -42,8 +42,9 @@
       flex: 1 0 auto;
     }
 
-    #recomputer {
+    .recomputer {
       display: flex;
+      position: relative;
       flex-direction: row;
       justify-content: center;
       max-width: 60rem;
@@ -55,7 +56,7 @@
       box-shadow: inset 0px 0px 50px rgba(41, 41, 41, 0.1);
     }
 
-    #leftPane {
+    .leftPane {
       flex-grow: 1;
       /* max-width leads to dynamic sizing which breaks long documents*/
       width: 70%;
@@ -64,10 +65,28 @@
       /* min-width: 50rem; */
     }
 
-    #rightPane {
+    .rightPane {
       flex-grow: 1;
       /* max-width: 50%; */
       width: 30%;
+    }
+
+    #wrapper button[name=close] {
+      position: absolute;
+      color: #ccc;
+      cursor: pointer;
+      top: 4px;
+      right: 4px;
+      background: rgba(41, 41, 44, 0.6);
+      border: none;
+      border-radius: 8px;
+      line-height: 0 !important;
+      font: inherit;
+      font-size: 14px;
+      padding: 0;
+      margin: 0;
+      width: 16px;
+      height: 16px;
     }
 
     #footer {
@@ -93,19 +112,13 @@
 </head>
 
 <body>
-  <div id="wrapper">
-    <div id="recomputer">
-      <div id="leftPane">
-      </div>
-      <div id="rightPane">
-      </div>
-      <script type="module" src="src/core/editor/editor.js"></script>
-    </div>
-  </div>
-  <div id="footer">
-    Examples | Guide |
+  <noscript>
+    Recomputer is an interactive calculator that requires Javascript enabled. Find out more here:
     <a href="https://github.com/xixixao/recomputer" target="_blank">Github</a>
-  </div>
+  </noscript>
+  <div id="wrapper"></div>
+  <div id="footer"></div>
+  <script type="module" src="src/core/editor/editors.js"></script>
   <!--stats-->
 </body>
 

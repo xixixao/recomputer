@@ -2,13 +2,8 @@ import { linkClick, currentUri } from "../core/browser";
 
 export function docs() {
   return `
-## Welcome to Recomputer!
-# Recomputer is a better, smarter calculator:
-tectonic shift = (0.6 inches / year) * 5K years in meters
-
-# It looks like this is your first time visiting using this browser. The text below gives you all the important information and shows you examples of how to use Recomputer. If you're familiar with it already, or want to explore on your own, ${linkClick} here: ${currentUri(
-    { empty: true }
-  )}.
+## Guide to Recomputer
+# Here is a Recomputer instance with a walk-through of all of its features. You can edit the text here, but your changes won't be saved. You can close it at any time with the button in top right corner or by clicking on this link: https://recomputer.io/. Your primary editor is below the guide.
 
 ### Privacy Notice
 # Recomputer never sends your calculations to any server.

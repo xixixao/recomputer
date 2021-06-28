@@ -54,6 +54,9 @@ const sharedCodemirrorStyles = EditorView.theme(
     ".cm-selectionMatch": {
       backgroundColor: "transparent",
     },
+    "&.animating .cm-cursor-primary": {
+      display: "block",
+    },
     ".cm-cursor-primary, .cm-cursor-secondary": {
       borderLeftColor: textColor,
     },
@@ -73,6 +76,7 @@ const sharedCodemirrorStyles = EditorView.theme(
       borderRadius: "6px",
     },
     button: {
+      cursor: "pointer",
       color: "white",
     },
     ".cm-panels :focus-visible": {
