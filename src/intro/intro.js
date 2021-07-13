@@ -32,12 +32,11 @@ export class IntroPlayer {
     // Check editor is still in DOM
     await this.delay(0);
     this.eraseAll();
-    await this.delay(800);
     this.editor.dom.classList.toggle("cm-focused", true);
     syncEditorFocusToResultDisplay(this.views)();
 
+    await this.enter(INTRO);
     await this.delay(2500);
-    await this.typeOut(INTRO);
     for (const example of EXAMPLES) {
       await this.typeOut(example);
       await this.delay(500);
@@ -52,6 +51,14 @@ export class IntroPlayer {
     this.views.recomputer.remove();
 
     // views.editor.dom.classList.toggle("animating", false);
+  }
+
+  enter(text) {
+    let i = this.editor.state.doc.length;
+    this.editor.dispatch({
+      changes: { from: i, insert: text },
+      selection: EditorSelection.cursor(i + text.length),
+    });
   }
 
   async typeOut(text) {
