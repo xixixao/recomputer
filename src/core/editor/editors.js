@@ -1,23 +1,14 @@
 import { initializeEditor } from "./editor";
 import { LocalStorage } from "../../storage/localStorage";
 import elt from "crelt";
-import { examples, IntroPlayer } from "../../intro/intro";
+import { examples } from "../../intro/intro";
 import { docs } from "../docs";
 
-const isFirstTime = window.localStorage.getItem("FirstTime") == null;
-window.localStorage.setItem("FirstTime", "True");
-
-const urlParams = new URL(document.location).searchParams;
-const shouldForceIntro = urlParams.get("intro") != null;
-const shouldPlayIntro = isFirstTime || shouldForceIntro;
+// const urlParams = new URL(document.location).searchParams;
+// const shouldForceIntro = urlParams.get("intro") != null;
 
 const storage = LocalStorage.main();
 let controlledViews = null;
-
-if (shouldPlayIntro) {
-  controlledViews = setUpEditorDOM(append, { closeButton, editable: false });
-  new IntroPlayer(controlledViews).play();
-}
 
 setUpEditorDOM(append, { storage });
 setUpFooter();
