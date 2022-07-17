@@ -23,15 +23,17 @@ Guide (docs) is generated from each module via `docs.js` -> `modules.js`. This m
 - Build
   - Move to Vite
 - Core
-
   - Fix unit exponentiation by fraction simplifying to integer
     x = 4 m^2/s^2
     sqrt x # should be 2 m/s
-
   - Fix support for measurement accuracy by computing error
     - By default significant figures are reported, unless explicit ± is used anywhere in the expression
   - Add support for explicit error measurement via ± (option+shift++ on mac)
   - Fix function application parsing (see note below)
+  - Show multiplication dot on left hand side where appropriate (dont copy though)
+    - Also better formalize the rules about these transformations
+    - Also use superscript for tight exponents
+  - m2 should just be m2, while 1m2 should be 1m2 - only include the number if it's present in the expression
 
 # Notes
 
@@ -59,3 +61,11 @@ To recap, we have
 2 _ ~0.5 = ~1 from simplistic rules, giving 1±0.5
 2 \* ~0.5 = 1±0.1 from proper uncertainty analysis, which is closer to but greater than ~1.0, ie 1±0.05
 Recomputer should always assume that variables are independent
+
+### Example to test
+
+µ_s = ~0.96
+g = ~9.80m/s^2
+R = ~230m
+µ_s g R
+v_max = sqrt (µ_s g R s^2/m^2)
