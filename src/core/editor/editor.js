@@ -1,21 +1,20 @@
-import { EditorState, Prec, Compartment } from "@codemirror/state";
+import { Compartment, EditorState } from "@codemirror/state";
 import { EditorView, keymap } from "@codemirror/view";
-import { defaultTabBinding } from "@codemirror/commands";
+import { measure as currency } from "../../measures/currency/currency";
 import { language } from "../parser/language";
+import { test } from "../tests";
+import { highlightedLines } from "../ui/editor/highlightEditorActiveLine";
+import { linkify } from "../ui/editor/linkify";
 import {
   resultDisplay,
   resultLineAdjustment,
 } from "../ui/editor/resultDisplay";
 import { resultTransform } from "../ui/editor/resultTransform";
 import { editorStyles, resultsStyles } from "../ui/editor/styles";
-import { evaluator, editorParser, resultsParser } from "./config";
-import { editorInputOverride } from "./commands";
-import { highlightedLines } from "../ui/editor/highlightEditorActiveLine";
-import { measure as currency } from "../../measures/currency/currency";
-import { forceEvaluateAnnotation } from "./forceEvaluate";
-import { linkify } from "../ui/editor/linkify";
-import { test } from "../tests";
+import { spaceToIndent } from "./commands";
+import { editorParser, evaluator, resultsParser } from "./config";
 import { editorBasics } from "./editorBasics";
+import { forceEvaluateAnnotation } from "./forceEvaluate";
 import { syncEditorFocusToResultDisplay } from "./syncFocus";
 
 const urlParams = new URL(document.location).searchParams;
@@ -42,11 +41,10 @@ export function initializeEditor(leftPane, rightPane, storage) {
     state: EditorState.create({
       doc: storage != null ? storage.load() : "",
       extensions: [
-        keymap.of([editorInputOverride, defaultTabBinding]),
-        views.editable.of(EditorView.editable.of(true)),
+        keymap.of([spaceToIndent]),
         editorBasics,
         EditorView.lineWrapping,
-        Prec.fallback(linkify),
+        linkify, // This used be Prec.fallback, so should be Prec.low()?
         editorStyles(),
         language(editorParser),
         EditorView.updateListener.of(resultDisplay(evaluator, views)),

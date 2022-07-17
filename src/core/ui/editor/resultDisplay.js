@@ -140,7 +140,7 @@ function processAst({ ast, doc, onEveryLine = noop, onEveryStatement = noop }) {
 }
 
 function lineHeightForPos(view, pos) {
-  const line = view.visualLineAt(pos);
+  const line = view.lineBlockAt(pos);
   return line.height;
 }
 

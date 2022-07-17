@@ -1,20 +1,25 @@
 import {
-  highlightSpecialChars,
-  highlightActiveLine,
-  keymap,
-} from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
-import { history, historyKeymap } from "@codemirror/history";
-import { indentOnInput } from "@codemirror/language";
-import { defaultKeymap } from "@codemirror/commands";
-import { bracketMatching } from "@codemirror/matchbrackets";
-import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets";
-import { searchKeymap } from "@codemirror/search";
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-import { commentKeymap } from "@codemirror/comment";
-import { rectangularSelection } from "@codemirror/rectangular-selection";
-import { defaultHighlightStyle } from "@codemirror/highlight";
+  autocompletion,
+  closeBrackets,
+  closeBracketsKeymap,
+  completionKeymap,
+} from "@codemirror/autocomplete";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import {
+  bracketMatching,
+  defaultHighlightStyle,
+  indentOnInput,
+  syntaxHighlighting,
+} from "@codemirror/language";
 import { lintKeymap } from "@codemirror/lint";
+import { searchKeymap } from "@codemirror/search";
+import { EditorState } from "@codemirror/state";
+import {
+  highlightActiveLine,
+  highlightSpecialChars,
+  keymap,
+  rectangularSelection,
+} from "@codemirror/view";
 import { drawBetterSelection } from "./drawBetterSelection";
 
 export const editorBasics = [
@@ -23,7 +28,7 @@ export const editorBasics = [
   drawBetterSelection(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
-  defaultHighlightStyle.fallback,
+  syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
   bracketMatching(),
   closeBrackets(),
   autocompletion(),
@@ -34,7 +39,6 @@ export const editorBasics = [
     ...defaultKeymap,
     ...searchKeymap,
     ...historyKeymap,
-    ...commentKeymap,
     ...completionKeymap,
     ...lintKeymap,
   ]),

@@ -1,17 +1,18 @@
-import { EditorView } from "@codemirror/basic-setup";
-import { tags, HighlightStyle } from "@codemirror/highlight";
+import { EditorView } from "@codemirror/view";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { tags } from "@lezer/highlight";
 import { commentsHighlight } from "../../../syntax/comments/comments";
 import { resultsFocusClass } from "../../editor/syncFocus";
 
 export const editorStyles = () => [
-  sharedHighlight,
-  sharedCodemirrorStyles,
-  editorViewStyles,
+  syntaxHighlighting(sharedHighlight),
+  syntaxHighlighting(sharedCodemirrorStyles),
+  syntaxHighlighting(editorViewStyles),
 ];
 export const resultsStyles = () => [
-  sharedHighlight,
-  sharedCodemirrorStyles,
-  resultsViewStyles,
+  syntaxHighlighting(sharedHighlight),
+  syntaxHighlighting(sharedCodemirrorStyles),
+  syntaxHighlighting(resultsViewStyles),
 ];
 
 const sharedHighlight = HighlightStyle.define([

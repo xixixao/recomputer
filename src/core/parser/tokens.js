@@ -1,4 +1,4 @@
-import { ExternalTokenizer } from "lezer";
+import { ExternalTokenizer } from "@lezer/lr";
 import * as Term from "./parser.terms";
 import {
   tokenizerCommentContent,
@@ -47,14 +47,16 @@ export const expressionTokenizer = buildLineTokenizer([
 function buildLineTokenizer(tokenizers) {
   return (tokenConfig) => {
     const tokenMatchers = tokenizers.map((tokenizer) => tokenizer(tokenConfig));
-    return new ExternalTokenizer((input, token, stack) => {
-      let pos = token.start;
-      let line = input.lineAfter(pos);
-      for (const matcher of tokenMatchers) {
-        if (matcher(line, token, stack)) {
-          return;
-        }
-      }
+    return new ExternalTokenizer((input, stack) => {
+      // TODO: @lezer/lr 0.15.0 (2021-08-11) completely broke
+      // my usage of this by preventing lookahead and tracking it
+      // let pos = token.start;
+      // let line = input.lineAfter(pos);
+      // for (const matcher of tokenMatchers) {
+      //   if (matcher(line, token, stack)) {
+      //     return;
+      //   }
+      // }
     });
   };
 }

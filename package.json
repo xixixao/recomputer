@@ -16,12 +16,19 @@
   "author": "xixixao",
   "license": "ISC",
   "devDependencies": {
+    "@lezer/generator": "^1.1.0",
     "eslint": "^7.26.0",
-    "lezer-generator": "^0.13.3",
     "snowpack": "^3.5.2"
   },
   "dependencies": {
-    "@codemirror/basic-setup": "^0.18.1",
-    "@codemirror/gutter": "^0.18.3"
+    "@codemirror/autocomplete": "^6.0.4",
+    "@codemirror/commands": "^6.0.1",
+    "@codemirror/language": "^6.2.0",
+    "@codemirror/lint": "^6.0.0",
+    "@codemirror/search": "^6.0.0",
+    "@codemirror/state": "^6.1.0",
+    "@codemirror/view": "^6.0.3",
+    "@lezer/highlight": "^1.0.0",
+    "@lezer/lr": "^1.2.0"
   }
 }

@@ -1,4 +1,4 @@
-import { ExternalTokenizer, ContextTracker } from "lezer";
+import { ExternalTokenizer, ContextTracker } from "@lezer/lr";
 import * as Token from "../../core/parser/parser.terms.js";
 
 const newline = 10,
@@ -32,6 +32,8 @@ function getIndentInner(input, pos) {
 
 export const newlines = new ExternalTokenizer(
   (input, token, stack) => {
+    return;
+    // TODO: Also totally broken by Lezer
     let next = input.get(token.start);
     if (next >= 0 && (next === newline || next === carriageReturn)) {
       const depth = getIndent(input, token.start + 1);
@@ -47,6 +49,8 @@ export const newlines = new ExternalTokenizer(
 );
 
 export const indentation = new ExternalTokenizer((input, token, stack) => {
+  return;
+  // TODO: Also totally broken by Lezer
   let ch = input.get(token.start);
   if (ch != newline && ch != carriageReturn && ch >= 0) {
     return;

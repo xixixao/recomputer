@@ -1,12 +1,11 @@
 import { stringToDoc } from "./parser/language";
 import { evaluator, editorParser } from "./editor/config";
-import { stringInput } from "lezer-tree";
 import { LAST_RESULT_SYMBOL } from "../syntax/preceding/preceding";
 
 export function assertEvals(docString, result) {
   try {
     // console.warn(`Expecting ${result}`);
-    const ast = editorParser.parse(stringInput(docString));
+    const ast = editorParser.parse(docString);
     let cursor = ast.cursor();
     let getValue = evaluator({ doc: stringToDoc(docString), cursor });
     const value = getValue.byName(LAST_RESULT_SYMBOL);

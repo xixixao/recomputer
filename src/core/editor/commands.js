@@ -1,6 +1,6 @@
 import { EditorSelection } from "@codemirror/state";
 
-export const editorInputOverride = {
+export const spaceToIndent = {
   key: "Space",
   run: (view) => {
     const doc = view.state.doc;

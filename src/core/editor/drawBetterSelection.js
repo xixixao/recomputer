@@ -188,8 +188,8 @@ function measureRange(view, range) {
   let lineStyle = window.getComputedStyle(content.firstChild);
   let leftSide = contentRect.left + parseInt(lineStyle.paddingLeft);
   let rightSide = contentRect.right - parseInt(lineStyle.paddingRight);
-  let visualStart = view.visualLineAt(from);
-  let visualEnd = view.visualLineAt(to);
+  let visualStart = view.lineBlockAt(from);
+  let visualEnd = view.lineBlockAt(to);
   if (view.lineWrapping) {
     visualStart = wrappedLine(view, from, visualStart);
     visualEnd = wrappedLine(view, to, visualEnd);
@@ -204,7 +204,7 @@ function measureRange(view, range) {
       // RECOMPUTER CHANGE START
       // between.push(piece(leftSide, top.bottom, rightSide, bottom.top));
       while (visualStart.to < visualEnd.from - 1) {
-        const line = view.visualLineAt(visualStart.to + 1);
+        const line = view.lineBlockAt(visualStart.to + 1);
         between.push(pieces(drawForLine(null, null, line, true)));
         visualStart = line;
       }
