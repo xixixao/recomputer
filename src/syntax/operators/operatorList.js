@@ -117,6 +117,14 @@ export const sqrt = {
   apply: (value) => root.apply(Value.fromNumber(BigNum.fromInteger(2)), value),
 };
 
+export const sqrt2 = {
+  symbol: "√",
+  docs: "The square (2nd) root.",
+  docsPos: "7.2",
+  example: "√36",
+  apply: sqrt.apply,
+};
+
 export const root = {
   symbol: "rt",
   docs: "The left value root of the right value.",

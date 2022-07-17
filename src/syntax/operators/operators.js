@@ -24,6 +24,8 @@ export function testExponentiate(assertEvals) {
 }
 
 export function testRoot(assertEvals) {
+  assertEvals(`sqrt 4`, `2`);
+  assertEvals(`√ 4`, `2`);
   assertEvals(`1rt 1`, `1`);
   assertEvals(`2rt 4`, `2`);
   assertEvals(`3rt 27`, `3`);

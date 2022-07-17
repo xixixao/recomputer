@@ -23,6 +23,7 @@ const parserConfig = {
     .flat()
     // TODO: Push this to config
     .map((symbol) => symbol.replace("$", "\\$"))
+    // TODO: Figure out how also treat "√" ala prefix but also as a function
     .concat("~"),
   names: operatorList
     .filter((operator) => operator.regex == null)
