@@ -31,7 +31,8 @@ export const editorBasics = [
   highlightActiveLine(),
   keymap.of([
     ...closeBracketsKeymap,
-    ...defaultKeymap,
+    // Fixed in latest codemirror
+    ...defaultKeymap.filter(({ mac }) => mac != "Alt-v"),
     ...searchKeymap,
     ...historyKeymap,
     ...commentKeymap,

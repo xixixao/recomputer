@@ -4,6 +4,12 @@ Use npm "scripts". `npm start`.
 
 Currently uses Snowpack, should be migrated to Vite.
 
+# Deps
+
+We are now stuck on old codemirror.next version and lezer version because @lezer/lr 0.15.0 (2021-08-11) totally breaks the parsing approach here.
+
+Also I haven't actually listed the correct versions of packages in package.json (thanks snowpack), so they have to be guessed when installing/reinstalling (generally the versions before 2021-08-01 should work).
+
 # Dev
 
 Main entrypoint: `editors.js` (from `index.html`)

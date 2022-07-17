@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@codemirror/basic-setup": "^0.18.1",
-    "@codemirror/gutter": "^0.18.3"
+    "@codemirror/gutter": "^0.18.3",
+    "lezer-tree": "^0.13.2"
   }
 }
