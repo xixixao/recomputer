@@ -1,7 +1,7 @@
-import { stringToDoc } from "./parser/language";
-import { evaluator, editorParser } from "./editor/config";
 import { stringInput } from "lezer-tree";
 import { LAST_RESULT_SYMBOL } from "../syntax/preceding/preceding";
+import { editorParser, evaluator } from "./editor/config";
+import { stringToDoc } from "./parser/language";
 
 export function assertEvals(docString, result) {
   try {

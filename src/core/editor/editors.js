@@ -1,8 +1,8 @@
-import { initializeEditor } from "./editor";
-import { LocalStorage } from "../../storage/localStorage";
 import elt from "crelt";
 import { examples } from "../../intro/intro";
+import { LocalStorage } from "../../storage/localStorage";
 import { docs } from "../docs";
+import { initializeEditor } from "./editor";
 
 // const urlParams = new URL(document.location).searchParams;
 // const shouldForceIntro = urlParams.get("intro") != null;

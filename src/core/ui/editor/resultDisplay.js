@@ -1,10 +1,10 @@
-import { StateField, StateEffect } from "@codemirror/state";
-import { EditorView, Decoration } from "@codemirror/view";
 import { syntaxTree } from "@codemirror/language";
-import * as Term from "../../parser/parser.terms";
-import { highlightLineEffect } from "./highlightEditorActiveLine";
+import { StateEffect, StateField } from "@codemirror/state";
+import { Decoration, EditorView } from "@codemirror/view";
 import { shouldForceEvaluate } from "../../editor/forceEvaluate";
 import { forEachLine } from "../../evaluate/astCursor";
+import * as Term from "../../parser/parser.terms";
+import { highlightLineEffect } from "./highlightEditorActiveLine";
 
 export const resultDisplay = (evaluator, views) => (update) => {
   const editorView = update.view;

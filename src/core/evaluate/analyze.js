@@ -1,5 +1,5 @@
-import { textAt, forEachStatement } from "./astCursor";
 import * as Term from "../parser/parser.terms";
+import { forEachStatement, textAt } from "./astCursor";
 import { Dictionary } from "./Dictionary";
 
 export const analyzeDocument = ({ doc, cursor, names }) => {

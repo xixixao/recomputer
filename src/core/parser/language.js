@@ -1,19 +1,19 @@
-import { LezerLanguage, LanguageSupport } from "@codemirror/language";
 import { styleTags, tags as t } from "@codemirror/highlight";
+import { LanguageSupport, LezerLanguage } from "@codemirror/language";
+import { parser } from "./parser";
 import {
-  expressionTID,
-  commentTID,
   commentStartTID,
-  nameTID,
-  commentTokenizer,
   commentStartTokenizer,
+  commentTID,
+  commentTokenizer,
+  expressionTID,
   expressionTokenizer,
+  nameTID,
   nameTokenizer,
 } from "./tokens";
-import { parser } from "./parser";
 
-import { analyzeDocument } from "../evaluate/analyze";
 import { commentStyleTags } from "../../syntax/comments/comments";
+import { analyzeDocument } from "../evaluate/analyze";
 
 export function language(parser) {
   return new LanguageSupport(

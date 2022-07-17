@@ -1,15 +1,15 @@
-import { forEachStatement, textAt } from "./astCursor";
-import * as Term from "../parser/parser.terms";
+import { constants } from "../../syntax/constants/constants";
+import { addToList, maybeResetList } from "../../syntax/list/list";
+import { evaluateReference } from "../../syntax/names/names";
 import { evaluateNumber } from "../../syntax/numbers/numbers";
 import {
   evaluateBinaryExpression,
   prepareOperators,
 } from "../../syntax/operators/operators";
-import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
-import { evaluateReference } from "../../syntax/names/names";
 import { saveLastResult } from "../../syntax/preceding/preceding";
-import { addToList, maybeResetList } from "../../syntax/list/list";
-import { constants } from "../../syntax/constants/constants";
+import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
+import * as Term from "../parser/parser.terms";
+import { forEachStatement, textAt } from "./astCursor";
 
 export const evaluateDocument = (operators, measures) => {
   const operatorLookup = prepareOperators(operators);

@@ -1,6 +1,6 @@
-import { Value } from "../../core/evaluate/Value";
 import { BigNum } from "../../core/evaluate/BigNum";
 import { Units } from "../../core/evaluate/Units";
+import { Value } from "../../core/evaluate/Value";
 
 export const add = {
   symbol: "+",
