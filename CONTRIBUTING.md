@@ -7,6 +7,8 @@ Currently uses Snowpack, should be migrated to Vite.
 # Dev
 
 Main entrypoint: `editors.js` (from `index.html`)
+Actual editor stuff in `editor.js`. Each user-facing editor consists of two instances of codemirror, on the left it's called "editor", on the right it's called "results".
+Guide (docs) is generated from each module via `docs.js` -> `modules.js`. This means that instead of having one big doc referencing the different parts of the implementation the docs are scattered across the implementation, collocated to each part. This requires great structure for the implementation itself.
 
 # Roadmap
 
