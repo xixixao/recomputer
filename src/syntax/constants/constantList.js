@@ -15,3 +15,8 @@ export const E = {
   symbol: "e",
   value: Value.fromNumber(BigNum.fromNumber(Math.E, true)),
 };
+
+export const TAU = {
+  symbol: "τ",
+  value: Value.fromNumber(BigNum.fromNumber(2 * Math.PI, true)),
+};

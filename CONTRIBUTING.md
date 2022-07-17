@@ -28,10 +28,10 @@ Guide (docs) is generated from each module via `docs.js` -> `modules.js`. This m
     x = 4 m^2/s^2
     sqrt x # should be 2 m/s
 
-  - Fix function application parsing
-  - Add support for explicit error measurement via ± (option+shift++ on mac)
   - Fix support for measurement accuracy by computing error
     - By default significant figures are reported, unless explicit ± is used anywhere in the expression
+  - Add support for explicit error measurement via ± (option+shift++ on mac)
+  - Fix function application parsing (see note below)
 
 # Notes
 

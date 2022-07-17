@@ -1,20 +1,20 @@
-import {
-  highlightSpecialChars,
-  highlightActiveLine,
-  keymap,
-} from "@codemirror/view";
-import { EditorState } from "@codemirror/state";
+import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
+import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets";
+import { defaultKeymap } from "@codemirror/commands";
+import { commentKeymap } from "@codemirror/comment";
+import { defaultHighlightStyle } from "@codemirror/highlight";
 import { history, historyKeymap } from "@codemirror/history";
 import { indentOnInput } from "@codemirror/language";
-import { defaultKeymap } from "@codemirror/commands";
-import { bracketMatching } from "@codemirror/matchbrackets";
-import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets";
-import { searchKeymap } from "@codemirror/search";
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-import { commentKeymap } from "@codemirror/comment";
-import { rectangularSelection } from "@codemirror/rectangular-selection";
-import { defaultHighlightStyle } from "@codemirror/highlight";
 import { lintKeymap } from "@codemirror/lint";
+import { bracketMatching } from "@codemirror/matchbrackets";
+import { rectangularSelection } from "@codemirror/rectangular-selection";
+import { searchKeymap } from "@codemirror/search";
+import { EditorState } from "@codemirror/state";
+import {
+  highlightActiveLine,
+  highlightSpecialChars,
+  keymap,
+} from "@codemirror/view";
 import { drawBetterSelection } from "./drawBetterSelection";
 
 export const editorBasics = [
