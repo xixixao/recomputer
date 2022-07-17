@@ -48,7 +48,7 @@ export const resultDisplay = (evaluator, views) => (update) => {
       doc: editorDoc,
       onEveryLine: (from, lineNumber) => {
         const lineHeight = lineHeightForPos(editorView, from);
-        if (lineHeight > 1) {
+        if (lineHeight > editorView.defaultLineHeight) {
           lineNumberToHeight[lineNumber] = lineHeight;
         }
       },
@@ -141,7 +141,7 @@ function processAst({ ast, doc, onEveryLine = noop, onEveryStatement = noop }) {
 
 function lineHeightForPos(view, pos) {
   const line = view.visualLineAt(pos);
-  return Math.floor(line.height / view.defaultLineHeight);
+  return line.height;
 }
 
 const lineHeightEffect = StateEffect.define();
@@ -165,9 +165,7 @@ export function resultLineAdjustment(views) {
           .map((lineHeight, lineNumber) =>
             Decoration.line({
               attributes: {
-                style: `height: ${
-                  /* views.results.defaultLineHeight */ 28 * lineHeight
-                }px`,
+                style: `height: ${lineHeight}px`,
               },
             }).range(state.doc.line(lineNumber).from)
           )
