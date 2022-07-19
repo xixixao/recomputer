@@ -13,7 +13,11 @@ Also I haven't actually listed the correct versions of packages in package.json 
 # Dev
 
 Main entrypoint: `editors.js` (from `index.html`)
+
 Actual editor stuff in `editor.js`. Each user-facing editor consists of two instances of codemirror, on the left it's called "editor", on the right it's called "results".
+
+We let codemirror parse the input and if any of it has changed we execute all the statements in turn (there is no intermediate caching atm because perf has not been a problem).
+
 Guide (docs) is generated from each module via `docs.js` -> `modules.js`. This means that instead of having one big doc referencing the different parts of the implementation the docs are scattered across the implementation, collocated to each part. This requires great structure for the implementation itself.
 
 # Roadmap
@@ -45,6 +49,23 @@ sqrt (4 _ 2)
 4 (sqrt 1)
 4 sqrt 1 # fails to parse atm
 4 _ sqrt 1 # also fails atm
+
+## Simplification
+
+Simplification requires abstract representation. After parsing before evaluation a simplification/optimization pass needs to be performed. Simplification rules stem from mathematical equalities but have a specified direction. This should limit the danger of cycles (although it doesn't prevent it). Examples:
+
+inverse-f(f(x)) => x (this one covers a lot of cases and so is worth specializing for in a lot of operators by specifying the inverse function).
+(x^y^z) => x^(y*z)
+x/y = z/w when x and y have a common denominator
+(x^y * z^y) => (xz)^y
+
+This doesn't work even more simple cases. Consider
+
+(x^2 y z^2)^0.5
+
+The problem is that we're missing the rule (which is not a simplification rule) (a b) c = a (b c) (which is a simple equality without clear benefit)
+
+So we have to at least include equalities (rules which do not increase complexity). This would be quite slow. A simpler, more naive approach of only supporting expressions of few shapes (n _ u2^z _ u2^w) might be a better short term mitigation.
 
 ## On uncertainty / error measurement
 
