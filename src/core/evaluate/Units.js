@@ -109,14 +109,14 @@ export class Units {
     if (this.isScalar()) {
       return Value.one();
     }
-    const exponentInteger = exponentNum.toInteger();
-    if (exponentInteger == null) {
+    const exponentFloat = exponentNum.toFloat();
+    if (exponentFloat == null) {
       return null;
     }
     return UnitsValue(
       this.compounds.map(({ exponent, ...compound }) => ({
         ...compound,
-        exponent: exponent * exponentInteger,
+        exponent: exponent * exponentFloat,
       }))
     );
   }

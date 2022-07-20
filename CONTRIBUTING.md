@@ -89,4 +89,4 @@ Recomputer should always assume that variables are independent
 g = ~9.80m/s^2
 R = ~230m
 µ_s g R
-v_max = sqrt (µ_s g R s^2/m^2)
+v_max = sqrt (µ_s g R)

@@ -29,6 +29,7 @@ export function testRoot(assertEvals) {
   assertEvals(`1rt 1`, `1`);
   assertEvals(`2rt 4`, `2`);
   assertEvals(`3rt 27`, `3`);
+  assertEvals(`3rt m3`, `1m`);
 }
 
 export function docs() {
