@@ -65,9 +65,9 @@ function setUpFooter() {
       href: "?examples",
       label: "Examples",
     }),
-    " | ",
+    " ",
     Link({ onClick: onClickShow(docs), href: "?guide", label: "Guide" }),
-    " | ",
+    " ",
     elt(
       "a",
       { href: "https://github.com/xixixao/recomputer", target: "_blank" },
