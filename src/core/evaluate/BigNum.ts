@@ -1,11 +1,16 @@
 import { decimalSeparator } from "../../syntax/numbers/separators";
 
+// @ts-ignore
 const currentLocaleNumberFormat = Intl.NumberFormat(window.navigator.locale);
 
 const APPROXIMATE = true;
 
 export class BigNum {
-  constructor(numerator, denominator, approximate) {
+  numerator: bigint;
+  denominator: bigint;
+  approximate: boolean;
+
+  constructor(numerator: bigint, denominator: bigint, approximate?: boolean) {
     if (typeof numerator !== "bigint") {
       throw new Error(`numerator is not bigint: ${numerator} `);
     }
@@ -111,17 +116,13 @@ export class BigNum {
     if (denominator !== 1n) {
       return null;
     }
-    const result = Number(numerator);
-    if (numerator != result) {
-      return null;
-    }
-    return result;
+    return numberIfAccurateOrNull(numerator);
   }
 
   toFloat() {
-    const numerator = Number(this.numerator);
-    const denominator = Number(this.denominator);
-    if (numerator != this.numerator || denominator != this.denominator) {
+    const numerator = numberIfAccurateOrNull(this.numerator);
+    const denominator = numberIfAccurateOrNull(this.denominator);
+    if (numerator == null || denominator == null) {
       return null;
     }
     return numerator / denominator;
@@ -147,11 +148,11 @@ export class BigNum {
     return new BigNum(this.denominator, this.numerator, this.approximate);
   }
 
-  inverseIf(shouldInverse) {
+  inverseIf(shouldInverse: boolean) {
     return !shouldInverse ? this : this.inverse();
   }
 
-  add(b) {
+  add(b: BigNum) {
     return new BigNum(
       this.numerator * b.denominator + b.numerator * this.denominator,
       this.denominator * b.denominator,
@@ -159,7 +160,7 @@ export class BigNum {
     );
   }
 
-  subtract(b) {
+  subtract(b: BigNum) {
     return new BigNum(
       this.numerator * b.denominator - b.numerator * this.denominator,
       this.denominator * b.denominator,
@@ -167,7 +168,7 @@ export class BigNum {
     );
   }
 
-  multiply(b) {
+  multiply(b: BigNum) {
     return new BigNum(
       this.numerator * b.numerator,
       this.denominator * b.denominator,
@@ -175,7 +176,7 @@ export class BigNum {
     );
   }
 
-  divide(b) {
+  divide(b: BigNum) {
     if (b.isZero()) {
       return null;
     }
@@ -216,9 +217,13 @@ export class BigNum {
 
   // TODO: This should use biginteger modulo instead to be precise and
   // shouldn't use a floor
-  modulo(b) {
+  modulo(b: BigNum) {
     const babs = b.abs();
-    return this.subtract(babs.multiply(this.divide(babs).floor()));
+    const divided = this.divide(babs);
+    if (divided == null) {
+      return null;
+    }
+    return this.subtract(babs.multiply(divided.floor()));
   }
 
   abs() {
@@ -279,3 +284,9 @@ function decimalString(number, integerString, fraction) {
 //   }
 //   return order;
 // }
+
+function numberIfAccurateOrNull(i: bigint): number | null {
+  const n = Number(i);
+  // @ts-ignore
+  return n == i ? n : null;
+}

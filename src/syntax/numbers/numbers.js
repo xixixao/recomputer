@@ -1,8 +1,8 @@
-import * as Term from "../../core/parser/parser.terms.js";
-import { matchToken, allSymbolsPattern } from "../../core/parser/tokens";
+import { textAt } from "../../core/evaluate/astCursor";
 import { BigNum } from "../../core/evaluate/BigNum";
 import { Value } from "../../core/evaluate/Value";
-import { textAt } from "../../core/evaluate/astCursor";
+import * as Term from "../../core/parser/parser.terms.js";
+import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 import { decimalSeparator, groupSeparator } from "./separators.js";
 
 export function testIntegers(assertEvals) {
@@ -106,6 +106,7 @@ export function evaluateNumber() {
       }
       const [_, numString, suffix] = match;
       let num = BigNum.fromString(numString);
+      console.log(numString);
       return Value.fromNumber(computeSuffix(num, suffix));
     },
   };
