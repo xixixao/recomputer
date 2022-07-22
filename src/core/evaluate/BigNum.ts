@@ -41,7 +41,7 @@ export class BigNum {
     return BigNum.fromString(`${number}`, approximate);
   }
 
-  static fromString(string, approximate) {
+  static fromString(string: string, approximate?: boolean) {
     const [integer, decimal, exponent] = string.split(/\.|e/);
     const denominator = Math.pow(
       10,
@@ -187,7 +187,7 @@ export class BigNum {
     );
   }
 
-  exponentiate(b) {
+  exponentiate(b: BigNum) {
     const exponent = b.toInteger();
     if (exponent === 1) {
       return this;

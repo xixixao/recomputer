@@ -34,6 +34,10 @@ export function testMagnitudeSuffix(assertEvals) {
   assertEvals(`6M`, `6,000,000`);
 }
 
+export function testExponentSuffix(assertEvals) {
+  assertEvals(`6E3`, `6,000`);
+}
+
 export function testPercent(assertEvals) {
   assertEvals(`10%`, `0.1`);
 }
@@ -57,9 +61,10 @@ export function docs() {
 # You can use arbitrarily large decimal numbers, with decimal point and group (thousand) separators depending on your browser's language (usually the language of your OS). Spaces can be used as well:
 ${BigNum.fromNumber(6543210.05)}
 100 000
-# Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
+# Numbers can be suffixed with \`K\`, \`M\`, \`E\` or the \`%\` (percent) sign:
 5K + 10M
 5% * 100
+6.3E8
 # Rational numbers (fractions) that cannot be printed exactly as decimal will be printed as fractions. To force a decimal printing use the \`~\` (tilde) symbol:
 10/6
 ~10/6
@@ -71,9 +76,9 @@ const NODE = Term.Number;
 export function tokenizerNumber(tokenConfig) {
   // TODO: Split suffix into separate module
   const numberPattern = new RegExp(
-    `^(-?\\d(?: (?=\\d)|[.,\\d])*(?:[KM%](?=(?:$|\\s|${allSymbolsPattern(
+    `^(-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${allSymbolsPattern(
       tokenConfig
-    )})))?)`
+    )})))|E\\d+)?%?)`
   );
   return (line, token) => matchToken(line, numberPattern, token, NODE);
 }
@@ -100,27 +105,39 @@ export function evaluateNumber() {
 
       // TODO: Consider rejecting numbers with multiple decimal separators
 
-      const match = textInENLocale.match(/(-?[0-9.]+)(K|M|%)?/);
+      const match = textInENLocale.match(/(-?[0-9.]+)(K|M|E\d+)?(%)?/);
       if (match == null) {
         return null;
       }
-      const [_, numString, suffix] = match;
+      const [_, numString, exponent, percent] = match;
       let num = BigNum.fromString(numString);
-      console.log(numString);
-      return Value.fromNumber(computeSuffix(num, suffix));
+      return Value.fromNumber(
+        computePercent(computeExponent(num, exponent), percent)
+      );
     },
   };
 }
 
 // TODO: Split suffix into separate module
-function computeSuffix(num, suffix) {
-  switch (suffix) {
+function computeExponent(num, exponent) {
+  if (exponent == null) {
+    return num;
+  }
+  switch (exponent) {
     case "K":
       return num.multiply(BigNum.fromInteger(1000));
     case "M":
       return num.multiply(BigNum.fromInteger(1000000));
-    case "%":
-      return num.divide(BigNum.fromInteger(100));
+    default: {
+      const n = BigNum.fromInteger(exponent.match(/\d+/));
+      return num.multiply(BigNum.fromInteger(10).exponentiate(n));
+    }
+  }
+}
+
+function computePercent(num, percent) {
+  if (percent != null) {
+    return num.divide(BigNum.fromInteger(100));
   }
   return num;
 }
