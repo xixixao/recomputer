@@ -1,10 +1,20 @@
 import { decimalSeparator } from "../../syntax/numbers/separators";
+import { declare } from "../../syntax/operators/operatorDeclaration";
+import {
+  abs,
+  add,
+  divide,
+  exponentiate,
+  multiply,
+  subtract,
+} from "../../syntax/operators/operatorList";
 
 // @ts-ignore
 const currentLocaleNumberFormat = Intl.NumberFormat(window.navigator.locale);
 
 const APPROXIMATE = true;
 
+// TODO: Rename to BigFrac
 export class BigNum {
   numerator: bigint;
   denominator: bigint;
@@ -61,9 +71,13 @@ export class BigNum {
     return decimalString(this, String(numerator / denominator), fraction);
   }
 
-  toString(precision) {
-    const { fraction } = this.fractionString(precision);
-    return decimalStringInLocale(this, fraction);
+  toDisplayString() {
+    const { numerator, denominator } = this.toStringParts(null);
+    if (denominator == null) {
+      return numerator;
+    }
+    // TODO: Print integer part? 2+2/3 instead of 8/3
+    return numerator + "/" + denominator;
   }
 
   // TODO: Consider limiting this to some reasonable number of significant
@@ -71,7 +85,7 @@ export class BigNum {
   toStringParts(precision) {
     const { numerator, denominator } = this;
     if (this.approximate) {
-      return { numerator: this.toString(precision) };
+      return { numerator: this.toDecimalString(precision) };
     }
     const { fraction, isExact } = this.fractionString(precision);
     if (isExact) {
@@ -81,6 +95,11 @@ export class BigNum {
       numerator: currentLocaleNumberFormat.format(numerator),
       denominator: currentLocaleNumberFormat.format(denominator),
     };
+  }
+
+  toDecimalString(precision) {
+    const { fraction } = this.fractionString(precision);
+    return decimalStringInLocale(this, fraction);
   }
 
   // TODO: Change this to significant digits, so that
@@ -151,106 +170,152 @@ export class BigNum {
   inverseIf(shouldInverse: boolean) {
     return !shouldInverse ? this : this.inverse();
   }
+}
 
-  add(b: BigNum) {
-    return new BigNum(
-      this.numerator * b.denominator + b.numerator * this.denominator,
-      this.denominator * b.denominator,
-      this.approximate || b.approximate
-    );
-  }
-
-  subtract(b: BigNum) {
-    return new BigNum(
-      this.numerator * b.denominator - b.numerator * this.denominator,
-      this.denominator * b.denominator,
-      this.approximate || b.approximate
-    );
-  }
-
-  multiply(b: BigNum) {
-    return new BigNum(
-      this.numerator * b.numerator,
-      this.denominator * b.denominator,
-      this.approximate || b.approximate
-    );
-  }
-
-  divide(b: BigNum) {
-    if (b.isZero()) {
+function nullIfNotBigNums(f: (a: BigNum, b: BigNum) => any) {
+  return (a: unknown, b: unknown) => {
+    if (!(a instanceof BigNum && b instanceof BigNum)) {
       return null;
     }
-    return new BigNum(
-      this.numerator * b.denominator,
-      this.denominator * b.numerator,
-      this.approximate || b.approximate
-    );
-  }
+    f(a, b);
+  };
+}
 
-  exponentiate(b: BigNum) {
-    const exponent = b.toInteger();
-    if (exponent === 1) {
-      return this;
+function nullIfNotBigNum(f: (a: BigNum) => any) {
+  return (a: unknown) => {
+    if (!(a instanceof BigNum)) {
+      return null;
     }
-    if (exponent == null || this.approximate) {
-      const a = this.toFloat();
-      const floatExponent = b.toFloat();
-      if (a == null || floatExponent == null) {
+    f(a);
+  };
+}
+
+export const BigNumOps = [
+  declare(
+    add,
+    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+      return new BigNum(
+        a.numerator * b.denominator + b.numerator * a.denominator,
+        a.denominator * b.denominator,
+        a.approximate || b.approximate
+      );
+    })
+  ),
+
+  declare(
+    subtract,
+    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+      return new BigNum(
+        a.numerator * b.denominator - b.numerator * a.denominator,
+        a.denominator * b.denominator,
+        a.approximate || b.approximate
+      );
+    })
+  ),
+
+  declare(
+    multiply,
+    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+      return new BigNum(
+        a.numerator * b.numerator,
+        a.denominator * b.denominator,
+        a.approximate || b.approximate
+      );
+    })
+  ),
+
+  declare(
+    divide,
+    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+      if (b.isZero()) {
         return null;
       }
-      const result = a ** floatExponent;
-      // There is no simple way to tell whether the floating point
-      // exponentiation is approximate or not, but this is convenient
-      // approximation of whether there is approximation.
-      return BigNum.fromNumber(result, result % 1 !== 0);
-    }
-    let positiveExponent = Math.abs(exponent);
-    const [numerator, denominator] =
-      exponent > 0
-        ? [this.numerator, this.denominator]
-        : [this.denominator, this.numerator];
-    return new BigNum(
-      numerator ** BigInt(positiveExponent),
-      denominator ** BigInt(positiveExponent)
-    );
-  }
+      return new BigNum(
+        a.numerator * b.denominator,
+        a.denominator * b.numerator,
+        a.approximate || b.approximate
+      );
+    })
+  ),
+
+  declare(
+    exponentiate,
+    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+      const exponent = b.toInteger();
+      if (exponent === 1) {
+        return a;
+      }
+      if (exponent == null || a.approximate) {
+        const aFloat = a.toFloat();
+        const floatExponent = b.toFloat();
+        if (aFloat == null || floatExponent == null) {
+          return null;
+        }
+        const result = aFloat ** floatExponent;
+        // There is no simple way to tell whether the floating point
+        // exponentiation is approximate or not, but this is convenient
+        // approximation of whether there is approximation.
+        return BigNum.fromNumber(result, result % 1 !== 0);
+      }
+      let positiveExponent = Math.abs(exponent);
+      const [numerator, denominator] =
+        exponent > 0
+          ? [a.numerator, a.denominator]
+          : [a.denominator, a.numerator];
+      return new BigNum(
+        numerator ** BigInt(positiveExponent),
+        denominator ** BigInt(positiveExponent)
+      );
+    })
+  ),
+
+  declare(
+    abs,
+    nullIfNotBigNum((a: BigNum) => {
+      const { numerator, denominator } = a;
+      return new BigNum(
+        numerator >= 0 ? numerator : -numerator,
+        denominator >= 0 ? denominator : -denominator
+      );
+    })
+  ),
 
   // TODO: This should use biginteger modulo instead to be precise and
   // shouldn't use a floor
-  modulo(b: BigNum) {
-    const babs = b.abs();
-    const divided = this.divide(babs);
-    if (divided == null) {
-      return null;
-    }
-    return this.subtract(babs.multiply(divided.floor()));
-  }
+  // modulo(b: BigNum) {
+  //   const babs = b.abs();
+  //   const divided = this.divide(babs);
+  //   if (divided == null) {
+  //     return null;
+  //   }
+  //   return this.subtract(babs.multiply(divided.floor()));
+  // }
 
-  abs() {
-    const { numerator, denominator } = this;
-    return new BigNum(
-      numerator >= 0 ? numerator : -numerator,
-      denominator >= 0 ? denominator : -denominator,
-      this.approximate
-    );
-  }
+  // abs() {
+  //   const { numerator, denominator } = this;
+  //   return new BigNum(
+  //     numerator >= 0 ? numerator : -numerator,
+  //     denominator >= 0 ? denominator : -denominator,
+  //     this.approximate
+  //   );
+  // }
 
-  floor() {
-    return new BigNum(this.numerator / this.denominator, 1n);
-  }
+  // floor() {
+  //   return new BigNum(this.numerator / this.denominator, 1n);
+  // }
 
-  ceil() {
-    const { numerator, denominator } = this;
-    const fill = numerator % denominator > 0 ? 1n : 0n;
-    return new BigNum(numerator / denominator + fill, 1n);
-  }
+  // ceil() {
+  //   const { numerator, denominator } = this;
+  //   const fill = numerator % denominator > 0 ? 1n : 0n;
+  //   return new BigNum(numerator / denominator + fill, 1n);
+  // }
 
-  round() {
-    const { numerator, denominator } = this;
-    const fill = 2n * (numerator % denominator) >= denominator ? 1n : 0n;
-    return new BigNum(numerator / denominator + fill, 1n);
-  }
-}
+  // round() {
+  //   const { numerator, denominator } = this;
+  //   const fill = 2n * (numerator % denominator) >= denominator ? 1n : 0n;
+  //   return new BigNum(numerator / denominator + fill, 1n);
+  // }
+];
 
 function largestCommonDivisor(a, b) {
   if (b === 0n) {

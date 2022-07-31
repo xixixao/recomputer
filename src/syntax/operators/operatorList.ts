@@ -1,4 +1,5 @@
 import { BigNum } from "../../core/evaluate/BigNum";
+import { FloatNum } from "../../core/evaluate/FloatNum";
 import { Units } from "../../core/evaluate/Units";
 import { Value } from "../../core/evaluate/Value";
 
@@ -8,8 +9,9 @@ export const add = {
   docsPos: "1",
   example: "1 + 2",
   regex: "\\+",
-  convertUnits: true,
-  applyNum: (leftNum, rightNum) => leftNum.add(rightNum),
+  template: (left: unknown, right: unknown) => {},
+  // convertUnits: true,
+  // apply: (left, right) => left.add(right),
 };
 
 export const subtract = {
@@ -18,8 +20,10 @@ export const subtract = {
   docsPos: "2",
   example: "2 - 3",
   regex: "\\-",
-  convertUnits: true,
-  applyNum: (leftNum, rightNum) => leftNum.subtract(rightNum),
+  template: (left: unknown, right: unknown) => {},
+  // convertUnits: true,
+  // apply: (left, right) => left.subtract(right),
+  // declare: declareBinary('subtract'),
 };
 
 export const multiply = {
@@ -28,8 +32,10 @@ export const multiply = {
   docsPos: "3",
   example: "3 * 2",
   regex: "\\*",
-  applyUnit: (leftUnit, rightUnit) => leftUnit.multiply(rightUnit),
-  applyNum: (leftNum, rightNum) => leftNum.multiply(rightNum),
+  template: (left: unknown, right: unknown) => {},
+  // apply: (left, right) => left.multiply(right),
+  // applyUnit: (leftUnit, rightUnit) => leftUnit.multiply(rightUnit),
+  // applyNum: (leftNum, rightNum) => leftNum.multiply(rightNum),
 };
 
 export const divide = {
@@ -38,8 +44,10 @@ export const divide = {
   docsPos: "4",
   example: "10 / 5",
   regex: "\\/",
-  applyUnit: (leftUnit, rightUnit) => leftUnit.divide(rightUnit),
-  applyNum: (leftNum, rightNum) => leftNum.divide(rightNum),
+  template: (left: unknown, right: unknown) => {},
+  // apply: (left, right) => left.divide(right),
+  // applyUnit: (leftUnit, rightUnit) => leftUnit.divide(rightUnit),
+  // applyNum: (leftNum, rightNum) => leftNum.divide(rightNum),
 };
 
 export const exponentiate = {
@@ -48,7 +56,8 @@ export const exponentiate = {
   docsPos: "5",
   docs: "Raises left value to the power of right value.",
   regex: "\\^",
-  apply: (left, right) => left.exponentiate(right),
+  template: (left: unknown, right: unknown) => {},
+  // apply: (left, right) => left.exponentiate(right),
 };
 
 // export const modulo = {
@@ -166,68 +175,88 @@ export const log10 = {
   apply: floatOperator(Math.log10),
 };
 
+export const abs = {
+  symbol: "abs",
+  docs: "The absolute value of the number.",
+  docsPos: "13",
+  example: "abs -2",
+  template: (left: unknown) => {},
+};
+
 // TODO: Document trig functions
-export const sin = {
+export const sin = floatOperator({
   symbol: "sin",
-  apply: floatOperator(Math.sin),
-};
+  f: Math.sin,
+});
 
-export const sinh = {
+export const sinh = floatOperator({
   symbol: "sinh",
-  apply: floatOperator(Math.sinh),
-};
+  f: Math.sinh,
+});
 
-export const asin = {
+export const asin = floatOperator({
   symbol: "asin",
-  apply: floatOperator(Math.asin),
-};
+  f: Math.asin,
+});
 
-export const asinh = {
+export const asinh = floatOperator({
   symbol: "asinh",
-  apply: floatOperator(Math.asinh),
-};
+  f: Math.asinh,
+});
 
-export const cos = {
+export const cos = floatOperator({
   symbol: "cos",
-  apply: floatOperator(Math.cos),
-};
+  f: Math.cos,
+});
 
-export const cosh = {
+export const cosh = floatOperator({
   symbol: "cosh",
-  apply: floatOperator(Math.cosh),
-};
+  f: Math.cosh,
+});
 
-export const acos = {
+export const acos = floatOperator({
   symbol: "acos",
-  apply: floatOperator(Math.acos),
-};
+  f: Math.acos,
+});
 
-export const acosh = {
+export const acosh = floatOperator({
   symbol: "acosh",
-  apply: floatOperator(Math.acosh),
-};
+  f: Math.acosh,
+});
 
-export const tan = {
+export const tan = floatOperator({
   symbol: "tan",
-  apply: floatOperator(Math.tan),
-};
+  f: Math.tan,
+});
 
-export const tanh = {
+export const tanh = floatOperator({
   symbol: "tanh",
-  apply: floatOperator(Math.tanh),
-};
+  f: Math.tanh,
+});
 
-export const atan = {
+export const atan = floatOperator({
   symbol: "atan",
-  apply: floatOperator(Math.atan),
-};
+  f: Math.atan,
+});
 
-export const atanh = {
+export const atanh = floatOperator({
   symbol: "atanh",
-  apply: floatOperator(Math.atanh),
-};
+  f: Math.atanh,
+});
 
-function floatOperator(fn) {
-  return (value) =>
-    Value.fromNumber(BigNum.fromNumber(fn(value.number.toFloat()), true));
+function floatOperator({ f, ...spec }) {
+  spec.declaration = [
+    spec,
+    FloatNum,
+    (value: FloatNum) => {
+      // const float = value.toFloat();
+      // if (float == null) {
+      //   // TODO: Error
+      //   return null;
+      // }
+      return new FloatNum(f(value.value));
+      // return Value.fromNumber(BigNum.fromNumber(fn(value.number.toFloat()), true));
+    },
+  ];
+  return spec;
 }

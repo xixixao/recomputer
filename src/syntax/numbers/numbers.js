@@ -1,6 +1,5 @@
 import { textAt } from "../../core/evaluate/astCursor";
 import { BigNum } from "../../core/evaluate/BigNum";
-import { Value } from "../../core/evaluate/Value";
 import * as Term from "../../core/parser/parser.terms.js";
 import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 import { decimalSeparator, groupSeparator } from "./separators.js";
@@ -111,9 +110,7 @@ export function evaluateNumber() {
       }
       const [_, numString, exponent, percent] = match;
       let num = BigNum.fromString(numString);
-      return Value.fromNumber(
-        computePercent(computeExponent(num, exponent), percent)
-      );
+      return computePercent(computeExponent(num, exponent), percent);
     },
   };
 }

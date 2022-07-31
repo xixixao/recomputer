@@ -1,10 +1,10 @@
-import { Units } from "./Units";
-import { BigNum } from "./BigNum";
 import {
   convertUnits,
   divide,
   multiply,
 } from "../../syntax/operators/operatorList";
+import { BigNum } from "./BigNum";
+import { Units } from "./Units";
 
 export class Value {
   constructor(number, unit) {
@@ -36,7 +36,7 @@ export class Value {
     return this;
   }
 
-  toString() {
+  toDisplayString() {
     const { number, unit } = this;
     // const isOne = number.isOne();
     // const isCurrency = unit.isCurrency();

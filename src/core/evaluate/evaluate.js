@@ -27,8 +27,8 @@ export const evaluateDocument = (operators, measures) => {
 
     forEachStatement(state, evaluateStatement, () => maybeResetList(state));
     return {
-      byPos: (from) => state.results.get(from)?.toString(),
-      byName: (name) => state.values.get(name)?.toString(),
+      byPos: (from) => state.results.get(from)?.toDisplayString(),
+      byName: (name) => state.values.get(name)?.toDisplayString(),
     };
   };
 };
@@ -96,6 +96,7 @@ function evaluateParens() {
       let value = null;
       if (cursor.firstChild()) {
         value = evaluateExpression(state);
+        console.log(value);
         cursor.parent();
       }
       return value;

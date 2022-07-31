@@ -41,6 +41,22 @@ Guide (docs) is generated from each module via `docs.js` -> `modules.js`. This m
 
 # Notes
 
+## Value Representations
+
+Supported:
+
+- Numbers
+  - PureNumbers
+    - BigInt (max n digit integer)
+    - BigFrac (fraction of two BigInts)
+  - ImpreciseNumbers
+    - Float (52 bit floating point with precision tracking) [-1E324, 1E308]
+    - ScientificFloat (52 bit floating with BigInt exponent and precision tracking) [-1EINF, 1EINF]
+
+In general:
+
+- Adding pure number to imprecise number yields the same imprecise number representation
+
 ## Function application
 
 Function application parsing:

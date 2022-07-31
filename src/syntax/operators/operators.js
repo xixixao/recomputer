@@ -1,6 +1,8 @@
 import { textAt } from "../../core/evaluate/astCursor";
+import { BigNumOps } from "../../core/evaluate/BigNum";
 import { evaluateExpression } from "../../core/evaluate/evaluate";
-import { Value } from "../../core/evaluate/Value";
+import { FloatBigNumsOps } from "../../core/evaluate/FloatBigNumsOps";
+import { FloatOps } from "../../core/evaluate/FloatOps";
 import * as Term from "../../core/parser/parser.terms";
 import * as operators from "./operatorList";
 
@@ -59,6 +61,25 @@ export function evaluateBinaryExpression() {
   };
 }
 
+// TODO move this to the right module
+const declarationLookup = new Map();
+[]
+  .concat(BigNumOps, FloatOps, FloatBigNumsOps)
+  .forEach((operatorArgTypesFunction) => {
+    let lookup = declarationLookup;
+    let step;
+    for (let i = 0; i < operatorArgTypesFunction.length - 2; i++) {
+      step = operatorArgTypesFunction[i];
+      const nextLookup = lookup.get(step) ?? new Map();
+      lookup.set(step, nextLookup);
+      lookup = nextLookup;
+    }
+    const lastArgType =
+      operatorArgTypesFunction[operatorArgTypesFunction.length - 2];
+    const f = operatorArgTypesFunction[operatorArgTypesFunction.length - 1];
+    lookup.set(lastArgType, f);
+  });
+
 function computeOperation(state) {
   const { cursor } = state;
   const leftType = cursor.type.id;
@@ -70,12 +91,35 @@ function computeOperation(state) {
   const right = evaluateExpression(state);
   if (!hasInfixOperator && leftType === Term.Reference) {
     const operator = state.operators.get(leftText);
-    if (operator != null) {
-      return Value.applyUnary(state.operators.get(leftText), right);
+    if (operator == null) {
+      // TODO: Error
+      return null;
     }
+    return evaluateOperator(operator, right);
   }
   const operator = state.operators.get(!hasInfixOperator ? "*" : operatorText);
-  return Value.applyBinary(operator, left, right);
+  return evaluateOperator(operator, left, right);
+}
+
+function evaluateOperator(operator, ...args) {
+  if (args.some((arg) => arg == null)) {
+    return null;
+  }
+  const declaration = args.reduce(
+    (found, arg) => found?.get(arg.constructor),
+    declarationLookup.get(operator)
+  );
+  if (declaration == null) {
+    // TODO: Error
+    return null;
+  }
+  const result = declaration(...args);
+  // TODO: This could break Arrays as values (although they could be wrapped)
+  if (Array.isArray(result)) {
+    const [newLeft, newRight] = result;
+    return evaluateOperator(operator, newLeft, newRight);
+  }
+  return result;
 }
 
 export function prepareOperators(operators) {
