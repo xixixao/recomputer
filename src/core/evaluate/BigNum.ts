@@ -1,11 +1,16 @@
 import { decimalSeparator } from "../../syntax/numbers/separators";
-import { declare } from "../../syntax/operators/operatorDeclaration";
+import { declare, Evaluate } from "../../syntax/operators/operatorDeclaration";
 import {
   abs,
   add,
+  ceil,
   divide,
   exponentiate,
+  floor,
   multiply,
+  root,
+  round,
+  sqrt,
   subtract,
 } from "../../syntax/operators/operatorList";
 
@@ -175,7 +180,7 @@ export class BigNum {
 export const BigNumOps = [
   declare(
     add,
-    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+    nullIfNotBigNums((a, b) => {
       return new BigNum(
         a.numerator * b.denominator + b.numerator * a.denominator,
         a.denominator * b.denominator,
@@ -186,7 +191,7 @@ export const BigNumOps = [
 
   declare(
     subtract,
-    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+    nullIfNotBigNums((a, b) => {
       return new BigNum(
         a.numerator * b.denominator - b.numerator * a.denominator,
         a.denominator * b.denominator,
@@ -197,7 +202,7 @@ export const BigNumOps = [
 
   declare(
     multiply,
-    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+    nullIfNotBigNums((a, b) => {
       return new BigNum(
         a.numerator * b.numerator,
         a.denominator * b.denominator,
@@ -208,7 +213,7 @@ export const BigNumOps = [
 
   declare(
     divide,
-    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+    nullIfNotBigNums((a, b) => {
       if (b.isZero()) {
         return null;
       }
@@ -222,7 +227,7 @@ export const BigNumOps = [
 
   declare(
     exponentiate,
-    nullIfNotBigNums((a: BigNum, b: BigNum) => {
+    nullIfNotBigNums((a, b) => {
       const exponent = b.toInteger();
       if (exponent === 1) {
         return a;
@@ -253,13 +258,48 @@ export const BigNumOps = [
 
   declare(
     abs,
-    nullIfNotBigNum((a: BigNum) => {
+    nullIfNotBigNum((a) => {
       const { numerator, denominator } = a;
       return new BigNum(
         numerator >= 0 ? numerator : -numerator,
         denominator >= 0 ? denominator : -denominator
       );
     })
+  ),
+
+  declare(
+    floor,
+    nullIfNotBigNum((a) => new BigNum(a.numerator / a.denominator, 1n))
+  ),
+
+  declare(
+    ceil,
+    nullIfNotBigNum((a) => {
+      const { numerator, denominator } = a;
+      const fill = numerator % denominator > 0 ? 1n : 0n;
+      return new BigNum(numerator / denominator + fill, 1n);
+    })
+  ),
+
+  declare(
+    round,
+    nullIfNotBigNum((a) => {
+      const { numerator, denominator } = a;
+      const fill = 2n * (numerator % denominator) >= denominator ? 1n : 0n;
+      return new BigNum(numerator / denominator + fill, 1n);
+    })
+  ),
+
+  declare(
+    sqrt,
+    nullIfNotBigNum((a, evaluate) => evaluate(root, BigNum.fromInteger(2), a))
+  ),
+
+  declare(
+    root,
+    nullIfNotBigNums((a, b, evaluate) =>
+      evaluate(exponentiate, b, evaluate(divide, BigNum.one(), a))
+    )
   ),
 
   // TODO: This should use biginteger modulo instead to be precise and
@@ -271,31 +311,6 @@ export const BigNumOps = [
   //     return null;
   //   }
   //   return this.subtract(babs.multiply(divided.floor()));
-  // }
-
-  // abs() {
-  //   const { numerator, denominator } = this;
-  //   return new BigNum(
-  //     numerator >= 0 ? numerator : -numerator,
-  //     denominator >= 0 ? denominator : -denominator,
-  //     this.approximate
-  //   );
-  // }
-
-  // floor() {
-  //   return new BigNum(this.numerator / this.denominator, 1n);
-  // }
-
-  // ceil() {
-  //   const { numerator, denominator } = this;
-  //   const fill = numerator % denominator > 0 ? 1n : 0n;
-  //   return new BigNum(numerator / denominator + fill, 1n);
-  // }
-
-  // round() {
-  //   const { numerator, denominator } = this;
-  //   const fill = 2n * (numerator % denominator) >= denominator ? 1n : 0n;
-  //   return new BigNum(numerator / denominator + fill, 1n);
   // }
 ];
 
@@ -338,20 +353,22 @@ function numberIfAccurateOrNull(i: bigint): number | null {
   return n == i ? n : null;
 }
 
-function nullIfNotBigNums(f: (a: BigNum, b: BigNum) => any) {
-  return (a: unknown, b: unknown) => {
+function nullIfNotBigNums(
+  f: (a: BigNum, b: BigNum, evaluate: Evaluate) => any
+) {
+  return (a: unknown, b: unknown, evaluate: Evaluate) => {
     if (!(a instanceof BigNum && b instanceof BigNum)) {
       return null;
     }
-    return f(a, b);
+    return f(a, b, evaluate);
   };
 }
 
-function nullIfNotBigNum(f: (a: BigNum) => any) {
-  return (a: unknown) => {
+function nullIfNotBigNum(f: (a: BigNum, evaluate: Evaluate) => any) {
+  return (a: unknown, evaluate: Evaluate) => {
     if (!(a instanceof BigNum)) {
       return null;
     }
-    return f(a);
+    return f(a, evaluate);
   };
 }

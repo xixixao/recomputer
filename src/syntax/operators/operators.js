@@ -5,6 +5,7 @@ import { FloatBigNumsOps } from "../../core/evaluate/FloatBigNumsOps";
 import { FloatOps } from "../../core/evaluate/FloatOps";
 import { ValueOps } from "../../core/evaluate/ValueOps";
 import * as Term from "../../core/parser/parser.terms";
+import { AliasesOps } from "./operatorAliasesOps";
 import * as operators from "./operatorList";
 
 export function testAdd(assertEvals) {
@@ -70,6 +71,7 @@ const declarationLookup = new Map();
     FloatOps,
     FloatBigNumsOps,
     ValueOps,
+    AliasesOps,
     Object.values(operators)
       .filter((operator) => operator.declaration != null)
       .map((operator) => operator.declaration)

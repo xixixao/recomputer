@@ -99,7 +99,8 @@ export const floor = {
   docs: "The closest smaller integer value.",
   docsPos: "6",
   example: "floor 4.49",
-  apply: (value) => Value.from(value.number.floor(), value.unit),
+  template: (left: unknown) => {},
+  // apply: (value) => Value.from(value.number.floor(), value.unit),
 };
 
 export const ceil = {
@@ -107,7 +108,8 @@ export const ceil = {
   docs: "The closest bigger integer value.",
   docsPos: "6.1",
   example: "ceil 4.49",
-  apply: (value) => Value.from(value.number.ceil(), value.unit),
+  template: (left: unknown) => {},
+  // apply: (value) => Value.from(value.number.ceil(), value.unit),
 };
 
 export const round = {
@@ -115,7 +117,8 @@ export const round = {
   docs: "The closest integer value.",
   docsPos: "6.2",
   example: "round 4.49",
-  apply: (value) => Value.from(value.number.round(), value.unit),
+  template: (left: unknown) => {},
+  // apply: (value) => Value.from(value.number.round(), value.unit),
 };
 
 export const sqrt = {
@@ -123,7 +126,8 @@ export const sqrt = {
   docs: "The square (2nd) root.",
   docsPos: "7",
   example: "sqrt 16",
-  apply: (value) => root.apply(Value.fromNumber(BigNum.fromInteger(2)), value),
+  template: (left: unknown) => {},
+  // apply: (value) => root.apply(Value.fromNumber(BigNum.fromInteger(2)), value),
 };
 
 export const sqrt2 = {
@@ -131,7 +135,8 @@ export const sqrt2 = {
   docs: "The square (2nd) root.",
   docsPos: "7.2",
   example: "√36",
-  apply: sqrt.apply,
+  template: (left: unknown) => {},
+  // apply: sqrt.apply,
 };
 
 export const root = {
@@ -140,7 +145,8 @@ export const root = {
   docsPos: "8",
   example: "3rt 27",
   regex: "\\brt\\b",
-  apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
+  template: (left: unknown, right: unknown) => {},
+  // apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
 };
 
 export const exp = floatOperator({
