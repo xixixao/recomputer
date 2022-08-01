@@ -137,7 +137,7 @@ export class Value {
   }
 }
 
-function combine(number, unitsValue) {
-  const combinedNumber = multiply.applyNum(number, unitsValue.number);
+export function combine(number, unitsValue, evaluate) {
+  const combinedNumber = evaluate(multiply, number, unitsValue.number);
   return new Value(combinedNumber, unitsValue.unit);
 }
