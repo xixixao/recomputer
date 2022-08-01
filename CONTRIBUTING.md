@@ -20,6 +20,10 @@ We let codemirror parse the input and if any of it has changed we execute all th
 
 Guide (docs) is generated from each module via `docs.js` -> `modules.js`. This means that instead of having one big doc referencing the different parts of the implementation the docs are scattered across the implementation, collocated to each part. This requires great structure for the implementation itself.
 
+# Testing
+
+Add `test=1` to URL.
+
 # Roadmap
 
 - Intro

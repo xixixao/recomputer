@@ -1,5 +1,5 @@
 import { BigNum } from "../../core/evaluate/BigNum";
-import { FloatNum } from "../../core/evaluate/FloatNum";
+import { FloatNum, canConvertToFloat } from "../../core/evaluate/FloatNum";
 import { Units } from "../../core/evaluate/Units";
 import { Value } from "../../core/evaluate/Value";
 
@@ -143,37 +143,37 @@ export const root = {
   apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
 };
 
-export const exp = {
+export const exp = floatOperator({
   symbol: "exp",
   docs: "The number e to the power of the value.",
   docsPos: "9",
   example: "exp 3",
-  apply: floatOperator(Math.exp),
-};
+  f: Math.exp,
+});
 
-export const log = {
+export const log = floatOperator({
   symbol: "log",
   docs: "The natural logarithm of the value.",
   docsPos: "10",
   example: "log 3",
-  apply: floatOperator(Math.log),
-};
+  f: Math.log,
+});
 
-export const log2 = {
+export const log2 = floatOperator({
   symbol: "log2",
   docs: "The base-2 logarithm of the value.",
   docsPos: "11",
   example: "log2 3",
-  apply: floatOperator(Math.log2),
-};
+  f: Math.log2,
+});
 
-export const log10 = {
+export const log10 = floatOperator({
   symbol: "log10",
   docs: "The base-10 logarithm of the value.",
   docsPos: "12",
   example: "log10 3",
-  apply: floatOperator(Math.log10),
-};
+  f: Math.log10,
+});
 
 export const abs = {
   symbol: "abs",
@@ -247,14 +247,19 @@ export const atanh = floatOperator({
 function floatOperator({ f, ...spec }) {
   spec.declaration = [
     spec,
-    FloatNum,
-    (value: FloatNum) => {
-      // const float = value.toFloat();
-      // if (float == null) {
-      //   // TODO: Error
-      //   return null;
-      // }
-      return new FloatNum(f(value.value));
+    (value: unknown) => {
+      if (!canConvertToFloat(value)) {
+        // TODO: Error
+        return null;
+      }
+      // TODO: Probably should convert to FloatNum as we will need to
+      // propagate `precision`
+      const float = value.toFloat();
+      if (float == null) {
+        // TODO: Error
+        return null;
+      }
+      return new FloatNum(f(float));
       // return Value.fromNumber(BigNum.fromNumber(fn(value.number.toFloat()), true));
     },
   ];

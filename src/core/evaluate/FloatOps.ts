@@ -1,30 +1,56 @@
-import {
-  declareAdd,
-  declareDivide,
-  declareExponentiate,
-  declareMultiply,
-  declareSubtract,
-} from "../../syntax/operators/operatorDeclaration";
+import { declare } from "../../syntax/operators/operatorDeclaration";
 import { FloatNum } from "./FloatNum";
+import {
+  abs,
+  add,
+  divide,
+  exponentiate,
+  multiply,
+  subtract,
+} from "../../syntax/operators/operatorList";
 
 export const FloatOps = [
-  declareAdd(FloatNum, FloatNum, (a: FloatNum, b: FloatNum) => {
-    return new FloatNum(a.value + b.value);
-  }),
+  declare(
+    add,
+    nullIfNotFloatNums((a: FloatNum, b: FloatNum) => {
+      return new FloatNum(a.value + b.value);
+    })
+  ),
 
-  declareSubtract(FloatNum, FloatNum, (a: FloatNum, b: FloatNum) => {
-    return new FloatNum(a.value - b.value);
-  }),
+  declare(
+    subtract,
+    nullIfNotFloatNums((a: FloatNum, b: FloatNum) => {
+      return new FloatNum(a.value - b.value);
+    })
+  ),
 
-  declareMultiply(FloatNum, FloatNum, (a: FloatNum, b: FloatNum) => {
-    return new FloatNum(a.value * b.value);
-  }),
+  declare(
+    multiply,
+    nullIfNotFloatNums((a: FloatNum, b: FloatNum) => {
+      return new FloatNum(a.value * b.value);
+    })
+  ),
 
-  declareDivide(FloatNum, FloatNum, (a: FloatNum, b: FloatNum) => {
-    return new FloatNum(a.value / b.value);
-  }),
+  declare(
+    divide,
+    nullIfNotFloatNums((a: FloatNum, b: FloatNum) => {
+      return new FloatNum(a.value / b.value);
+    })
+  ),
 
-  declareExponentiate(FloatNum, FloatNum, (a: FloatNum, b: FloatNum) => {
-    return new FloatNum(Math.pow(a.value, b.value));
-  }),
+  declare(
+    exponentiate,
+    nullIfNotFloatNums((a: FloatNum, b: FloatNum) => {
+      return new FloatNum(Math.pow(a.value, b.value));
+    })
+  ),
 ];
+
+function nullIfNotFloatNums(f: (a: FloatNum, b: FloatNum) => any) {
+  return (a: unknown, b: unknown) => {
+    if (!(a instanceof FloatNum && b instanceof FloatNum)) {
+      return null;
+    }
+    return f(a, b);
+  };
+}

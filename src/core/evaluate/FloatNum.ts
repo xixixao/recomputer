@@ -1,6 +1,10 @@
 export type Floatable = {
-  toFloat?: () => number;
+  toFloat: () => number;
 };
+
+export function canConvertToFloat(a: unknown): a is Floatable {
+  return a instanceof Object && "toFloat" in a;
+}
 
 export class FloatNum {
   value: number;

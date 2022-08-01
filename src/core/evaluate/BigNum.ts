@@ -172,24 +172,6 @@ export class BigNum {
   }
 }
 
-function nullIfNotBigNums(f: (a: BigNum, b: BigNum) => any) {
-  return (a: unknown, b: unknown) => {
-    if (!(a instanceof BigNum && b instanceof BigNum)) {
-      return null;
-    }
-    f(a, b);
-  };
-}
-
-function nullIfNotBigNum(f: (a: BigNum) => any) {
-  return (a: unknown) => {
-    if (!(a instanceof BigNum)) {
-      return null;
-    }
-    f(a);
-  };
-}
-
 export const BigNumOps = [
   declare(
     add,
@@ -354,4 +336,22 @@ function numberIfAccurateOrNull(i: bigint): number | null {
   const n = Number(i);
   // @ts-ignore
   return n == i ? n : null;
+}
+
+function nullIfNotBigNums(f: (a: BigNum, b: BigNum) => any) {
+  return (a: unknown, b: unknown) => {
+    if (!(a instanceof BigNum && b instanceof BigNum)) {
+      return null;
+    }
+    return f(a, b);
+  };
+}
+
+function nullIfNotBigNum(f: (a: BigNum) => any) {
+  return (a: unknown) => {
+    if (!(a instanceof BigNum)) {
+      return null;
+    }
+    return f(a);
+  };
 }

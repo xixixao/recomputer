@@ -64,20 +64,18 @@ export function evaluateBinaryExpression() {
 // TODO move this to the right module
 const declarationLookup = new Map();
 []
-  .concat(BigNumOps, FloatOps, FloatBigNumsOps)
-  .forEach((operatorArgTypesFunction) => {
-    let lookup = declarationLookup;
-    let step;
-    for (let i = 0; i < operatorArgTypesFunction.length - 2; i++) {
-      step = operatorArgTypesFunction[i];
-      const nextLookup = lookup.get(step) ?? new Map();
-      lookup.set(step, nextLookup);
-      lookup = nextLookup;
-    }
-    const lastArgType =
-      operatorArgTypesFunction[operatorArgTypesFunction.length - 2];
-    const f = operatorArgTypesFunction[operatorArgTypesFunction.length - 1];
-    lookup.set(lastArgType, f);
+  .concat(
+    BigNumOps,
+    FloatOps,
+    FloatBigNumsOps,
+    Object.values(operators)
+      .filter((operator) => operator.declaration != null)
+      .map((operator) => operator.declaration)
+  )
+  .forEach(([operator, declaration]) => {
+    const declarationList = declarationLookup.get(operator) ?? [];
+    declarationLookup.set(operator, declarationList);
+    declarationList.push(declaration);
   });
 
 function computeOperation(state) {
@@ -105,21 +103,19 @@ function evaluateOperator(operator, ...args) {
   if (args.some((arg) => arg == null)) {
     return null;
   }
-  const declaration = args.reduce(
-    (found, arg) => found?.get(arg.constructor),
-    declarationLookup.get(operator)
-  );
-  if (declaration == null) {
+  const declarationList = declarationLookup.get(operator);
+  if (declarationList == null) {
     // TODO: Error
     return null;
   }
-  const result = declaration(...args);
-  // TODO: This could break Arrays as values (although they could be wrapped)
-  if (Array.isArray(result)) {
-    const [newLeft, newRight] = result;
-    return evaluateOperator(operator, newLeft, newRight);
+  for (let declaration of declarationList) {
+    const result = declaration(...args, evaluateOperator);
+    if (result != null) {
+      return result;
+    }
   }
-  return result;
+  // TODO: Error
+  return null;
 }
 
 export function prepareOperators(operators) {
