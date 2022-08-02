@@ -1,3 +1,6 @@
+import { BigNum } from "../../core/evaluate/BigNum";
+import { evaluateOperator } from "../operators/evaluateOperator";
+import { add } from "../operators/operatorList";
 import { sum } from "./listFunctions";
 
 export function testList(assertEvals) {
@@ -76,12 +79,20 @@ export class List {
     this.array = array;
   }
 
-  toString() {
-    const string = sum.apply(this)?.toString();
+  toDisplayString() {
+    const string = this.sum().toDisplayString();
     return string != null ? `sum ${string}` : null;
   }
 
   toValue() {
     return sum.apply(this);
+  }
+
+  sum() {
+    let result = BigNum.zero();
+    this.array.forEach((value) => {
+      result = evaluateOperator(add, result, value);
+    });
+    return result;
   }
 }

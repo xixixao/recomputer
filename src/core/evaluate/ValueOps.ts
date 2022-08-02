@@ -1,82 +1,137 @@
-import { declare } from "../../syntax/operators/operatorDeclaration";
-import { multiply } from "../../syntax/operators/operatorList";
-import { combine, Value } from "./Value";
+import { declare, Evaluate } from "../../syntax/operators/operatorDeclaration";
+import {
+  add,
+  convertUnits,
+  divide,
+  exponentiate,
+  multiply,
+  root,
+  subtract,
+} from "../../syntax/operators/operatorList";
+import { BigNum } from "./BigNum";
+import { Units } from "./Units";
+import { Value } from "./Value";
 
 export const ValueOps = [
-  declare(multiply, (a, b, evaluate) => {
-    if (!(a instanceof Value || b instanceof Value)) {
+  declare(convertUnits, (a, b, evaluate) => {
+    if (!(b instanceof Value)) {
+      // TODO: error
       return null;
     }
+    const unit = Units.fromCompounds(
+      b.unit.compounds
+        .filter(({ fromDerived }) => !fromDerived)
+        .map((compound) => ({
+          ...compound,
+          exponent: 0,
+          required: true,
+        }))
+    );
+    return evaluate(multiply, unit, a);
+  }),
 
-    if (!(a instanceof Value && b instanceof Value)) {
-      if (a instanceof Value) {
-        return combine(b, a, evaluate);
-      }
-      return combine(a, b, evaluate);
+  declareAddLike(add),
+  declareAddLike(subtract),
+
+  declareMultiplyLike(multiply),
+  declare(multiply, (a, b) => {
+    if (!(a instanceof Units && b instanceof Units)) {
+      return null;
     }
+    return a.multiply(b);
+  }),
 
-    // let unitsValue;
-    // if (operator.convertUnits) {
-    // unitsValue = Value.fromUnit(a.unit);
-    // b = Value.applyBinary(convertUnits, b, unitsValue);
-    // } else {
+  declareMultiplyLike(divide),
+  declare(divide, (a, b) => {
+    if (!(a instanceof Units && b instanceof Units)) {
+      return null;
+    }
+    return a.divide(b);
+  }),
 
-    // TODO: Possibly use evaluate, but really here it's implementation
-    // detail of `Value`
-    const unitsValue = a.unit.multiply(b.unit);
-    // }
+  // TODO: From before we had multiple dispatch, implement:
+  //
+  // Supported exponentiations
+  // integer ^ integer (max 100) => bigger exponents need different
+  //                                representation, with approximate flag
+  //   float ^ integer (max 100)        ditto
+  // integer ^ float             => needs approximation flag if not precise
+  //   float ^ float                   ditto
+  //    unit ^ integer (max 10)
+  //    unit ^ float             => only if unit has a consistent power?
+  declare(exponentiate, (a, b, evaluate) => {
+    if (!(a instanceof Value)) {
+      return null;
+    }
+    const unitsValue = evaluate(exponentiate, a.unit, b);
     if (unitsValue == null) {
       return null;
     }
-    const number = evaluate(multiply, a.number, b.number);
+    return combine(evaluate(exponentiate, a.number, b), unitsValue, evaluate);
+  }),
+  // TODO: Support all number types
+  declare(exponentiate, (a, b) => {
+    if (!(a instanceof Units && b instanceof BigNum)) {
+      return null;
+    }
+    return a.exponentiate(b);
+  }),
+
+  declare(root, (a, b, evaluate) => {
+    if (!(b instanceof Value)) {
+      return null;
+    }
+    return evaluate(exponentiate, b, evaluate(divide, BigNum.one(), a));
+  }),
+];
+
+function declareAddLike(operator: typeof add) {
+  return declare(operator, (a, b, evaluate) => {
+    if (!(a instanceof Value && b instanceof Value)) {
+      return null;
+    }
+
+    const unitsValue = Value.fromUnit(a.unit);
+    const convertedB = evaluate(convertUnits, b, unitsValue);
+
+    // TODO: This can never happen
+    if (!(convertedB instanceof Value)) {
+      return null;
+    }
+    if (unitsValue == null) {
+      return null;
+    }
+    const number = evaluate(operator, a.number, convertedB.number);
     if (number == null) {
       return null;
     }
     return combine(number, unitsValue, evaluate);
-  }),
+  });
+}
 
-  // declare(
-  //   divide,
-  //   nullIfNotBigNums((a: BigNum, b: BigNum) => {
-  //     if (b.isZero()) {
-  //       return null;
-  //     }
-  //     return new BigNum(
-  //       a.numerator * b.denominator,
-  //       a.denominator * b.numerator,
-  //       a.approximate || b.approximate
-  //     );
-  //   })
-  // ),
+function declareMultiplyLike(operator: typeof multiply) {
+  return declare(operator, (a, b, evaluate) => {
+    if (!(a instanceof Value || b instanceof Value)) {
+      return null;
+    }
 
-  // declare(
-  //   exponentiate,
-  //   nullIfNotBigNums((a: BigNum, b: BigNum) => {
-  //     const exponent = b.toInteger();
-  //     if (exponent === 1) {
-  //       return a;
-  //     }
-  //     if (exponent == null || a.approximate) {
-  //       const aFloat = a.toFloat();
-  //       const floatExponent = b.toFloat();
-  //       if (aFloat == null || floatExponent == null) {
-  //         return null;
-  //       }
-  //       const result = aFloat ** floatExponent;
-  //       // There is no simple way to tell whether the floating point
-  //       // exponentiation is approximate or not, but this is convenient
-  //       // approximation of whether there is approximation.
-  //       return BigNum.fromNumber(result, result % 1 !== 0);
-  //     }
-  //     let positiveExponent = Math.abs(exponent);
-  //     const [numerator, denominator] =
-  //       exponent > 0
-  //         ? [a.numerator, a.denominator]
-  //         : [a.denominator, a.numerator];
-  //     return new BigNum(
-  //       numerator ** BigInt(positiveExponent),
-  //       denominator ** BigInt(positiveExponent)
-  //     );
-  //   })
-  // ),
-];
+    const aValue = Value.fromMaybeNumber(a);
+    const bValue = Value.fromMaybeNumber(b);
+    const unitsValue = evaluate(operator, aValue.unit, bValue.unit);
+    if (unitsValue == null) {
+      // TODO: error
+      return null;
+    }
+    const number = evaluate(operator, aValue.number, bValue.number);
+    if (number == null) {
+      // TODO: error
+      return null;
+    }
+    return combine(number, unitsValue, evaluate);
+  });
+}
+
+function combine(number: any, unitsValue: any, evaluate: Evaluate) {
+  const combinedNumber = evaluate(multiply, number, unitsValue.number);
+  return new Value(combinedNumber, unitsValue.unit);
+}

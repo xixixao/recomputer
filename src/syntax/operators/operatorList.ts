@@ -74,24 +74,13 @@ export const exponentiate = {
 export const convertUnits = {
   symbol: "in",
   regex: "\\bin\\b",
-  apply: (left, right) => {
-    const unit = Units.fromCompounds(
-      right.unit.compounds
-        .filter(({ fromDerived }) => !fromDerived)
-        .map((compound) => ({
-          ...compound,
-          exponent: 0,
-          required: true,
-        }))
-    );
-    return Value.multiply(unit, left);
-  },
+  template: (left: unknown, right: unknown) => {},
 };
 
 export const convertUnits2 = {
   symbol: "to",
   regex: "\\bto\\b",
-  apply: convertUnits.apply,
+  template: (left: unknown, right: unknown) => {},
 };
 
 export const floor = {

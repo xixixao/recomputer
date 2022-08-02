@@ -175,6 +175,40 @@ export class BigNum {
   inverseIf(shouldInverse: boolean) {
     return !shouldInverse ? this : this.inverse();
   }
+
+  multiply(b: BigNum) {
+    return new BigNum(
+      this.numerator * b.numerator,
+      this.denominator * b.denominator,
+      this.approximate || b.approximate
+    );
+  }
+
+  divide(b: BigNum) {
+    if (b.isZero()) {
+      return null;
+    }
+    return new BigNum(
+      this.numerator * b.denominator,
+      this.denominator * b.numerator,
+      this.approximate || b.approximate
+    );
+  }
+
+  exponentiate(exponent: number) {
+    if (exponent === 1) {
+      return this;
+    }
+    let positiveExponent = Math.abs(exponent);
+    const [numerator, denominator] =
+      exponent > 0
+        ? [this.numerator, this.denominator]
+        : [this.denominator, this.numerator];
+    return new BigNum(
+      numerator ** BigInt(positiveExponent),
+      denominator ** BigInt(positiveExponent)
+    );
+  }
 }
 
 export const BigNumOps = [
@@ -202,27 +236,12 @@ export const BigNumOps = [
 
   declare(
     multiply,
-    nullIfNotBigNums((a, b) => {
-      return new BigNum(
-        a.numerator * b.numerator,
-        a.denominator * b.denominator,
-        a.approximate || b.approximate
-      );
-    })
+    nullIfNotBigNums((a, b) => a.multiply(b))
   ),
 
   declare(
     divide,
-    nullIfNotBigNums((a, b) => {
-      if (b.isZero()) {
-        return null;
-      }
-      return new BigNum(
-        a.numerator * b.denominator,
-        a.denominator * b.numerator,
-        a.approximate || b.approximate
-      );
-    })
+    nullIfNotBigNums((a, b) => a.divide(b))
   ),
 
   declare(

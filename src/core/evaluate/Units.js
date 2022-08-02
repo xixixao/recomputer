@@ -294,12 +294,12 @@ function convertUnitValues(model, compound, exponentConversion) {
       compound.unit.baseUnitValue,
       compound.unit.baseUnitValueApproximate
     )
-      .exponentiate(BigNum.fromInteger(compound.exponent))
+      .exponentiate(compound.exponent)
       .divide(
         BigNum.fromNumber(
           model.unit.baseUnitValue,
           model.unit.baseUnitValueApproximate
-        ).exponentiate(BigNum.fromInteger(exponentConversion))
+        ).exponentiate(exponentConversion)
       );
   }
   return BigNum.one();
@@ -314,9 +314,7 @@ function convertPrefixes(model, compound, exponentConversion) {
     const conversionBase10 =
       (compound.prefix?.unit.base10 ?? 0) * compound.exponent -
       (model.prefix?.unit.base10 ?? 0) * exponentConversion;
-    return BigNum.fromInteger(10).exponentiate(
-      BigNum.fromInteger(conversionBase10)
-    );
+    return BigNum.fromInteger(10).exponentiate(conversionBase10);
   }
   return BigNum.one();
 }

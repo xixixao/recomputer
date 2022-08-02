@@ -1,8 +1,4 @@
-import {
-  convertUnits,
-  divide,
-  multiply,
-} from "../../syntax/operators/operatorList";
+import { divide, multiply } from "../../syntax/operators/operatorList";
 import { BigNum } from "./BigNum";
 import { Units } from "./Units";
 
@@ -18,6 +14,13 @@ export class Value {
 
   static fromNumber(number) {
     return new Value(number, Units.scalar());
+  }
+
+  static fromMaybeNumber(x) {
+    if (x instanceof Value) {
+      return x;
+    }
+    return new Value(x, Units.scalar());
   }
 
   static fromUnit(unit) {
@@ -64,39 +67,13 @@ export class Value {
   //   return BigNum.equal(a.number, b.number) && Units.equal(a.unit, b.unit);
   // }
 
-  static applyUnary(operator, x) {
-    if (operator == null || x == null) {
-      return null;
-    }
+  // static applyUnary(operator, x) {
+  //   if (operator == null || x == null) {
+  //     return null;
+  //   }
 
-    return operator.apply(x);
-  }
-
-  static applyBinary(operator, a, b) {
-    a = a?.toValue();
-    b = b?.toValue();
-    if (a == null || b == null) {
-      return null;
-    }
-    if (operator.apply != null) {
-      return operator.apply(a, b);
-    }
-    let unitsValue;
-    if (operator.convertUnits) {
-      unitsValue = Value.fromUnit(a.unit);
-      b = Value.applyBinary(convertUnits, b, unitsValue);
-    } else {
-      unitsValue = operator.applyUnit(a.unit, b.unit);
-    }
-    if (b == null || unitsValue == null) {
-      return null;
-    }
-    const number = operator.applyNum(a.number, b.number);
-    if (number == null) {
-      return null;
-    }
-    return combine(number, unitsValue);
-  }
+  //   return operator.apply(x);
+  // }
 
   static multiply(a, b) {
     return Value.applyBinary(multiply, a, b);
@@ -113,31 +90,4 @@ export class Value {
   divide(b) {
     return Value.divide(this, b);
   }
-
-  // Supported exponentiations
-  // integer ^ integer (max 100) => bigger exponents need different
-  //                                representation, with approximate flag
-  //   float ^ integer (max 100)        ditto
-  // integer ^ float             => needs approximation flag if not precise
-  //   float ^ float                   ditto
-  //    unit ^ integer (max 10)
-  //    unit ^ float             => only if unit has a consistent power?
-  //
-  exponentiate(b) {
-    if (!b.unit.isScalar()) {
-      return null;
-    }
-
-    const unitsValue = this.unit.exponentiate(b.number);
-    if (unitsValue == null) {
-      return null;
-    }
-
-    return combine(this.number.exponentiate(b.number), unitsValue);
-  }
-}
-
-export function combine(number, unitsValue, evaluate) {
-  const combinedNumber = evaluate(multiply, number, unitsValue.number);
-  return new Value(combinedNumber, unitsValue.unit);
 }
