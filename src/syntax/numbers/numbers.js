@@ -35,6 +35,7 @@ export function testMagnitudeSuffix(assertEvals) {
 
 export function testExponentSuffix(assertEvals) {
   assertEvals(`6E3`, `6,000`);
+  assertEvals(`6E-3`, `0.006`);
 }
 
 export function testPercent(assertEvals) {
@@ -67,10 +68,12 @@ export function docs() {
 # You can use arbitrarily large decimal numbers, with decimal point and group (thousand) separators depending on your browser's language (usually the language of your OS). Spaces can be used as well:
 ${BigNum.fromNumber(6543210.05)}
 100 000
-# Numbers can be suffixed with \`K\`, \`M\`, \`E\` or the \`%\` (percent) sign:
+# Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
 5K + 10M
 5% * 100
+# Scientific notation is supported via E suffix:
 6.3E8
+6.3E-8
 # Rational numbers (fractions) that cannot be printed exactly as decimal will be printed as fractions. To force a decimal printing use the \`~\` (tilde) symbol:
 10/6
 ~10/6
@@ -84,7 +87,7 @@ export function tokenizerNumber(tokenConfig) {
   const numberPattern = new RegExp(
     `^(-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${allSymbolsPattern(
       tokenConfig
-    )})))|E\\d+)?%?)`
+    )})))|E-?\\d+)?%?)`
   );
   return (line, token) => matchToken(line, numberPattern, token, NODE);
 }
@@ -110,8 +113,7 @@ export function evaluateNumber() {
         .replace(decimalSeparatorPattern, ".");
 
       // TODO: Consider rejecting numbers with multiple decimal separators
-
-      const match = textInENLocale.match(/(-?[0-9.]+)(K|M|E\d+)?(%)?/);
+      const match = textInENLocale.match(/(-?[0-9.]+)(K|M|E-?\d+)?(%)?/);
       if (match == null) {
         return null;
       }
@@ -133,7 +135,7 @@ function computeExponent(num, exponent) {
     case "M":
       return num.multiply(BigNum.fromInteger(1000000));
     default: {
-      const n = exponent.match(/\d+/);
+      const n = exponent.match(/-?\d+/);
       return num.multiply(BigNum.fromInteger(10).exponentiate(n));
     }
   }
