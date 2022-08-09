@@ -45,13 +45,17 @@ export function testFraction(assertEvals) {
   assertEvals(`10/3`, `10/3`);
 }
 
-// Rethink/reenable printing fractions
 export function testApproximation(assertEvals) {
   assertEvals(`sqrt 10`, `3.16227766016837`);
   assertEvals(`sqrt 4`, `2`);
   assertEvals(`sqrt 4 / (sqrt 9)`, `2/3`);
   assertEvals(`sin τ`, `0`);
+  assertEvals(`0.1 + 0.2`, `0.3`);
 
+  //// TODO: This prints as a large fraction which is wrong
+  // assertEvals(`1.557499999999999`, `1.557499999999999`);
+
+  //// TODO: Rethink/reenable printing fractions
   // assertEvals(`~10/3`, `3.33333333333333`);
   // assertEvals(`~10 / (~3)`, `3.33333333333333`);
   // assertEvals(`$~10/3`, `~$3.33`);
