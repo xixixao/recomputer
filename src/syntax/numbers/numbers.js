@@ -50,6 +50,8 @@ export function testApproximation(assertEvals) {
   assertEvals(`sqrt 10`, `3.16227766016837`);
   assertEvals(`sqrt 4`, `2`);
   assertEvals(`sqrt 4 / (sqrt 9)`, `2/3`);
+  assertEvals(`sin τ`, `0`);
+
   // assertEvals(`~10/3`, `3.33333333333333`);
   // assertEvals(`~10 / (~3)`, `3.33333333333333`);
   // assertEvals(`$~10/3`, `~$3.33`);

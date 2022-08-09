@@ -1,9 +1,8 @@
-import { BigNum } from "../../core/evaluate/BigNum";
-import { Value } from "../../core/evaluate/Value";
+import { FloatNum } from "../../core/evaluate/FloatNum";
 
 export const PI = {
   symbol: "PI",
-  value: Value.fromNumber(BigNum.fromNumber(Math.PI, true)),
+  value: new FloatNum(Math.PI),
 };
 
 export const PI2 = {
@@ -13,10 +12,10 @@ export const PI2 = {
 
 export const E = {
   symbol: "e",
-  value: Value.fromNumber(BigNum.fromNumber(Math.E, true)),
+  value: new FloatNum(Math.E),
 };
 
 export const TAU = {
   symbol: "τ",
-  value: Value.fromNumber(BigNum.fromNumber(2 * Math.PI, true)),
+  value: new FloatNum(2 * Math.PI),
 };

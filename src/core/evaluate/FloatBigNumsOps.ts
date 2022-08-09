@@ -2,6 +2,7 @@ import { declare, Operator } from "../../syntax/operators/operatorDeclaration";
 import {
   add,
   divide,
+  exponentiate,
   multiply,
   subtract,
 } from "../../syntax/operators/operatorList";
@@ -13,6 +14,7 @@ export const FloatBigNumsOps = [
   convertToFloats(subtract),
   convertToFloats(multiply),
   convertToFloats(divide),
+  convertToFloats(exponentiate),
   // declareAdd(FloatNum, BigNum, floatBig),
   // declareAdd(BigNum, FloatNum, bigFloat),
   // ]
@@ -29,10 +31,10 @@ function convertToFloats(operator: Operator<typeof add.template>) {
       return null;
     }
     if (a instanceof FloatNum && canConvertToFloat(b)) {
-      return evaluate(operator, a, FloatNum.fromNullable(b.toFloat()));
+      return evaluate(operator, a, b.toFloat());
     }
     if (b instanceof FloatNum && canConvertToFloat(a)) {
-      return evaluate(operator, FloatNum.fromNullable(a.toFloat()), b);
+      return evaluate(operator, a.toFloat(), b);
     }
     return null;
   });

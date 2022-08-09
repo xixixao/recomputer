@@ -1,8 +1,8 @@
-import { BigNumOps } from "../../core/evaluate/BigNum";
+import { BigNumOps } from "../../core/evaluate/BigNumOps";
 import { FloatBigNumsOps } from "../../core/evaluate/FloatBigNumsOps";
 import { FloatOps } from "../../core/evaluate/FloatOps";
 import { ValueOps } from "../../core/evaluate/ValueOps";
-import { ListOps } from "../list/listOps";
+import { ListOps } from "../list/ListOps";
 import { AliasesOps } from "./operatorAliasesOps";
 import * as operators from "./operatorList";
 

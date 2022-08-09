@@ -109,7 +109,7 @@ export class Units {
     if (this.isScalar()) {
       return Value.one();
     }
-    const exponentFloat = exponentNum.toFloat();
+    const exponentFloat = exponentNum.toFloat()?.value;
     if (exponentFloat == null) {
       return null;
     }

@@ -3,7 +3,8 @@ import * as allConstants from "./constantList";
 export function testConstants(assertEvals) {
   assertEvals(`π`, `3.14159265358979`);
   assertEvals(`PI`, `3.14159265358979`);
-  assertEvals(`2e^3`, `40.17107384637532`);
+  assertEvals(`τ`, `6.28318530717959`);
+  assertEvals(`2e^3`, `40.171073846375`);
 }
 
 export function docs() {

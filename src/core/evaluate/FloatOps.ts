@@ -5,6 +5,7 @@ import {
   add,
   ceil,
   divide,
+  error,
   exponentiate,
   floor,
   multiply,
@@ -68,6 +69,12 @@ export const FloatOps = [
   declare(
     root,
     nullIfNotFloatNums((a, b) => Math.pow(a.value, 1 / b.value))
+  ),
+
+  // TODO: Track precision separately
+  declare(
+    error,
+    nullIfNotFloatNum((a) => (Number.EPSILON * a.value) / 2)
   ),
 ];
 

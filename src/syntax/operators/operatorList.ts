@@ -239,6 +239,12 @@ export const atanh = floatOperator({
   f: Math.atanh,
 });
 
+// TODO: design this properly, right now for debugging
+export const error = {
+  symbol: "error",
+  template: (value: unknown) => {},
+};
+
 function floatOperator({ f, ...spec }) {
   spec.declaration = [
     spec,
@@ -254,7 +260,9 @@ function floatOperator({ f, ...spec }) {
         // TODO: Error
         return null;
       }
-      return new FloatNum(f(float));
+      const result = f(float.value);
+      const error = Math.max(float.error, (result * Number.EPSILON) / 2);
+      return new FloatNum(result, error);
       // return Value.fromNumber(BigNum.fromNumber(fn(value.number.toFloat()), true));
     },
   ];

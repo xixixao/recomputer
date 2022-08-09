@@ -96,7 +96,6 @@ function evaluateParens() {
       let value = null;
       if (cursor.firstChild()) {
         value = evaluateExpression(state);
-        console.log(value);
         cursor.parent();
       }
       return value;
