@@ -62,6 +62,12 @@ export function testApproximation(assertEvals) {
   // assertEvals(`$~10/3`, `~$3.33`);
 }
 
+export function testAccuracy() {
+  // assertEvals(`~7.00`, `7.00`);
+  // assertEvals(`error 7.00`, `0.01`);
+  // assertEvals(`7.00±0.01`, `7.00±0.01`);
+}
+
 export function docs() {
   return `
 ### Numbers
