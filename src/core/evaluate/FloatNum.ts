@@ -43,9 +43,9 @@ export class FloatNum {
     return this.value.toLocaleString(window.navigator.locale, {
       maximumSignificantDigits,
       maximumFractionDigits,
-      // @ts-ignore
-      signDisplay: "negative",
-      roundingPriority: "lessPrecision",
+      // Work in latest Chrome, not in Chromium:
+      // signDisplay: "negative",
+      // roundingPriority: "lessPrecision",
     });
   }
 }
