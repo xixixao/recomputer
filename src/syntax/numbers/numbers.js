@@ -1,5 +1,7 @@
 import { textAt } from "../../core/evaluate/astCursor";
 import { BigNum } from "../../core/evaluate/BigNum";
+import { FloatNum } from "../../core/evaluate/FloatNum";
+import { SciFloatNum } from "../../core/evaluate/SciFloatNum";
 import * as Term from "../../core/parser/parser.terms.js";
 import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 import { decimalSeparator, groupSeparator } from "./separators.js";
@@ -91,7 +93,7 @@ const NODE = Term.Number;
 export function tokenizerNumber(tokenConfig) {
   // TODO: Split suffix into separate module
   const numberPattern = new RegExp(
-    `^(-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${allSymbolsPattern(
+    `^(~?-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${allSymbolsPattern(
       tokenConfig
     )})))|E-?\\d+)?%?)`
   );
@@ -119,15 +121,82 @@ export function evaluateNumber() {
         .replace(decimalSeparatorPattern, ".");
 
       // TODO: Consider rejecting numbers with multiple decimal separators
-      const match = textInENLocale.match(/(-?[0-9.]+)(K|M|E-?\d+)?(%)?/);
+      const match = textInENLocale.match(/(~?)(-?[0-9.]+)(K|M|E-?\d+)?(%)?/);
       if (match == null) {
         return null;
       }
-      const [_, numString, exponent, percent] = match;
-      let num = BigNum.fromString(numString);
-      return computePercent(computeExponent(num, exponent), percent);
+      const [_, uncertaintySymbol, numString, exponent, percent] = match;
+      // TODO: Really this should be split into each module with its own
+      // parsing rules for each type of a number
+      const isUncertain = uncertaintySymbol !== "";
+      const isLessThan10 = /^-?[0-9](\.|$)/.test(numString);
+      // const isInteger = /^-?[0-9]+$/.test(numString) && (!percent || >1000 );
+      const isScientific = /E/.test(exponent);
+      if (isUncertain && isLessThan10 && isScientific) {
+        if (percent != null) {
+          // TODO: Error
+          console.error("Percent and scientific uncertain num not supported");
+          return null;
+        }
+        return evaluateSciFloatNum(numString, exponent);
+      } else if (isUncertain) {
+        return evaluateFloatNum(numString, exponent, percent);
+        // } else if (isInteger) {
+        //   evaluateBigIntNum(numString, )
+        // }
+      } else {
+        return evaluateBigNum(numString, exponent, percent);
+      }
+      // let num = BigNum.fromString(numString);
+      // return computePercent(computeExponent(num, exponent), percent);
     },
   };
+}
+
+function evaluateSciFloatNum(numString, exponent) {
+  const float = evaluateFloat(numString);
+  if (float == null) {
+    return null;
+  }
+  return new SciFloatNum(float, computeScientificExponent(exponent));
+}
+
+function evaluateFloatNum(numString, exponent, percent) {
+  let float = evaluateFloat(numString);
+  // TODO: Support spaces/zeroes
+  if (float == null) {
+    return null;
+  }
+  if (percent != null) {
+    float /= 100;
+  }
+  const [_, decimal] = numString.split(/\./);
+  const fractionLength = (decimal ?? "").length;
+  let error = Math.pow(10, -fractionLength);
+  // TODO: Handle percent more cleanly
+  if (percent != null) {
+    error /= 100;
+  }
+  return new FloatNum(float, error);
+}
+
+function evaluateBigNum(numString, exponent, percent) {
+  return computePercent(
+    computeExponent(BigNum.fromString(numString), exponent),
+    percent
+  );
+}
+
+function evaluateFloat(numString) {
+  const float = parseFloat(numString);
+  const [_, nonTrailing] = numString.match(/(^.+?)\.?0*?$/);
+  // TODO: Handle underscores/spaces, they should be allowed
+  if (float.toString() !== nonTrailing) {
+    // TODO: Error
+    console.error(`${numString} cannot be represented as a (Sci)Float`);
+    return null;
+  }
+  return float;
 }
 
 // TODO: Split suffix into separate module
@@ -141,10 +210,15 @@ function computeExponent(num, exponent) {
     case "M":
       return num.multiply(BigNum.fromInteger(1000000));
     default: {
-      const n = exponent.match(/-?\d+/);
+      const [_, n] = exponent.match(/E(-?\d+)/);
       return num.multiply(BigNum.fromInteger(10).exponentiate(n));
     }
   }
+}
+
+function computeScientificExponent(exponent) {
+  const [_, n] = exponent.match(/E(-?\d+)/);
+  return BigInt(n);
 }
 
 function computePercent(num, percent) {

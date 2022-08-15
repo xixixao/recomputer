@@ -12,7 +12,7 @@ export class FloatNum {
 
   constructor(value: number, error?: number) {
     this.value = value;
-    this.error = error ?? (value * Number.EPSILON) / 2;
+    this.error = error ?? Math.abs((value * Number.EPSILON) / 2);
   }
 
   toFloat() {
@@ -31,21 +31,24 @@ export class FloatNum {
 
     // If the log is negative, it indicates number of fraction digits
     // if the log is positive, it indicates number of significant digits
-    const errorMagnitude = Math.floor(Math.log10(this.error));
-    const maximumFractionDigits = -Math.min(0, errorMagnitude + 1);
-    const maximumSignificantDigits = Math.max(
-      maximumFractionDigits,
-      errorMagnitude
+    // as log(value) - log(error)
+    const errorMagnitude =
+      this.error > 0 ? Math.trunc(Math.log10(this.error)) : 0;
+    const fractionDigits = -Math.max(-100, errorMagnitude);
+    const valueMagnitude = Math.max(
+      0,
+      Math.floor(Math.log10(Math.abs(this.value)))
     );
+    const significantDigits = 1 + valueMagnitude - errorMagnitude;
 
-    // return this.value.toPrecision(Math.abs(Math.log10(this.error)));
-    // @ts-ignore
-    return this.value.toLocaleString(window.navigator.locale, {
-      maximumSignificantDigits,
-      maximumFractionDigits,
-      // Work in latest Chrome, not in Chromium:
-      // signDisplay: "negative",
-      // roundingPriority: "lessPrecision",
-    });
+    // TODO: Guard against errorMagnitude outside (0,100)
+    const result =
+      errorMagnitude < 0
+        ? this.value.toFixed(fractionDigits)
+        : this.value.toPrecision(significantDigits);
+
+    // Handles sign but hides accuracy
+    const isZero = /0(\.0+)/.test(result);
+    return isZero ? "0" : result;
   }
 }
