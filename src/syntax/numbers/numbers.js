@@ -140,7 +140,7 @@ export function evaluateNumber() {
       const isScientific = /E/.test(exponent);
       if (isUncertain && isLessThan10 && isScientific) {
         if (percent != null) {
-          // TODO: Error
+          // TODO: Support instead of error
           console.error("Percent and scientific uncertain num not supported");
           return null;
         }
