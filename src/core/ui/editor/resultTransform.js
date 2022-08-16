@@ -23,6 +23,25 @@ function transforms(view) {
   ast.iterate({
     enter: (type, from, to) => {
       switch (type.name) {
+        case "Number": {
+          const text = view.state.doc.sliceString(from, to);
+          if (text.includes("E")) {
+            marks.push(
+              Decoration.mark({
+                class: "expOp",
+              }).range(from, to)
+            );
+            const [_, number, exponent] = text.match(/(.*)E(.*)/);
+            marks.push(
+              Decoration.widget({
+                widget: new Span(
+                  number + "×10" + "<sup>" + exponent + "</sup>"
+                ),
+              }).range(to)
+            );
+          }
+          break;
+        }
         case "ArithOp": {
           const text = view.state.doc.sliceString(from, to);
           switch (text) {
@@ -77,7 +96,7 @@ class Span extends WidgetType {
 
   toDOM() {
     let wrap = document.createElement("span");
-    wrap.innerText = this.content;
+    wrap.innerHTML = this.content;
     return wrap;
   }
 }

@@ -18,27 +18,42 @@ import {
 export const FloatOps = [
   declare(
     add,
-    nullIfNotFloatNums((a, b) => a.value + b.value)
+    nullIfNotFloatNums(
+      (a, b) => a.value + b.value,
+      (a, b) => Math.hypot(a.error, b.error)
+    )
   ),
 
   declare(
     subtract,
-    nullIfNotFloatNums((a, b) => a.value - b.value)
+    nullIfNotFloatNums(
+      (a, b) => a.value - b.value,
+      (a, b) => Math.hypot(a.error, b.error)
+    )
   ),
 
   declare(
     multiply,
-    nullIfNotFloatNums((a, b) => a.value * b.value)
+    nullIfNotFloatNums(
+      (a, b) => a.value * b.value,
+      (a, b, c) => c * Math.hypot(a.error / a.value, b.error / b.value)
+    )
   ),
 
   declare(
     divide,
-    nullIfNotFloatNums((a, b) => a.value / b.value)
+    nullIfNotFloatNums(
+      (a, b) => a.value / b.value,
+      (a, b, c) => c * Math.hypot(a.error / a.value, b.error / b.value)
+    )
   ),
 
   declare(
     exponentiate,
-    nullIfNotFloatNums((a, b) => Math.pow(a.value, b.value))
+    nullIfNotFloatNums(
+      (a, b) => Math.pow(a.value, b.value),
+      (a, b, c) => (c * b.value * a.error) / a.value
+    )
   ),
 
   declare(
@@ -78,12 +93,21 @@ export const FloatOps = [
   ),
 ];
 
-function nullIfNotFloatNums(f: (a: FloatNum, b: FloatNum) => number) {
+function none() {
+  return undefined;
+}
+
+function nullIfNotFloatNums(
+  f: (a: FloatNum, b: FloatNum) => number,
+  error: (a: FloatNum, b: FloatNum, c: number) => number | undefined = none
+) {
   return (a: unknown, b: unknown) => {
     if (!(a instanceof FloatNum && b instanceof FloatNum)) {
       return null;
     }
-    return new FloatNum(f(a, b));
+    const value = f(a, b);
+    console.log(a, b, value, error(a, b, value));
+    return new FloatNum(value, error(a, b, value));
   };
 }
 

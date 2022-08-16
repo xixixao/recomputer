@@ -33,22 +33,31 @@ export class FloatNum {
     // if the log is positive, it indicates number of significant digits
     // as log(value) - log(error)
     const errorMagnitude =
-      this.error > 0 ? Math.trunc(Math.log10(this.error)) : 0;
+      this.error > 0 ? Math.round(Math.log10(this.error)) : 0;
     const fractionDigits = -Math.max(-100, errorMagnitude);
     const valueMagnitude = Math.max(
       0,
       Math.floor(Math.log10(Math.abs(this.value)))
     );
-    const significantDigits = 1 + valueMagnitude - errorMagnitude;
+    const significantDigits = Math.max(1, 1 + valueMagnitude - errorMagnitude);
 
+    console.log(this, significantDigits);
     // TODO: Guard against errorMagnitude outside (0,100)
-    const result =
+    const result = (
       errorMagnitude < 0
         ? this.value.toFixed(fractionDigits)
-        : this.value.toPrecision(significantDigits);
+        : this.value.toPrecision(significantDigits)
+    )
+      .toUpperCase()
+      .replace("E+", "E");
 
     // Handles sign but hides accuracy
     const isZero = /0(\.0+)/.test(result);
+    // return result;
     return isZero ? "0" : result;
+  }
+
+  toDisplayStringWithTrailingSpace() {
+    return this.toDisplayString();
   }
 }

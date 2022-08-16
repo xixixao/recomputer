@@ -64,8 +64,12 @@ export function testApproximation(assertEvals) {
   // assertEvals(`$~10/3`, `~$3.33`);
 }
 
-export function testAccuracy() {
-  // assertEvals(`~7.00`, `7.00`);
+export function testAccuracy(assertEvals) {
+  assertEvals(`~7.00`, `7.00`);
+  assertEvals(`~3.1416*~2.34*~0.58`, `4.3`);
+  assertEvals(`~123.62 + ~8.9`, `132.5`);
+  assertEvals(`~525 / ~311`, `1.69`);
+
   // assertEvals(`error 7.00`, `0.01`);
   // assertEvals(`7.00±0.01`, `7.00±0.01`);
 }
@@ -95,7 +99,7 @@ export function tokenizerNumber(tokenConfig) {
   const numberPattern = new RegExp(
     `^(~?-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${allSymbolsPattern(
       tokenConfig
-    )})))|E-?\\d+)?%?)`
+    )})))|E-?\\d+)?%?(?:±[.,\\d]+)?)`
   );
   return (line, token) => matchToken(line, numberPattern, token, NODE);
 }
@@ -121,14 +125,16 @@ export function evaluateNumber() {
         .replace(decimalSeparatorPattern, ".");
 
       // TODO: Consider rejecting numbers with multiple decimal separators
-      const match = textInENLocale.match(/(~?)(-?[0-9.]+)(K|M|E-?\d+)?(%)?/);
+      const match = textInENLocale.match(
+        /(~?)(-?[0-9.]+)(K|M|E-?\d+)?(%)?(±[.,\d]+)?/
+      );
       if (match == null) {
         return null;
       }
-      const [_, uncertaintySymbol, numString, exponent, percent] = match;
+      const [_, uncertaintySymbol, numString, exponent, percent, error] = match;
       // TODO: Really this should be split into each module with its own
       // parsing rules for each type of a number
-      const isUncertain = uncertaintySymbol !== "";
+      const isUncertain = uncertaintySymbol !== "" || error != null;
       const isLessThan10 = /^-?[0-9](\.|$)/.test(numString);
       // const isInteger = /^-?[0-9]+$/.test(numString) && (!percent || >1000 );
       const isScientific = /E/.test(exponent);
@@ -138,9 +144,9 @@ export function evaluateNumber() {
           console.error("Percent and scientific uncertain num not supported");
           return null;
         }
-        return evaluateSciFloatNum(numString, exponent);
+        return evaluateSciFloatNum(numString, exponent, error);
       } else if (isUncertain) {
-        return evaluateFloatNum(numString, exponent, percent);
+        return evaluateFloatNum(numString, exponent, percent, error);
         // } else if (isInteger) {
         //   evaluateBigIntNum(numString, )
         // }
@@ -161,7 +167,7 @@ function evaluateSciFloatNum(numString, exponent) {
   return new SciFloatNum(float, computeScientificExponent(exponent));
 }
 
-function evaluateFloatNum(numString, exponent, percent) {
+function evaluateFloatNum(numString, exponent, percent, errorString) {
   let float = evaluateFloat(numString);
   // TODO: Support spaces/zeroes
   if (float == null) {
@@ -172,10 +178,15 @@ function evaluateFloatNum(numString, exponent, percent) {
   }
   const [_, decimal] = numString.split(/\./);
   const fractionLength = (decimal ?? "").length;
-  let error = Math.pow(10, -fractionLength);
-  // TODO: Handle percent more cleanly
-  if (percent != null) {
-    error /= 100;
+  let error;
+  if (errorString != null) {
+    error = parseFloat(errorString.slice(1));
+  } else {
+    error = Math.pow(10, -fractionLength);
+    // TODO: Handle percent more cleanly
+    if (percent != null) {
+      error /= 100;
+    }
   }
   return new FloatNum(float, error);
 }
@@ -189,7 +200,9 @@ function evaluateBigNum(numString, exponent, percent) {
 
 function evaluateFloat(numString) {
   const float = parseFloat(numString);
-  const [_, nonTrailing] = numString.match(/(^.+?)\.?0*?$/);
+
+  const nonTrailing = numString.replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
+  console.log(nonTrailing);
   // TODO: Handle underscores/spaces, they should be allowed
   if (float.toString() !== nonTrailing) {
     // TODO: Error

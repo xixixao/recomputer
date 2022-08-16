@@ -79,11 +79,15 @@ export class BigNum {
 
   toDisplayString() {
     const { numerator, denominator } = this.toStringParts(null);
-    if (denominator == null) {
-      return numerator;
-    }
-    // TODO: Print integer part? 2+2/3 instead of 8/3
-    return numerator + "/" + denominator;
+    const isFraction = denominator != null;
+    return numerator + (isFraction ? `/${denominator}` : "");
+  }
+
+  toDisplayStringWithTrailingSpace() {
+    const { numerator, denominator } = this.toStringParts(null);
+    const isFraction = denominator != null;
+    console.log(this);
+    return numerator + (isFraction ? `/${denominator} ` : "");
   }
 
   // TODO: Consider limiting this to some reasonable number of significant

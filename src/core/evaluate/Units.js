@@ -397,14 +397,13 @@ function printCompoundValue(valueOrParts, compound, position) {
 // TODO: We can probably move this back to BigNum given we're not really
 // combining the number fraction with unit fraction
 function printNormalValue(valueOrParts) {
-  if (!(valueOrParts instanceof BigNum)) {
+  if (valueOrParts.parts === PARTS) {
     return valueOrParts;
   }
-  const parts = valueOrParts.toStringParts();
-  const { numerator, denominator } = parts;
-  const isFraction = denominator != null;
-  const number = numerator + (isFraction ? `/${denominator}` : "");
-  return { numerator: number, isFraction };
+  return {
+    numerator: valueOrParts.toDisplayStringWithTrailingSpace(),
+    parts: PARTS,
+  };
 }
 
 // TODO: Consider that we're ignoring symbol here,
@@ -437,7 +436,7 @@ function printUnit(
     denominatorCount,
     isSignular,
     hasLongUnit,
-    isFraction,
+    // isFraction,
   },
   { symbol, unit, prefix, exponent },
   position
@@ -453,10 +452,10 @@ function printUnit(
     position.isNumerator && !isSingle && plural != null ? plural : symbol
   }${positiveExponent > 1 ? `^${positiveExponent}` : ""}`;
   const multiplySymbol = position.isFirst ? "" : "*";
-  const fractionGap =
-    position.isNumerator && position.isFirst && isFraction ? " " : "";
+  // const fractionGap =
+  //   position.isNumerator && position.isFirst && isFraction ? " " : "";
   return {
-    numerator: `${numerator}${fractionGap}${
+    numerator: `${numerator}${/* fractionGap */ ""}${
       position.isNumerator ? multiplySymbol + unitString : ""
     }`,
     denominator: `${denominator ?? ""}${
@@ -466,7 +465,8 @@ function printUnit(
       (denominatorCount ?? 0) + (position.isDenominator ? 1 : 0),
     isSignular: isSingle,
     hasLongUnit: hasLongUnit || isLong,
-    isFraction,
+    parts: PARTS,
+    // isFraction,
   };
 }
 
@@ -481,3 +481,5 @@ function printParts({ numerator, denominator, hasLongUnit, denominatorCount }) {
     shouldWrapDenominator ? "(" : ""
   }${denominator}${shouldWrapDenominator ? ")" : ""}`;
 }
+
+const PARTS = Symbol();
