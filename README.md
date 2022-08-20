@@ -2,9 +2,9 @@
 
 A free web app, a smart calculator with instantly updating results.
 
-https://recomputer.io/ ([backup link](https://xixixao.github.io/recomputer))
+https://xixixao.github.io/recomputer
 
-[Examples](https://recomputer.io/?examples) | [Guide](https://recomputer.io/?guide)
+[Examples](https://xixixao.github.io/recomputer?examples) | [Guide](https://xixixao.github.io/recomputer?guide)
 
 For bug reports file an issue.
 
@@ -20,6 +20,24 @@ For bug reports file an issue.
 ### Same Use Case
 
 _Why yet another smart calculator?_
+
+_Update Aug 2022:_ I've discovered several new (and some old) projects with great similarity to Recomputer. Here's an attempt at a comparitive overview. More alternatives are listed below.
+
+|             | Recomputer  | [Soulver](https://soulver.app/) | [Numpad](https://numpad.io/) | [Cruncher](https://cruncher.io/) | [Insect](https://insect.sh/) | [Frink](https://frinklang.org/) |
+| ----------- | ----------- | ------------------------------- | ---------------------------- | -------------------------------- | ---------------------------- | ------------------------------- |
+| Platform    | macOS       | web                             | web                          | web                              | web, npm                     | Java                            |
+| Interface   | immediate   | immediate                       | immediate                    | immediate                        | REPL                         | programming lang / REPL         |
+| Price       | free        | paid                            | free                         | free                             | free                         | free                            |
+| Development | open source | closed source                   | closed source                | open source                      | open source                  | closed source                   |
+| Syntax      | strict      | mixed text                      | mixed text                   | mixed text                       | strict                       | strict                          |
+| Variables   | yes         | yes                             | yes                          | no                               | yes                          | yes                             |
+| Functions   | yes         | ?                               | no                           | no                               | yes                          | yes                             |
+| Fractions   | yes         | no                              | no                           | no                               | no                           | yes                             |
+| Units       | yes         | yes                             | yes                          | no                               | yes                          | yes                             |
+
+There's lots of interesting differences and features between all of these. Frink is especially interesting being developed for 20 years now and having a vast list of built-in constants for all sorts of physical values.
+
+_Written in May 2021:_
 
 - Soulver: Native, macOS only. Free only 30 days. Not open-source. By far the best of the alternatives. Differs in some design decisions. It leans more towards free text-like input, while Recomputer is more strict (and less error prone).
 - Numi: Doesn't support all rates, in general the grammar doesn't handle a lot of expressions. Multi-word names are not sometimes recognized.
