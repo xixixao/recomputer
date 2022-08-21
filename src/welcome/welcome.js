@@ -1,9 +1,9 @@
-import { linkClick, currentUri } from "../core/browser";
+import { currentUri, linkClick } from "../core/browser";
 
 export function docs() {
   return `
 ## Guide to Recomputer
-# Here is a Recomputer instance with a walk-through of all of its features. You can edit the text here, but your changes won't be saved. You can close it at any time with the button in top right corner or by clicking on this link: https://recomputer.io/. Your primary editor is below the guide.
+# Here is a Recomputer instance with a walk-through of all of its features. You can edit the text here, but your changes won't be saved. You can close it at any time with the button in top right corner or by clicking on this link: https://xixixao.github.io/recomputer. Your primary editor is below the guide.
 
 ### Privacy Notice
 # Recomputer never sends your calculations to any server.
