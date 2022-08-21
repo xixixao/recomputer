@@ -7,13 +7,23 @@ x`,
   );
 }
 
+export function testDoc(assertEvals) {
+  assertEvals(
+    `salary = (1 - tax) * gross salary
+\ttax = 5%
+\tgross salary = $800 / week
+salary`,
+    `$760.00 / week`
+  );
+}
+
 export function docs() {
   return `
 ### Nesting
 # You can nest expressions to limit their scope and declare them below their use:
-result = tax * rate
+salary = (1 - tax) * gross salary
 \ttax = 5%
-\trate = $9 / month
-rate # no corresponding value exists
+\tgross salary = $800 / week
+net salary # no corresponding value exists
 `;
 }

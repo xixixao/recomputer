@@ -388,7 +388,10 @@ function printCompoundValue(valueOrParts, compound, position) {
   const isStart = position.isNumerator && position.isFirst;
   if (isStart) {
     if (compound.unit.measureName === "currency") {
-      return { numerator: printCurrencyValue(valueOrParts, compound) };
+      return {
+        numerator: printCurrencyValue(valueOrParts, compound),
+        parts: PARTS,
+      };
     }
   }
   return printUnit(printNormalValue(valueOrParts), compound, position);
@@ -445,7 +448,13 @@ function printUnit(
   const isLong =
     plural != null || (unit.singularToPlural == null && symbol.length >= 4);
   const isSingle = isSignular ?? numerator === "1";
-  const longGap = position.isNumerator && position.isFirst && isLong ? " " : "";
+  const longGap =
+    !numerator.endsWith(" ") &&
+    position.isNumerator &&
+    position.isFirst &&
+    isLong
+      ? " "
+      : "";
   const positiveExponent = Math.abs(exponent);
   const unitString = `${longGap}${prefix != null ? prefix.symbol : ""}${
     // TODO: Proper pluralization, using cldr-json at least for time

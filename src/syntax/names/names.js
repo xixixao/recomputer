@@ -1,6 +1,6 @@
 import { textAt } from "../../core/evaluate/astCursor.js";
 import * as Term from "../../core/parser/parser.terms.js";
-import { matchToken, allSymbolsPattern } from "../../core/parser/tokens";
+import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 import { maybeResetList } from "../list/list.js";
 
 export function testNotPrefix(assertEvals) {
@@ -35,13 +35,17 @@ x + y`,
   );
 }
 
+// TODO: Fix currency print out
 export function docs() {
   return `
 ### Names
 # Values can be assigned names. Names can contain any characters, except for the equal sign, and cannot start with a digit:
 x = 3
+=3
 my income = $100
+=$100.00
 result 4 = 1/2
+=0.5
 `;
 }
 

@@ -8,7 +8,8 @@ export function docs() {
   return `
 ### Electricty
 # Electric current:
-3 A
+3A
+=3A
 `;
 }
 

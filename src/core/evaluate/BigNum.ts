@@ -86,7 +86,6 @@ export class BigNum {
   toDisplayStringWithTrailingSpace() {
     const { numerator, denominator } = this.toStringParts(null);
     const isFraction = denominator != null;
-    console.log(this);
     return numerator + (isFraction ? `/${denominator} ` : "");
   }
 

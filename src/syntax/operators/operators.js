@@ -41,7 +41,10 @@ export function docs() {
 ### Operators and Functions
 # Standard mathematical operators and functions are available:
 ${operatorsWithDocs
-  .map(({ example, docs }) => `${example} # ${docs}`)
+  .map(
+    ({ example, result, docs }) => `${example} # ${docs}
+=${result}`
+  )
   .join("\n")}
 `;
 }

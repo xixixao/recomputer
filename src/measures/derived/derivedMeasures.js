@@ -1,15 +1,18 @@
 import { prepareMeasure } from "../../core/evaluate/measures";
 import { Units } from "../../core/evaluate/Units";
-import { measure as mass } from "../mass/mass";
-import { measure as magnitude } from "../magnitude/magnitude";
-import { measure as length } from "../length/length";
-import { measure as time } from "../time/time";
 import { measure as electricCurrent } from "../electricity/electricity";
+import { measure as length } from "../length/length";
+import { measure as magnitude } from "../magnitude/magnitude";
+import { measure as mass } from "../mass/mass";
+import { measure as time } from "../time/time";
 
 export const frequency = prepareMeasure({
   name: "frequency",
   docs() {
-    return "Hz in s # hertz, frequency";
+    return `
+Hz in s # hertz, frequency
+=1/s
+`;
   },
   units: {
     hertz: {
@@ -22,7 +25,10 @@ export const frequency = prepareMeasure({
 export const force = prepareMeasure({
   name: "force",
   docs() {
-    return "N in kg # newton, force";
+    return `
+N in kg # newton, force
+=1kg*m/s^2
+`;
   },
   units: {
     newton: {
@@ -39,7 +45,10 @@ export const force = prepareMeasure({
 export const pressure = prepareMeasure({
   name: "pressure",
   docs() {
-    return "Pa in N # pascal, pressure";
+    return `
+Pa in N # pascal, pressure
+=1N/m^2
+`;
   },
   units: {
     pascal: {
@@ -55,7 +64,10 @@ export const pressure = prepareMeasure({
 export const energy = prepareMeasure({
   name: "energy",
   docs() {
-    return "J in N # joule, energy";
+    return `
+J in N # joule, energy
+=1N*m
+`;
   },
   units: {
     joule: {
@@ -71,7 +83,10 @@ export const energy = prepareMeasure({
 export const power = prepareMeasure({
   name: "power",
   docs() {
-    return "W in J # watt, power";
+    return `
+W in J # watt, power
+=1J/s
+`;
   },
   units: {
     watt: {
@@ -87,7 +102,10 @@ export const power = prepareMeasure({
 export const charge = prepareMeasure({
   name: "charge",
   docs() {
-    return "C in A # coulomb, charge";
+    return `
+C in A # coulomb, charge
+=1A*s
+`;
   },
   units: {
     coulomb: {
@@ -103,7 +121,10 @@ export const charge = prepareMeasure({
 export const voltage = prepareMeasure({
   name: "voltage",
   docs() {
-    return "V in W # volt, voltage";
+    return `
+V in W # volt, voltage
+=1W/A
+`;
   },
   units: {
     volt: {

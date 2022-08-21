@@ -5,9 +5,13 @@ export function docs() {
 ### Time
 # Seconds, minutes, hours, days, weeks, months and years.
 second + minute + hour
+=3,661 seconds
 1 day + 1 week
+=8 days
 1 month in years
+=1/12 years
 1 year in days
+=365.2425 days
 `;
 }
 

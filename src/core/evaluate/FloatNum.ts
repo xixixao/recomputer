@@ -41,7 +41,6 @@ export class FloatNum {
     );
     const significantDigits = Math.max(1, 1 + valueMagnitude - errorMagnitude);
 
-    console.log(this, significantDigits);
     // TODO: Guard against errorMagnitude outside (0,100)
     const result = (
       errorMagnitude < 0
@@ -52,8 +51,9 @@ export class FloatNum {
       .replace("E+", "E");
 
     // Handles sign but hides accuracy
-    const isZero = /0(\.0+)/.test(result);
-    // return result;
+    // TODO: log e should be 1
+    // TODO: sin τ should be 0
+    const isZero = /^-?0(\.0+)$/.test(result);
     return isZero ? "0" : result;
   }
 

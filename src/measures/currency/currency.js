@@ -12,6 +12,8 @@ export function testApproximationSymbol(assertEvals) {
   assertEvals(`$2.2222/4`, `~$0.56`);
 }
 
+// TODO: Inject a mock for currency conversions to allow testing
+
 export function docs() {
   return `
 ### Currency
@@ -40,7 +42,7 @@ export const measure = prepareAsyncMeasure({
             currencyUnit.baseUnitValue = 1 / rates[currency];
             currencyUnit.baseUnitValueApproximate = true;
           } else {
-            console.log(`New currency rate for ${currency}`);
+            // console.log(`Rate for a new currency ${currency}`);
           }
         });
       });

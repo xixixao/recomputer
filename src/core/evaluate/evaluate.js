@@ -78,7 +78,7 @@ const expressionEvaluatorsByNodeID = new Map(
 
 export function evaluateExpression(state) {
   const { cursor } = state;
-  console.log("expression", cursor.name, textAt(state));
+  // console.log("expression", cursor.name, textAt(state));
   const evaluate = expressionEvaluatorsByNodeID.get(cursor.type.id);
   if (evaluate != null) {
     const value = evaluate(state);

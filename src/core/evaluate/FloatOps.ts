@@ -106,7 +106,6 @@ function nullIfNotFloatNums(
       return null;
     }
     const value = f(a, b);
-    console.log(a, b, value, error(a, b, value));
     return new FloatNum(value, error(a, b, value));
   };
 }

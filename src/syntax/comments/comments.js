@@ -1,6 +1,6 @@
 import { tags } from "@codemirror/highlight";
-import { matchToken } from "../../core/parser/tokens";
 import * as Term from "../../core/parser/parser.terms.js";
+import { matchToken } from "../../core/parser/tokens";
 
 export function testStrongComments(assertEvals) {
   assertEvals(`## Comment\n3`, `3`);
@@ -20,6 +20,7 @@ export function docs() {
 ## Text (Comments)
 # As you can see throughout this introduction, free form text can follow a \`#\` (hash). Two or more \`#\`s are highlighted.
 x = 1 # Including at the end of a line!
+=1
 `;
 }
 

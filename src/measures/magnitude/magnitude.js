@@ -11,7 +11,9 @@ export function docs() {
 ### Prefixes
 # A metric prefix can be used with any physical measurement unit:
 10km
+=10km
 1ML
+=1ML
 `;
 }
 

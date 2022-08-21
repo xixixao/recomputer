@@ -48,7 +48,7 @@ export function docs() {
 ### Derived units
 # The following derived units are supported:
 ${Object.values(measures)
-  .map(({ docs }) => docs())
+  .map(({ docs }) => docs().trim())
   .join("\n")}
 `;
 }

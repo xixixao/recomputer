@@ -8,6 +8,7 @@ export const add = {
   docs: "Adds two values.",
   docsPos: "1",
   example: "1 + 2",
+  result: "3",
   regex: "\\+",
   template: (left: unknown, right: unknown) => {},
   // convertUnits: true,
@@ -19,6 +20,7 @@ export const subtract = {
   docs: "Subtracts right value from left value.",
   docsPos: "2",
   example: "2 - 3",
+  result: "-1",
   regex: "\\-",
   template: (left: unknown, right: unknown) => {},
   // convertUnits: true,
@@ -31,6 +33,7 @@ export const multiply = {
   docs: "Multiplies two values.",
   docsPos: "3",
   example: "3 * 2",
+  result: "6",
   regex: "\\*",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => left.multiply(right),
@@ -43,6 +46,7 @@ export const divide = {
   docs: "Divides left value by right value.",
   docsPos: "4",
   example: "10 / 5",
+  result: "2",
   regex: "\\/",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => left.divide(right),
@@ -53,6 +57,7 @@ export const divide = {
 export const exponentiate = {
   symbol: "^",
   example: "3 ^ 2",
+  result: "9",
   docsPos: "5",
   docs: "Raises left value to the power of right value.",
   regex: "\\^",
@@ -88,6 +93,7 @@ export const floor = {
   docs: "The closest smaller integer value.",
   docsPos: "6",
   example: "floor 4.49",
+  result: "4",
   template: (left: unknown) => {},
   // apply: (value) => Value.from(value.number.floor(), value.unit),
 };
@@ -97,6 +103,7 @@ export const ceil = {
   docs: "The closest bigger integer value.",
   docsPos: "6.1",
   example: "ceil 4.49",
+  result: "5",
   template: (left: unknown) => {},
   // apply: (value) => Value.from(value.number.ceil(), value.unit),
 };
@@ -106,6 +113,7 @@ export const round = {
   docs: "The closest integer value.",
   docsPos: "6.2",
   example: "round 4.49",
+  result: "4",
   template: (left: unknown) => {},
   // apply: (value) => Value.from(value.number.round(), value.unit),
 };
@@ -115,6 +123,7 @@ export const sqrt = {
   docs: "The square (2nd) root.",
   docsPos: "7",
   example: "sqrt 16",
+  result: "4",
   template: (left: unknown) => {},
   // apply: (value) => root.apply(Value.fromNumber(BigNum.fromInteger(2)), value),
 };
@@ -123,7 +132,8 @@ export const sqrt2 = {
   symbol: "√",
   docs: "The square (2nd) root.",
   docsPos: "7.2",
-  example: "√36",
+  example: "√ 36",
+  result: "6",
   template: (left: unknown) => {},
   // apply: sqrt.apply,
 };
@@ -133,6 +143,7 @@ export const root = {
   docs: "The left value root of the right value.",
   docsPos: "8",
   example: "3rt 27",
+  result: "3",
   regex: "\\brt\\b",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
@@ -143,6 +154,7 @@ export const exp = floatOperator({
   docs: "The number e to the power of the value.",
   docsPos: "9",
   example: "exp 3",
+  result: "20.085536923187668",
   f: Math.exp,
 });
 
@@ -151,6 +163,7 @@ export const log = floatOperator({
   docs: "The natural logarithm of the value.",
   docsPos: "10",
   example: "log 3",
+  result: "1.098612288668110",
   f: Math.log,
 });
 
@@ -159,6 +172,7 @@ export const log2 = floatOperator({
   docs: "The base-2 logarithm of the value.",
   docsPos: "11",
   example: "log2 3",
+  result: "1.584962500721156",
   f: Math.log2,
 });
 
@@ -167,6 +181,7 @@ export const log10 = floatOperator({
   docs: "The base-10 logarithm of the value.",
   docsPos: "12",
   example: "log10 3",
+  result: "0.477121254719662",
   f: Math.log10,
 });
 
@@ -175,6 +190,7 @@ export const abs = {
   docs: "The absolute value of the number.",
   docsPos: "13",
   example: "abs -2",
+  result: "2",
   template: (left: unknown) => {},
 };
 

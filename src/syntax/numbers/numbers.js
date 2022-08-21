@@ -74,21 +74,30 @@ export function testAccuracy(assertEvals) {
   // assertEvals(`7.00±0.01`, `7.00±0.01`);
 }
 
+// TODO: Figure out the localization input story
 export function docs() {
   return `
 ### Numbers
 # You can use arbitrarily large decimal numbers, with decimal point and group (thousand) separators depending on your browser's language (usually the language of your OS). Spaces can be used as well:
-${BigNum.fromNumber(6543210.05)}
+6543210.05
+=6,543,210.05
 100 000
+=100,000
 # Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
 5K + 10M
+=10,005,000
 5% * 100
+=5
 # Scientific notation is supported via E suffix:
 6.3E8
+=630,000,000
 6.3E-8
-# Rational numbers (fractions) that cannot be printed exactly as decimal will be printed as fractions. To force a decimal printing use the \`~\` (tilde) symbol:
+=0.000000063
+# Rational numbers (fractions) that cannot be printed exactly as decimal will be printed as fractions. To force a decimal printing use the \`~\` (tilde) symbol with a space (TODO WIP):
 10/6
-~10/6
+=5/3
+~ 10/6
+=1.66666666666666
 `;
 }
 
@@ -202,7 +211,6 @@ function evaluateFloat(numString) {
   const float = parseFloat(numString);
 
   const nonTrailing = numString.replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
-  console.log(nonTrailing);
   // TODO: Handle underscores/spaces, they should be allowed
   if (float.toString() !== nonTrailing) {
     // TODO: Error

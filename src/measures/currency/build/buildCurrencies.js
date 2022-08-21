@@ -20,7 +20,7 @@ function printCurrencyConfig() {
       if (baseSymbols[currency] !== symbol) {
         const existingCurrency = symbolToCurrency[symbol];
         if (existingCurrency != null && existingCurrency != currency) {
-          console.log(
+          console.error(
             `// Ignoring clashing currency symbol ${symbol} for currency ${currency} in locale ${locale}`
           );
         } else {
