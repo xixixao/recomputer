@@ -4,6 +4,11 @@ Use npm "scripts". `npm start`.
 
 Currently uses Snowpack, should be migrated to Vite.
 
+Publishing:
+`npm run build; and ../recomputer.github.io; and gp -f`
+
+Cloudflare Analytics are configured via the token in the `build script`.
+
 # Deps
 
 We are now stuck on old codemirror.next version and lezer version because @lezer/lr 0.15.0 (2021-08-11) totally breaks the parsing approach here.
