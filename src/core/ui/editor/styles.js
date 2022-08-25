@@ -1,5 +1,6 @@
-import { EditorView } from "@codemirror/basic-setup";
-import { tags, HighlightStyle } from "@codemirror/highlight";
+import { HighlightStyle, syntaxHighlighting } from "@codemirror/language";
+import { EditorView } from "@codemirror/view";
+import { tags } from "@lezer/highlight";
 import { commentsHighlight } from "../../../syntax/comments/comments";
 import { resultsFocusClass } from "../../editor/syncFocus";
 
@@ -14,19 +15,21 @@ export const resultsStyles = () => [
   resultsViewStyles,
 ];
 
-const sharedHighlight = HighlightStyle.define([
-  {
-    tag: tags.variableName,
-    color: "#6bc1fa",
-    // textDecoration: "underline",
-    // textDecorationColor: "rgba(107, 193, 250, 0.4)",
-    // borderRadius: "3px",
-    // backgroundColor: "rgba(107, 193, 250, 0.1)",
-    // padding: "0 2px",
-  },
-  { tag: tags.atom, color: "#b6ddf6" },
-  ...commentsHighlight,
-]);
+const sharedHighlight = syntaxHighlighting(
+  HighlightStyle.define([
+    {
+      tag: tags.variableName,
+      color: "#6bc1fa",
+      // textDecoration: "underline",
+      // textDecorationColor: "rgba(107, 193, 250, 0.4)",
+      // borderRadius: "3px",
+      // backgroundColor: "rgba(107, 193, 250, 0.1)",
+      // padding: "0 2px",
+    },
+    { tag: tags.atom, color: "#b6ddf6" },
+    ...commentsHighlight,
+  ])
+);
 
 const textColor = "#e3e3e3";
 const fontFamily = `ui-sans-serif,
@@ -45,7 +48,7 @@ const sharedCodemirrorStyles = EditorView.theme(
       fontFamily,
       lineHeight: "1.8",
     },
-    "&.cm-focused": { outline: "none" },
+    "&.cm-editor.cm-focused": { outline: "none" },
     "&": { color: textColor, fontFamily },
     "& button, & input": { fontFamily },
     "&.cm-focused .cm-selectionBackground, .cm-selectionBackground": {

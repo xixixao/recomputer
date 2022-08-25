@@ -1,5 +1,5 @@
-import { styleTags, tags as t } from "@codemirror/highlight";
-import { LanguageSupport, LezerLanguage } from "@codemirror/language";
+import { LanguageSupport, LRLanguage } from "@codemirror/language";
+import { styleTags, tags as t } from "@lezer/highlight";
 import { parser } from "./parser";
 import {
   commentStartTID,
@@ -17,7 +17,7 @@ import { analyzeDocument } from "../evaluate/analyze";
 
 export function language(parser) {
   return new LanguageSupport(
-    LezerLanguage.define({
+    LRLanguage.define({
       parser,
       languageData: {
         commentTokens: { line: "#" },
@@ -69,22 +69,27 @@ export const configuredParser = (tokenConfig) => {
       );
       return p.bareParse.call(this, input, startPos, context);
     };
-    p.startParse = function (input, startPos, context) {
-      this.firstPassResult = analyzePass(
-        input,
-        startPos,
-        context,
-        this,
-        tokenConfig
-      );
+    // TODO: The signature completely changed so analyzePass is broken
+    p.startParse = function (input, fragments, ranges) {
+      // TODO: Fix
+      // this.firstPassResult = analyzePass(
+      //   input,
+      //   // startPos,
+      //   // context,
+      //   this,
+      //   tokenConfig
+      // );
+
       // TODO: Reenable incremental parsing my properly tagging tokenizers
       // as contextual
-      const { fragments: _, ...nonIncrementalContext } = context;
+      // const { fragments: _, ...nonIncrementalContext } = context;
       return p.bareStartParse.call(
         this,
         input,
-        startPos,
-        nonIncrementalContext
+        fragments,
+        ranges
+        // startPos,
+        // nonIncrementalContext
       );
     };
   }

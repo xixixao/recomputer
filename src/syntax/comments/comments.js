@@ -1,4 +1,4 @@
-import { tags } from "@codemirror/highlight";
+import { tags } from "@lezer/highlight";
 import * as Term from "../../core/parser/parser.terms.js";
 import { matchToken } from "../../core/parser/tokens";
 

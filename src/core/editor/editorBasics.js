@@ -1,19 +1,24 @@
-import { autocompletion, completionKeymap } from "@codemirror/autocomplete";
-import { closeBrackets, closeBracketsKeymap } from "@codemirror/closebrackets";
-import { defaultKeymap } from "@codemirror/commands";
-import { commentKeymap } from "@codemirror/comment";
-import { defaultHighlightStyle } from "@codemirror/highlight";
-import { history, historyKeymap } from "@codemirror/history";
-import { indentOnInput } from "@codemirror/language";
+import {
+  autocompletion,
+  closeBrackets,
+  closeBracketsKeymap,
+  completionKeymap,
+} from "@codemirror/autocomplete";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import {
+  bracketMatching,
+  defaultHighlightStyle,
+  indentOnInput,
+  syntaxHighlighting,
+} from "@codemirror/language";
 import { lintKeymap } from "@codemirror/lint";
-import { bracketMatching } from "@codemirror/matchbrackets";
-import { rectangularSelection } from "@codemirror/rectangular-selection";
 import { searchKeymap } from "@codemirror/search";
 import { EditorState } from "@codemirror/state";
 import {
   highlightActiveLine,
   highlightSpecialChars,
   keymap,
+  rectangularSelection,
 } from "@codemirror/view";
 import { drawBetterSelection } from "./drawBetterSelection";
 
@@ -23,7 +28,7 @@ export const editorBasics = [
   drawBetterSelection(),
   EditorState.allowMultipleSelections.of(true),
   indentOnInput(),
-  defaultHighlightStyle.fallback,
+  syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
   bracketMatching(),
   closeBrackets(),
   autocompletion(),
@@ -35,7 +40,6 @@ export const editorBasics = [
     ...defaultKeymap.filter(({ mac }) => mac != "Alt-v"),
     ...searchKeymap,
     ...historyKeymap,
-    ...commentKeymap,
     ...completionKeymap,
     ...lintKeymap,
   ]),
