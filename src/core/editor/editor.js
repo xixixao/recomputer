@@ -6,13 +6,17 @@ import { language } from "../parser/language";
 import { test } from "../tests";
 import { highlightedLines } from "../ui/editor/highlightEditorActiveLine";
 import { linkify } from "../ui/editor/linkify";
-import { resultLineAdjustment } from "../ui/editor/resultDisplay";
+import {
+  resultDisplay,
+  resultLineAdjustment,
+} from "../ui/editor/resultDisplay";
 import { resultTransform } from "../ui/editor/resultTransform";
 import { editorStyles, resultsStyles } from "../ui/editor/styles";
 import { insertTau, spaceToIndent } from "./commands";
-import { editorParser, resultsParser } from "./config";
+import { editorParser, evaluator, resultsParser } from "./config";
 import { editorBasics } from "./editorBasics";
 import { forceEvaluateAnnotation } from "./forceEvaluate";
+import { syncEditorFocusToResultDisplay } from "./syncFocus";
 
 const urlParams = new URL(document.location).searchParams;
 if (import.meta.env.NODE_ENV !== "production") {
@@ -45,11 +49,11 @@ export function initializeEditor(leftPane, rightPane, storage) {
         linkify, // This used be Prec.fallback, so should be Prec.low()?
         editorStyles(),
         language(editorParser),
-        // EditorView.updateListener.of(resultDisplay(evaluator, views)),
+        EditorView.updateListener.of(resultDisplay(evaluator, views)),
         ...(storage != null
           ? [EditorView.updateListener.of((update) => storage.save(update))]
           : []),
-        // EditorView.updateListener.of(syncEditorFocusToResultDisplay(views)),
+        EditorView.updateListener.of(syncEditorFocusToResultDisplay(views)),
       ],
     }),
     parent: leftPane,

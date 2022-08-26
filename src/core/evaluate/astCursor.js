@@ -1,4 +1,4 @@
-import * as Term from "../parser/parser.terms";
+import { Term } from "../parser/newParser";
 
 export function textAt({ doc, cursor }) {
   return doc.sliceString(cursor.from, cursor.to);
@@ -26,7 +26,7 @@ export function forEachLine(state, onEveryLine) {
   const cursor = state.cursor;
   cursor.firstChild();
   do {
-    if (cursor.type.id !== 0) {
+    if (cursor.type.id !== Term.Err) {
       onEveryLine(state);
     }
   } while (cursor.nextSibling());

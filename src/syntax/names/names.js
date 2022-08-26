@@ -1,5 +1,5 @@
 import { textAt } from "../../core/evaluate/astCursor.js";
-import * as Term from "../../core/parser/parser.terms.js";
+import { Term } from "../../core/parser/newParser.js";
 import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 import { maybeResetList } from "../list/list.js";
 
@@ -50,7 +50,7 @@ result 4 = 1/2
 }
 
 // TODO: Dont hardcode comment syntax
-const nameDeclarationPattern = /^([^= .#](?:[^=]*[^= ])?) *=/;
+export const nameDeclarationPattern = /^([^= .#](?:[^=]*[^= ])?) *=/;
 export const tokenizerNameDeclaration = () => {
   return (line, token) =>
     matchToken(line, nameDeclarationPattern, token, Term.Name);

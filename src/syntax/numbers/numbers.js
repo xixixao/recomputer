@@ -2,7 +2,7 @@ import { textAt } from "../../core/evaluate/astCursor";
 import { BigNum } from "../../core/evaluate/BigNum";
 import { FloatNum } from "../../core/evaluate/FloatNum";
 import { SciFloatNum } from "../../core/evaluate/SciFloatNum";
-import * as Term from "../../core/parser/parser.terms.js";
+import { Term } from "../../core/parser/newParser";
 import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 import { decimalSeparator, groupSeparator } from "./separators.js";
 

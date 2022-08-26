@@ -1,5 +1,7 @@
-import { LanguageSupport, LRLanguage } from "@codemirror/language";
+import { defineLanguageFacet, Language } from "@codemirror/language";
+import { NodeProp } from "@lezer/common";
 import { styleTags, tags as t } from "@lezer/highlight";
+import { MyParser } from "./newParser";
 import { parser } from "./parser";
 import {
   commentStartTID,
@@ -15,16 +17,31 @@ import {
 import { commentStyleTags } from "../../syntax/comments/comments";
 import { analyzeDocument } from "../evaluate/analyze";
 
+const languageDataProp = new NodeProp();
+
 export function language(parser) {
-  return new LanguageSupport(
-    LRLanguage.define({
-      parser,
-      languageData: {
-        commentTokens: { line: "#" },
-      },
-    }),
-    []
+  const languageData = {
+    commentTokens: { line: "#" },
+  };
+  let data = defineLanguageFacet(languageData);
+
+  return new Language(
+    data,
+    new MyParser(
+      languageDataProp.add((type) => (type.isTop ? data : undefined))
+    )
   );
+
+  // return new LanguageSupport(
+  //   new Language()
+  //   LRLanguage.define({
+  //     parser,
+  //     languageData: {
+  //       commentTokens: { line: "#" },
+  //     },
+  //   }),
+  //   []
+  // );
 }
 
 export const configuredParser = (tokenConfig) => {

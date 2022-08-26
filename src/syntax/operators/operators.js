@@ -1,6 +1,6 @@
 import { textAt } from "../../core/evaluate/astCursor";
 import { evaluateExpression } from "../../core/evaluate/evaluate";
-import * as Term from "../../core/parser/parser.terms";
+import { Term } from "../../core/parser/newParser";
 import { evaluateOperator } from "./evaluateOperator";
 import * as operators from "./operatorList";
 

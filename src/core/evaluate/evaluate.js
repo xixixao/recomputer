@@ -8,7 +8,7 @@ import {
 } from "../../syntax/operators/operators";
 import { saveLastResult } from "../../syntax/preceding/preceding";
 import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
-import * as Term from "../parser/parser.terms";
+import { Term } from "../parser/newParser";
 import { forEachStatement, textAt } from "./astCursor";
 
 export const evaluateDocument = (operators, measures) => {
@@ -24,7 +24,6 @@ export const evaluateDocument = (operators, measures) => {
       results: new Map(),
       values: constants(),
     };
-
     forEachStatement(state, evaluateStatement, () => maybeResetList(state));
     return {
       byPos: (from) => state.results.get(from)?.toDisplayString(),
@@ -43,7 +42,7 @@ function evaluateStatement(state) {
     forEachStatement(state, evaluateStatement);
   }
   cursor.prevSibling();
-  // console.log("statement", cursor.name, textAt(state));
+  console.log("statement", cursor.name, cursor.type.id, textAt(state));
 
   switch (cursor.type.id) {
     case Term.Expression: {
