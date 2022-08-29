@@ -3,7 +3,6 @@ import { BigNum } from "../../core/evaluate/BigNum";
 import { FloatNum } from "../../core/evaluate/FloatNum";
 import { SciFloatNum } from "../../core/evaluate/SciFloatNum";
 import { Term } from "../../core/parser/terms";
-import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 import { decimalSeparator, groupSeparator } from "./separators.js";
 
 export function testIntegers(assertEvals) {
@@ -102,22 +101,6 @@ export function docs() {
 }
 
 const NODE = Term.Number;
-
-export function tokenizerNumber(tokenConfig) {
-  // TODO: Split suffix into separate module
-  const numberPattern = new RegExp(
-    `^(~?-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${allSymbolsPattern(
-      tokenConfig
-    )})))|E-?\\d+)?%?(?:±[.,\\d]+)?)`
-  );
-  return (line, token) => matchToken(line, numberPattern, token, NODE);
-}
-
-// Declared here because it's only needed to avoid a clash with negative numbers
-const minusPattern = /^(-)/;
-export function tokenizerMinus() {
-  return (line, token) => matchToken(line, minusPattern, token, Term.minus);
-}
 
 const groupSeparatorPattern = new RegExp(`[ ${groupSeparator}]`, "g");
 const decimalSeparatorPattern = new RegExp(`[${decimalSeparator}]`, "g");

@@ -8,6 +8,7 @@ import {
   TreeFragment,
 } from "@lezer/common";
 import { styleTags, tags as t } from "@lezer/highlight";
+import { Comment } from "../../syntax/comments/comments";
 import { commentStyleTags } from "../../syntax/comments/comments";
 import { nameDeclarationPattern } from "../../syntax/names/names";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
@@ -77,7 +78,7 @@ export class MyParser extends Parser {
   }
 }
 
-class Parse {
+export class Parse {
   input: Input;
   config: ParserConfig;
   pos: number = 0;
@@ -103,7 +104,7 @@ class Parse {
   toScopes() {
     while (!this.isAtEnd()) {
       this.BlankLine() ||
-        (this.Comment() && this.requiredNewline()) ||
+        (Comment(this) && this.requiredNewline()) ||
         this.Statement();
     }
   }
@@ -147,7 +148,7 @@ class Parse {
     /// this.startNode();
     while (!this.isAtEnd()) {
       this.BlankLine() ||
-        (this.Comment() && this.requiredNewline()) ||
+        (Comment(this) && this.requiredNewline()) ||
         this.Statement();
     }
     /// Lezer's buildTree does this implicitly
@@ -162,36 +163,10 @@ class Parse {
     return this.addNode(Term.BlankLine);
   }
 
-  Comment(): boolean {
-    this.startNode();
-    if (!(this.StrongComment() || this.NormalComment())) {
-      return this.endNode();
-    }
-    return this.addNode(Term.Comment);
-  }
-
-  StrongComment(): boolean {
-    this.startNode();
-    if (!this.match("##")) {
-      return this.endNode();
-    }
-    this.consumeRegex(/[^\n]*/);
-    return this.addNode(Term.StrongComment);
-  }
-
-  NormalComment(): boolean {
-    this.startNode();
-    if (!this.match("#")) {
-      return this.endNode();
-    }
-    this.consumeRegex(/[^\n]*/);
-    return this.addNode(Term.NormalComment);
-  }
-
   Statement(): boolean {
     this.startNode();
     this.Assignment() || this.Expression();
-    this.Comment();
+    Comment(this);
     this.NestedStatements();
     this.requiredNewline();
     return this.addNode(Term.Statement);
@@ -399,7 +374,7 @@ class Parse {
   primaryExpression(): boolean {
     this.skipWhitespace();
     return (
-      this.Comment() ||
+      Comment(this) ||
       this.Parens() ||
       this.Number() ||
       this.PrefixUnit() ||

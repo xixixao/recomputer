@@ -2,7 +2,6 @@ import { textAt } from "../../core/evaluate/astCursor.js";
 import { Dictionary } from "../../core/evaluate/Dictionary.js";
 import { Units } from "../../core/evaluate/Units.js";
 import { Term } from "../../core/parser/terms.js";
-import { allSymbolsPattern, matchToken } from "../../core/parser/tokens";
 
 export function testPrefixes(assertEvals) {
   assertEvals(`$1`, `$1.00`);
@@ -65,23 +64,23 @@ export function docs() {
 }
 const TERM = Term.Unit;
 
-export function tokenizerPrefixUnit({ prefixes }) {
-  const prefixPattern = new RegExp(`^(${prefixes.join("|")})`);
-  return (line, token) => matchToken(line, prefixPattern, token, TERM);
-}
+// export function tokenizerPrefixUnit({ prefixes }) {
+//   const prefixPattern = new RegExp(`^(${prefixes.join("|")})`);
+//   return (line, token) => matchToken(line, prefixPattern, token, TERM);
+// }
 
-const VALID_FIRST_CHAR = /\S/.source;
-const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
-export function tokenizerUnit(tokenConfig) {
-  const allSymbolOr = allSymbolsPattern(tokenConfig);
+// const VALID_FIRST_CHAR = /\S/.source;
+// const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
+// export function tokenizerUnit(tokenConfig) {
+//   const allSymbolOr = allSymbolsPattern(tokenConfig);
 
-  const first_char_pattern = `(?!${allSymbolOr})${VALID_FIRST_CHAR}`;
-  const more_chars_pattern = `${first_char_pattern}((?:(?!${allSymbolOr})${VALID_END_CHAR})+)*`;
-  const unitPattern = new RegExp(
-    `^(${more_chars_pattern}|${first_char_pattern})`
-  );
-  return (line, token) => matchToken(line, unitPattern, token, TERM);
-}
+//   const first_char_pattern = `(?!${allSymbolOr})${VALID_FIRST_CHAR}`;
+//   const more_chars_pattern = `${first_char_pattern}((?:(?!${allSymbolOr})${VALID_END_CHAR})+)*`;
+//   const unitPattern = new RegExp(
+//     `^(${more_chars_pattern}|${first_char_pattern})`
+//   );
+//   return (line, token) => matchToken(line, unitPattern, token, TERM);
+// }
 
 export function evaluateUnit() {
   return {
