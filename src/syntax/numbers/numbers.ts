@@ -2,7 +2,9 @@ import { textAt } from "../../core/evaluate/astCursor";
 import { BigNum } from "../../core/evaluate/BigNum";
 import { FloatNum } from "../../core/evaluate/FloatNum";
 import { SciFloatNum } from "../../core/evaluate/SciFloatNum";
+import { Parse } from "../../core/parser/newParser";
 import { Term } from "../../core/parser/terms";
+import { allSymbolsPattern } from "../../core/parser/tokens";
 import { decimalSeparator, groupSeparator } from "./separators.js";
 
 export function testIntegers(assertEvals) {
@@ -102,6 +104,19 @@ export function docs() {
 
 const NODE = Term.Number;
 
+const numberPattern =
+  /^(~?-?\d(?: (?=\d)|[.,\d])*(?:(?:[KM](?=$|\s|[+-/*%^]))|E-?\d+)?%?(?:±[.,\d]+)?)/;
+
+export function Number(parse: Parse): boolean {
+  // Disambiguates 3K from 3Kelvin
+
+  parse.startNode();
+  if (!parse.matchRegex(numberPattern)) {
+    return parse.endNode();
+  }
+  return parse.addNode(Term.Number);
+}
+
 const groupSeparatorPattern = new RegExp(`[ ${groupSeparator}]`, "g");
 const decimalSeparatorPattern = new RegExp(`[${decimalSeparator}]`, "g");
 
@@ -151,7 +166,7 @@ export function evaluateNumber() {
   };
 }
 
-function evaluateSciFloatNum(numString, exponent) {
+function evaluateSciFloatNum(numString, exponent, error) {
   const float = evaluateFloat(numString);
   if (float == null) {
     return null;

@@ -11,6 +11,7 @@ import { styleTags, tags as t } from "@lezer/highlight";
 import { Comment } from "../../syntax/comments/comments";
 import { commentStyleTags } from "../../syntax/comments/comments";
 import { nameDeclarationPattern } from "../../syntax/names/names";
+import { Number } from "../../syntax/numbers/numbers";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
 import { NODE_SET, Term } from "./terms";
 import { allSymbolsPattern } from "./tokens";
@@ -284,19 +285,6 @@ export class Parse {
     return this.addNode(Term.Reference);
   }
 
-  Number(): boolean {
-    // Disambiguates 3K from 3Kelvin, TODO:
-    const symbolsPattern = allSymbolsPattern(this.config);
-    const numberPattern = new RegExp(
-      `^(~?-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${symbolsPattern})))|E-?\\d+)?%?(?:±[.,\\d]+)?)`
-    );
-    this.startNode();
-    if (!this.matchRegex(numberPattern)) {
-      return this.endNode();
-    }
-    return this.addNode(Term.Number);
-  }
-
   Unit(): boolean {
     const VALID_FIRST_CHAR = /\S/.source;
     const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
@@ -376,7 +364,7 @@ export class Parse {
     return (
       Comment(this) ||
       this.Parens() ||
-      this.Number() ||
+      Number(this) ||
       this.PrefixUnit() ||
       this.Reference() ||
       this.Unit()
