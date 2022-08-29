@@ -1,4 +1,4 @@
-import * as Term from "../parser/parser.terms";
+import { Term } from "../parser/newParser";
 import { forEachStatement, textAt } from "./astCursor";
 import { Dictionary } from "./Dictionary";
 
@@ -33,7 +33,7 @@ function analyzeStatement(state) {
   state.names.endNested(cursor.to);
 }
 
-class Scopes {
+export class Scopes {
   constructor(names) {
     this.scopes = [[{ from: 0, to: Infinity, names }]];
     this.indent = 0;
@@ -66,7 +66,7 @@ class Scopes {
   }
 }
 
-class ScopesCursor {
+export class ScopesCursor {
   constructor(scopes) {
     this.scopes = scopes;
     this.indices = [0];

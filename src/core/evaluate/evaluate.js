@@ -8,7 +8,7 @@ import {
 } from "../../syntax/operators/operators";
 import { saveLastResult } from "../../syntax/preceding/preceding";
 import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
-import { Term } from "../parser/newParser";
+import { slog, Term } from "../parser/newParser";
 import { forEachStatement, textAt } from "./astCursor";
 
 export const evaluateDocument = (operators, measures) => {
@@ -24,6 +24,11 @@ export const evaluateDocument = (operators, measures) => {
       results: new Map(),
       values: constants(),
     };
+    // console.log(state.cursor.name);
+    // state.cursor.firstChild();
+    // console.log(state.cursor.name);
+    // state.cursor.firstChild();
+    // console.log(state.cursor.name);
     forEachStatement(state, evaluateStatement, () => maybeResetList(state));
     return {
       byPos: (from) => state.results.get(from)?.toDisplayString(),
@@ -42,11 +47,13 @@ function evaluateStatement(state) {
     forEachStatement(state, evaluateStatement);
   }
   cursor.prevSibling();
-  console.log("statement", cursor.name, cursor.type.id, textAt(state));
+  slog("statement " + cursor.name, textAt(state));
 
   switch (cursor.type.id) {
     case Term.Expression: {
-      cursor.firstChild();
+      if (!cursor.firstChild()) {
+        return;
+      }
       const value = evaluateExpression(state);
       state.results.set(statementPos, value);
       cursor.parent();
@@ -77,7 +84,7 @@ const expressionEvaluatorsByNodeID = new Map(
 
 export function evaluateExpression(state) {
   const { cursor } = state;
-  // console.log("expression", cursor.name, textAt(state));
+  slog("expression " + cursor.name, textAt(state));
   const evaluate = expressionEvaluatorsByNodeID.get(cursor.type.id);
   if (evaluate != null) {
     const value = evaluate(state);

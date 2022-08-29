@@ -2,7 +2,7 @@ import { defineLanguageFacet, Language } from "@codemirror/language";
 import { NodeProp } from "@lezer/common";
 import { styleTags, tags as t } from "@lezer/highlight";
 import { MyParser } from "./newParser";
-import { parser } from "./parser";
+// import { parser } from "./parser";
 import {
   commentStartTID,
   commentStartTokenizer,
@@ -15,7 +15,6 @@ import {
 } from "./tokens";
 
 import { commentStyleTags } from "../../syntax/comments/comments";
-import { analyzeDocument } from "../evaluate/analyze";
 
 const languageDataProp = new NodeProp();
 
@@ -27,9 +26,10 @@ export function language(parser) {
 
   return new Language(
     data,
-    new MyParser(
-      languageDataProp.add((type) => (type.isTop ? data : undefined))
-    )
+    parser
+    // new MyParser(
+    // languageDataProp.add((type) => (type.isTop ? data : undefined))
+    // )
   );
 
   // return new LanguageSupport(
@@ -45,34 +45,39 @@ export function language(parser) {
 }
 
 export const configuredParser = (tokenConfig) => {
-  const p = parser.configure({
-    props: [
-      styleTags({
-        ...commentStyleTags,
-        Name: t.variableName,
-        Reference: t.variableName,
-        Number: t.number,
-        Unit: t.atom,
-        // Boolean: t.bool,
-        // String: t.string,
-        // "( )": t.paren
-      }),
+  return new MyParser(tokenConfig);
+};
 
-      /// Can support code folding:
-      // indentNodeProp.add({
-      //   Document: (context) => context.column(context.node.from) + context.unit,
-      // }),
-      // foldNodeProp.add({
-      //   Document: foldInside,
-      // }),
-    ],
-    tokenizers: [
-      { from: expressionTID, to: expressionTokenizer(tokenConfig) },
-      { from: nameTID, to: nameTokenizer(tokenConfig) },
-      { from: commentStartTID, to: commentStartTokenizer(tokenConfig) },
-      { from: commentTID, to: commentTokenizer(tokenConfig) },
-    ],
-  });
+export const configuredParserOLD = (tokenConfig) => {
+  const p = {} /* parser */
+    .configure({
+      props: [
+        styleTags({
+          ...commentStyleTags,
+          Name: t.variableName,
+          Reference: t.variableName,
+          Number: t.number,
+          Unit: t.atom,
+          // Boolean: t.bool,
+          // String: t.string,
+          // "( )": t.paren
+        }),
+
+        /// Can support code folding:
+        // indentNodeProp.add({
+        //   Document: (context) => context.column(context.node.from) + context.unit,
+        // }),
+        // foldNodeProp.add({
+        //   Document: foldInside,
+        // }),
+      ],
+      tokenizers: [
+        { from: expressionTID, to: expressionTokenizer(tokenConfig) },
+        { from: nameTID, to: nameTokenizer(tokenConfig) },
+        { from: commentStartTID, to: commentStartTokenizer(tokenConfig) },
+        { from: commentTID, to: commentTokenizer(tokenConfig) },
+      ],
+    });
   if (tokenConfig.shouldAnalyzeForNames) {
     p.bareParse = p.parse;
     p.bareStartParse = p.startParse;
@@ -112,19 +117,3 @@ export const configuredParser = (tokenConfig) => {
   }
   return p;
 };
-
-export function stringToDoc(docString) {
-  return {
-    sliceString(from, to) {
-      return docString.substring(from, to);
-    },
-  };
-}
-
-function analyzePass(input, startPos, context, parser, { names }) {
-  const ast = parser.bareParse.call(parser, input, startPos, context);
-  const docString = input.read(0, input.length);
-  const doc = stringToDoc(docString);
-  const cursor = ast.cursor();
-  return analyzeDocument({ cursor, doc, names });
-}

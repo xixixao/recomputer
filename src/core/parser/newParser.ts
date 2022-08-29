@@ -10,9 +10,34 @@ import {
 import { styleTags, tags as t } from "@lezer/highlight";
 import { commentStyleTags } from "../../syntax/comments/comments";
 import { nameDeclarationPattern } from "../../syntax/names/names";
+import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
+import { allSymbolsPattern } from "./tokens";
 
+type ParserConfig = {
+  operators: Array<string>;
+  prefixes: Array<string>;
+  names: Array<string>;
+  scopes: Scopes | null;
+  shouldAnalyzeForNames: boolean;
+  operatorsByPrecedence: Array<RegExp>;
+  implicitOperators: Array<boolean>;
+};
+
+// We currently have to do 2 passes of this parser because we're
+// working directly with Lezer trees which enforce that nodes
+// are returned in textual order.
+// We could move to a single pass if we parsed the nested statements before
+// their parents, and either:
+//   - produced an actual AST
+//   - spliced the parent nodes in correct order into the Lezer tree
 export class MyParser extends Parser {
   buffer = [];
+  config: ParserConfig;
+
+  constructor(config: ParserConfig) {
+    super();
+    this.config = config;
+  }
 
   createParse(
     input: Input,
@@ -22,21 +47,40 @@ export class MyParser extends Parser {
     if (!input.lineChunks) {
       throw new Error("Expected Input spliced into lines, but it isn't.");
     }
-    // console.log("create parse", input.length);
+    // slog(
+    //   "Input",
+    //   input
+    //     .read(0, input.length)
+    //     .replace("\n", "\\n\n")
+    //     .replace(" ", "\\s")
+    //     .replace("\t", "\\t")
+    // );
     return {
-      advance(): Tree | null {
-        const buffer = new Parse(input).toTreeBuffer();
+      advance: (): Tree | null => {
+        const config = this.config.shouldAnalyzeForNames
+          ? this.analyzeScopes(input)
+          : this.config;
+        const buffer = new Parse(input, config).toTreeBuffer();
+        // console.log(config.scopes);
+        // console.log(buffer);
         const tree = buildTree(buffer);
-        console.log(buffer);
         // console.log(tree);
         return tree;
       },
       parsedPos: input.length,
       stopAt(pos: number) {
-        console.log("stopAt", pos);
+        // console.log("stopAt", pos);
       },
       stoppedAt: null,
     };
+  }
+
+  analyzeScopes(input: Input) {
+    const buffer = new Parse(input, this.config).toTreeBuffer();
+    // console.log("anal tree", buffer);
+    const tree = buildTree(buffer);
+    const scopes = analyzePass(tree, input, this.config);
+    return { ...this.config, scopes };
   }
 }
 
@@ -66,6 +110,7 @@ const Parens = newNodeType("Parens");
 const BinaryExpression = newNodeType("BinaryExpression");
 const Expression = newNodeType("Expression");
 const NestedStatements = newNodeType("NestedStatements");
+const ArithOp = newNodeType("ArithOp");
 const NODE_SET = [
   Err,
   Document,
@@ -85,6 +130,7 @@ const NODE_SET = [
   BinaryExpression,
   Expression,
   NestedStatements,
+  ArithOp,
 ];
 export const Term = Object.entries({
   Err,
@@ -105,24 +151,40 @@ export const Term = Object.entries({
   BinaryExpression,
   Expression,
   NestedStatements,
+  ArithOp,
 })
   .map(([name, node]) => [name, node.id])
   .reduce((object, [name, id]) => ({ ...object, [name]: id }), {});
 
 class Parse {
   input: Input;
+  config: ParserConfig;
   pos: number = 0;
   fromPosStack = [0];
   childrenCountStack = [0];
   buffer: Array<number> = [];
+  indentLevel: number = 0;
+  scopesCursor: ScopesCursor | null = null;
 
-  constructor(input: Input) {
+  constructor(input: Input, config: ParserConfig) {
     this.input = input;
+    this.config = config;
+    if (this.config.scopes != null) {
+      this.scopesCursor = this.config.scopes.cursor();
+    }
   }
 
   toTreeBuffer() {
     this.Document();
     return this.buffer;
+  }
+
+  toScopes() {
+    while (!this.isAtEnd()) {
+      this.BlankLine() ||
+        (this.Comment() && this.requiredNewline()) ||
+        this.Statement();
+    }
   }
 
   startNode() {
@@ -131,27 +193,44 @@ class Parse {
   }
 
   endNode(): boolean {
-    this.childrenCountStack.pop();
+    const numNodes = this.childrenCountStack.pop()!;
     this.fromPosStack.pop();
+    incLast(this.childrenCountStack, numNodes);
     return false;
   }
 
   // [11, 0, 1, 4, 12, 2, 4, 4, 10, 0, 4, 12]
   addNode(nodeType: NodeType): boolean {
-    console.log(nodeType);
     const fromPos = this.fromPosStack.pop()!;
     const numNodes = this.childrenCountStack.pop()! + 1;
+    slog(nodeType.id + " " + nodeType.name, this.input.read(fromPos, this.pos));
     const length = numNodes * 4;
     this.buffer.push(nodeType.id, fromPos, this.pos, length);
-    this.childrenCountStack[this.childrenCountStack.length - 1] += numNodes;
+    incLast(this.childrenCountStack, numNodes);
+    return true;
+  }
+
+  addNodeAndStartEnclosing(nodeType: NodeType): boolean {
+    const fromPos = this.fromPosStack.pop()!;
+    const numNodes = this.childrenCountStack.pop()! + 1;
+    slog(nodeType.id + " " + nodeType.name, this.input.read(fromPos, this.pos));
+    const length = numNodes * 4;
+    this.buffer.push(nodeType.id, fromPos, this.pos, length);
+    // Double up the node
+    this.childrenCountStack.push(numNodes);
+    this.fromPosStack.push(fromPos);
     return true;
   }
 
   Document() {
-    // this.startNode();
-    this.isAtEnd() || this.BlankLine() || this.Comment() || this.Statement();
-    // Lezer's buildTree does this implicitly
-    // this.addNode(Document);
+    /// this.startNode();
+    while (!this.isAtEnd()) {
+      this.BlankLine() ||
+        (this.Comment() && this.requiredNewline()) ||
+        this.Statement();
+    }
+    /// Lezer's buildTree does this implicitly
+    /// this.addNode(Document);
   }
 
   BlankLine(): boolean {
@@ -184,7 +263,6 @@ class Parse {
     if (!this.match("#")) {
       return this.endNode();
     }
-    this.startNode();
     this.consumeRegex(/[^\n]*/);
     return this.addNode(NormalComment);
   }
@@ -193,11 +271,62 @@ class Parse {
     this.startNode();
     this.Assignment() || this.Expression();
     this.Comment();
-    // this.NestedStatements();
-    // if (!this.newline()) {
-    //   throw new Error("Expected newline, error recovery is needed");
-    // }
+    this.NestedStatements();
+    this.requiredNewline();
     return this.addNode(Statement);
+  }
+
+  requiredNewline() {
+    if (this.isAtEnd()) {
+      return true;
+    }
+    if (!this.match("\n")) {
+      // Skip to end of line
+      this.pos += this.input.chunk(this.pos).length;
+      this.match("\n");
+    }
+    return true;
+  }
+
+  NestedStatements() {
+    this.startNode();
+    if (!this.indent()) {
+      return this.endNode();
+    }
+    while (this.sameIndent()) {
+      this.BlankLine() || this.Statement();
+    }
+    this.dedent();
+    return this.addNode(NestedStatements);
+  }
+
+  indent() {
+    if (!this.check("\n")) {
+      return false;
+    }
+    // Check if there is an increased indent after the newline
+    const isIndent = /^\t+$/.test(this.peekFrom(1, this.indentLevel + 1));
+    if (!isIndent) {
+      return false;
+    }
+    this.match("\n");
+    this.indentLevel++;
+    return true;
+  }
+
+  sameIndent() {
+    const isSamedent = /\t/.test(this.peek(this.indentLevel));
+    if (!isSamedent) {
+      return;
+    }
+    this.pos += this.indentLevel;
+    return true;
+  }
+
+  dedent() {
+    this.indentLevel--;
+    // Go back before the new line so that Statement can consume it
+    this.pos--;
   }
 
   Assignment(): boolean {
@@ -217,23 +346,51 @@ class Parse {
   }
 
   expression(): boolean {
-    return (
-      this.Reference() ||
-      this.Number() ||
-      this.Unit() ||
-      this.Parens() ||
-      this.BinaryExpression()
-    );
+    return this.BinaryExpression();
+  }
+
+  PrefixUnit(): boolean {
+    const prefixPattern = new RegExp(`^(${this.config.prefixes.join("|")})`);
+    this.startNode();
+    if (!this.matchRegex(prefixPattern)) {
+      return this.endNode();
+    }
+    return this.addNode(Unit);
   }
 
   Reference(): boolean {
-    // TODO: tokenizerReference
-    return false;
+    // Skip for results editor
+    const { shouldAnalyzeForNames } = this.config;
+    if (!shouldAnalyzeForNames) {
+      return false;
+    }
+
+    const nameEndPattern = new RegExp(
+      `^(?:$|\\s|${allSymbolsPattern(this.config)})`
+    );
+
+    if (this.scopesCursor == null) {
+      return false;
+    }
+
+    const line = this.input.chunk(this.pos);
+    const name = this.scopesCursor.search(
+      this.indentLevel,
+      this.pos,
+      (length: number) => line[length],
+      (length: number) => nameEndPattern.test(line.slice(length))
+    );
+    if (name == null) {
+      return false;
+    }
+    this.startNode();
+    this.pos += name.length;
+    return this.addNode(Reference);
   }
 
   Number(): boolean {
     // Disambiguates 3K from 3Kelvin, TODO:
-    const symbolsPattern = "\\+|-|\\*|\\/"; //allSymbolsPattern( tokenConfig );
+    const symbolsPattern = allSymbolsPattern(this.config);
     const numberPattern = new RegExp(
       `^(~?-?\\d(?: (?=\\d)|[.,\\d])*(?:(?:[KM](?=(?:$|\\s|%|${symbolsPattern})))|E-?\\d+)?%?(?:±[.,\\d]+)?)`
     );
@@ -247,7 +404,7 @@ class Parse {
   Unit(): boolean {
     const VALID_FIRST_CHAR = /\S/.source;
     const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
-    const allSymbolOr = "\\+|-|\\*|\\/"; //allSymbolsPattern( tokenConfig );
+    const allSymbolOr = allSymbolsPattern(this.config);
 
     const first_char_pattern = `(?!${allSymbolOr})${VALID_FIRST_CHAR}`;
     const more_chars_pattern = `${first_char_pattern}((?:(?!${allSymbolOr})${VALID_END_CHAR})+)*`;
@@ -267,11 +424,67 @@ class Parse {
       return this.endNode();
     }
     this.expression();
+    this.match(")");
     return this.addNode(Parens);
   }
 
   BinaryExpression(): boolean {
-    return false;
+    return this.binaryExpression(this.config.operatorsByPrecedence.length - 1);
+  }
+
+  binaryExpression(precedence: number): boolean {
+    if (precedence === -1) {
+      return this.primaryExpression();
+    }
+    this.startNode();
+    let result = this.binaryExpression(precedence - 1);
+    while (
+      this.ArithOpRegex(this.config.operatorsByPrecedence[precedence]) ||
+      this.checkImplictOperator(precedence)
+    ) {
+      this.binaryExpression(precedence - 1);
+      this.addNodeAndStartEnclosing(BinaryExpression);
+    }
+    this.endNode();
+    return result;
+  }
+
+  checkImplictOperator(precedence: number): boolean {
+    if (!this.config.implicitOperators[precedence]) {
+      return false;
+    }
+    this.skipWhitespace();
+    return !(
+      this.isAtEnd() ||
+      // TODO: After we converted to our own parser this became very hacky.
+      // Ideally we want to have a version of each node which only checks,
+      // and use it here.
+      this.check("#") ||
+      this.check(")") ||
+      this.check("\n") ||
+      this.checkRegex(new RegExp(`^(${this.config.operators.join("|")})`))
+    );
+  }
+
+  ArithOpRegex(op: RegExp): boolean {
+    this.skipWhitespace();
+    this.startNode();
+    if (!this.matchRegex(op)) {
+      return this.endNode();
+    }
+    return this.addNode(ArithOp);
+  }
+
+  primaryExpression(): boolean {
+    this.skipWhitespace();
+    return (
+      this.Comment() ||
+      this.Parens() ||
+      this.Number() ||
+      this.PrefixUnit() ||
+      this.Reference() ||
+      this.Unit()
+    );
   }
 
   Name(): boolean {
@@ -303,6 +516,10 @@ class Parse {
     return true;
   }
 
+  skipWhitespace() {
+    this.matchRegex(/^([ \t]+)/);
+  }
+
   consumeRegex(token: RegExp) {
     // console.log("pos chunk |" + this.input.chunk(this.pos) + "|");
     const result = this.input.chunk(this.pos).match(token);
@@ -312,19 +529,35 @@ class Parse {
     this.pos += result[0].length;
   }
 
-  private check(token: string) {
+  checkRegex(token: RegExp) {
+    return token.test(this.input.chunk(this.pos));
+  }
+
+  check(token: string) {
     if (this.isAtEnd()) {
       return false;
     }
     return this.peek(token.length) === token;
   }
 
-  private peek(length: number) {
+  peek(length: number) {
     return this.input.read(this.pos, this.pos + length);
+  }
+
+  peekFrom(from: number, length: number) {
+    return this.input.read(this.pos + from, this.pos + from + length);
   }
 
   isAtEnd() {
     return this.pos === this.input.length;
+  }
+}
+
+class ScopesParse extends Parse {
+  Expression(): boolean {
+    this.pos += this.input.chunk(this.pos).length;
+    this.match("\n");
+    return true;
   }
 }
 
@@ -423,4 +656,38 @@ function buildTree(buffer) {
     ),
     topID: Document.id,
   });
+}
+
+function last<T>(array: Array<T>): T {
+  return array[array.length - 1];
+}
+// function setLast(array, x) {
+//   return (array[array.length - 1] = x);
+// }
+function incLast(array: Array<number>, x: number) {
+  array[array.length - 1] += x;
+}
+
+export function slog(tag: string, text: string) {
+  // console.log(
+  //   tag +
+  //     ":" +
+  //     text.replace(/\n/g, "\\n\n").replace(/ /g, "\\s").replace(/\t/g, "\\t")
+  // );
+}
+
+export function stringToDoc(docString: string) {
+  return {
+    sliceString(from: number, to: number) {
+      return docString.substring(from, to);
+    },
+  };
+}
+
+function analyzePass(ast: Tree, input: Input, config: ParserConfig) {
+  const { names } = config;
+  const docString = input.read(0, input.length);
+  const doc = stringToDoc(docString);
+  const cursor = ast.cursor();
+  return analyzeDocument({ cursor, doc, names });
 }

@@ -3,6 +3,10 @@ import { constants } from "../../syntax/constants/constants";
 import { LIST_SYMBOL } from "../../syntax/list/list";
 import * as listFunctions from "../../syntax/list/listFunctions";
 import * as operators from "../../syntax/operators/operatorList";
+import {
+  implicitOperators,
+  operatorsByPrecedence,
+} from "../../syntax/operators/operatorPrecedence";
 import { LAST_RESULT_SYMBOL } from "../../syntax/preceding/preceding";
 import { evaluateDocument } from "../evaluate/evaluate";
 import { configuredParser } from "../parser/language";
@@ -33,6 +37,8 @@ const parserConfig = {
   operators: operatorList
     .filter((operator) => operator.regex != null)
     .map((operator) => operator.regex),
+  operatorsByPrecedence,
+  implicitOperators,
 };
 
 export const editorParser = configuredParser({

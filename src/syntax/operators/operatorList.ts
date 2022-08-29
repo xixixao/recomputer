@@ -5,11 +5,11 @@ import { Value } from "../../core/evaluate/Value";
 
 export const add = {
   symbol: "+",
+  regex: "\\+",
   docs: "Adds two values.",
   docsPos: "1",
   example: "1 + 2",
   result: "3",
-  regex: "\\+",
   template: (left: unknown, right: unknown) => {},
   // convertUnits: true,
   // apply: (left, right) => left.add(right),
@@ -17,11 +17,11 @@ export const add = {
 
 export const subtract = {
   symbol: "-",
+  regex: "\\-(?!\\d)",
   docs: "Subtracts right value from left value.",
   docsPos: "2",
   example: "2 - 3",
   result: "-1",
-  regex: "\\-",
   template: (left: unknown, right: unknown) => {},
   // convertUnits: true,
   // apply: (left, right) => left.subtract(right),
@@ -30,11 +30,12 @@ export const subtract = {
 
 export const multiply = {
   symbol: "*",
+  regex: "\\*",
+  implicit: true,
   docs: "Multiplies two values.",
   docsPos: "3",
   example: "3 * 2",
   result: "6",
-  regex: "\\*",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => left.multiply(right),
   // applyUnit: (leftUnit, rightUnit) => leftUnit.multiply(rightUnit),
@@ -43,11 +44,11 @@ export const multiply = {
 
 export const divide = {
   symbol: "/",
+  regex: "\\/",
   docs: "Divides left value by right value.",
   docsPos: "4",
   example: "10 / 5",
   result: "2",
-  regex: "\\/",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => left.divide(right),
   // applyUnit: (leftUnit, rightUnit) => leftUnit.divide(rightUnit),
@@ -56,23 +57,21 @@ export const divide = {
 
 export const exponentiate = {
   symbol: "^",
+  regex: "\\^",
   example: "3 ^ 2",
   result: "9",
   docsPos: "5",
   docs: "Raises left value to the power of right value.",
-  regex: "\\^",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => left.exponentiate(right),
 };
 
 // export const modulo = {
 //   symbol: "%",
-//   docs: "The positive remainder of diving left value by right value",
+//   docs: "The positive remainder of dividing left value by right value",
 //   example: "10 % 3",
 //   regex: "%",
-//   apply: (left, right) => ({
-//     value: left?.value.modulo(right?.value),
-//   }),
+//   template: (left: unknown, right: unknown) => {},
 // };
 
 // TODO: Move to separate module
@@ -140,11 +139,11 @@ export const sqrt2 = {
 
 export const root = {
   symbol: "rt",
+  regex: "\\brt\\b",
   docs: "The left value root of the right value.",
   docsPos: "8",
   example: "3rt 27",
   result: "3",
-  regex: "\\brt\\b",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
 };

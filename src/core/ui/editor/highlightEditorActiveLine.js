@@ -1,5 +1,5 @@
-import { ViewPlugin, Decoration } from "@codemirror/view";
-import { StateField, StateEffect } from "@codemirror/state";
+import { StateEffect, StateField } from "@codemirror/state";
+import { Decoration, ViewPlugin } from "@codemirror/view";
 
 export const highlightLineEffect = StateEffect.define();
 
@@ -20,6 +20,7 @@ const activeLineHighlighter = ViewPlugin.fromClass(
     }
     getDecorations(view) {
       const lineNumbers = view.state.field(highlightedLines);
+
       if (lineNumbers.length === 0) {
         return Decoration.none;
       }

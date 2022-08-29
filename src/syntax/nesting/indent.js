@@ -32,7 +32,6 @@ function getIndentInner(input, pos) {
 
 export const newlines = new ExternalTokenizer(
   (input, token, stack) => {
-    return;
     // TODO: Also totally broken by Lezer
     let next = input.get(token.start);
     if (next >= 0 && (next === newline || next === carriageReturn)) {
@@ -49,7 +48,6 @@ export const newlines = new ExternalTokenizer(
 );
 
 export const indentation = new ExternalTokenizer((input, token, stack) => {
-  return;
   // TODO: Also totally broken by Lezer
   let ch = input.get(token.start);
   if (ch != newline && ch != carriageReturn && ch >= 0) {
