@@ -291,15 +291,6 @@ export class Parse {
     this.matchRegex(/^([ \t]+)/);
   }
 
-  consumeRegex(token: RegExp) {
-    // console.log("pos chunk |" + this.input.chunk(this.pos) + "|");
-    const result = this.input.chunk(this.pos).match(token);
-    if (result == null) {
-      throw new Error("Could not consume, maybe error recovery is needed");
-    }
-    this.pos += result[0].length;
-  }
-
   checkRegex(token: RegExp) {
     return token.test(this.input.chunk(this.pos));
   }

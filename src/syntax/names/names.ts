@@ -55,7 +55,7 @@ export function Assignment(parse: Parse): boolean {
   if (!Name(parse)) {
     return parse.endNode();
   }
-  parse.consumeRegex(/ *= */);
+  parse.matchRegex(/( *= *)/);
   parse.expression();
   return parse.addNode(Term.Assignment);
 }

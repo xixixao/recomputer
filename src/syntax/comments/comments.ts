@@ -37,7 +37,7 @@ export function StrongComment(parse: Parse): boolean {
   if (!parse.match("##")) {
     return parse.endNode();
   }
-  parse.consumeRegex(/[^\n]*/);
+  parse.matchRegex(/([^\n]*)/);
   return parse.addNode(Term.StrongComment);
 }
 
@@ -46,7 +46,7 @@ export function NormalComment(parse: Parse): boolean {
   if (!parse.match("#")) {
     return parse.endNode();
   }
-  parse.consumeRegex(/[^\n]*/);
+  parse.matchRegex(/([^\n]*)/);
   return parse.addNode(Term.NormalComment);
 }
 
