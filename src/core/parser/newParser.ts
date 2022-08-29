@@ -48,14 +48,6 @@ export class MyParser extends Parser {
     if (!input.lineChunks) {
       throw new Error("Expected Input spliced into lines, but it isn't.");
     }
-    // slog(
-    //   "Input",
-    //   input
-    //     .read(0, input.length)
-    //     .replace("\n", "\\n\n")
-    //     .replace(" ", "\\s")
-    //     .replace("\t", "\\t")
-    // );
     return {
       advance: (): Tree | null => {
         const config = this.config.shouldAnalyzeForNames
@@ -77,7 +69,7 @@ export class MyParser extends Parser {
   }
 
   analyzeScopes(input: Input) {
-    const buffer = new Parse(input, this.config).toTreeBuffer();
+    const buffer = new ScopesParse(input, this.config).toTreeBuffer();
     // console.log("anal tree", buffer);
     const tree = buildTree(buffer);
     const scopes = analyzePass(tree, input, this.config);
@@ -489,81 +481,6 @@ class ScopesParse extends Parse {
     return true;
   }
 }
-
-// @top Document { (
-//   BlankLine |
-//   Statement |
-//   Comment newline
-// )* }
-
-// BlankLine { newline }
-
-// Statement {
-//   (
-//     Assignment | Expression
-//   ) Comment? NestedStatements? newline }
-
-// Assignment { Name "=" expression }
-
-// Expression { expression }
-
-// NestedStatements { indent (BlankLine | Statement)+ dedent }
-
-// expression {
-//   Reference |
-//   Number |
-//   Unit |
-//   Parens |
-//   BinaryExpression
-// }
-
-// Parens { "(" expression ")" }
-
-// @precedence {
-//   exp @left
-//   mult @left
-//   add @left
-//   bin @left
-//   block @left
-// }
-
-// BinaryExpression {
-//   expression !exp ArithOp { "^" } expression |
-//   expression !mult ArithOp { "*" | "/" | "%" }? expression |
-//   expression !add ArithOp { "+" | minus } expression |
-//   expression !bin BinOp expression
-//   // expression !compare CompareOp expression |
-//   // expression !and LogicOp { "&&" } expression |
-//   // expression !or LogicOp { "||" } expression
-// }
-
-// Comment { StrongComment | NormalComment }
-
-// StrongComment { strongCommentStart (URL | commentContent)* }
-// NormalComment { NormalCommentStart (URL | commentContent)* }
-
-// @skip { ws }
-
-// @tokens {
-//   ws { $[ \u{9}]+ }
-// }
-
-// @external tokens nameTID from "./tokens" { Name }
-// @external tokens commentTID from "./tokens" {
-//   commentContent,
-//   URL
-// }
-// @external tokens commentStartTID from "./tokens" {
-//   strongCommentStart,
-//   NormalCommentStart
-// }
-// @external tokens expressionTID from "./tokens" {
-//   Number,
-//   Reference,
-//   Unit,
-//   BinOp,
-//   minus
-// }
 
 function buildTree(buffer: Array<number>) {
   return Tree.build({

@@ -1,4 +1,5 @@
-// TODO: Split up grammar into modules
+// Left here for reference, but the parser has been hand-written to be
+// top-down and left-recursive instead of Lezer powered.
 
 @top Document { (
   BlankLine |
