@@ -1,5 +1,5 @@
 import { textAt } from "../../core/evaluate/astCursor.js";
-import { Parse } from "../../core/parser/newParser.js";
+import { Parse } from "../../core/parser/parser.js";
 import { Term } from "../../core/parser/terms.js";
 import { allSymbolsPattern } from "../../core/parser/tokens";
 import { maybeResetList } from "../list/list.js";

@@ -1,7 +1,7 @@
 import { textAt } from "../../core/evaluate/astCursor.js";
 import { Dictionary } from "../../core/evaluate/Dictionary.js";
 import { Units } from "../../core/evaluate/Units.js";
-import { Parse } from "../../core/parser/newParser.js";
+import { Parse } from "../../core/parser/parser.js";
 import { Term } from "../../core/parser/terms.js";
 
 export function testPrefixes(assertEvals) {

@@ -1,6 +1,6 @@
 import { defineLanguageFacet, Language } from "@codemirror/language";
 import { NodeProp } from "@lezer/common";
-import { MyParser } from "./newParser";
+import { MyParser } from "./parser";
 // import { parser } from "./parser";
 
 const languageDataProp = new NodeProp();

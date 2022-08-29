@@ -8,7 +8,7 @@ import {
 } from "../../syntax/operators/operators";
 import { saveLastResult } from "../../syntax/preceding/preceding";
 import { evaluateUnit, prepareUnits } from "../../syntax/units/units";
-import { slog } from "../parser/newParser";
+import { slog } from "../parser/parser";
 import { Term } from "../parser/terms";
 import { forEachStatement, textAt } from "./astCursor";
 
