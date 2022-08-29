@@ -32,6 +32,11 @@ export function testRoot(assertEvals) {
   assertEvals(`3rt m3`, `1m`);
 }
 
+export function testPrecedence(assertEvals) {
+  assertEvals(`sqrt 4 / 2`, `1`);
+  assertEvals(`sqrt (4) / 2`, `1`);
+}
+
 export function docs() {
   const operatorsWithDocs = Object.values(operators).filter(
     ({ docs }) => docs != null

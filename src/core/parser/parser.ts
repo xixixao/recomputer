@@ -25,7 +25,7 @@ type ParserConfig = {
   scopes: Scopes | null;
   shouldAnalyzeForNames: boolean;
   operatorsByPrecedence: Array<RegExp>;
-  implicitOperators: Array<boolean>;
+  implicitOperators: Array<(parse: Parse) => boolean>;
 };
 
 // We currently have to do 2 passes of this parser because we're
@@ -229,20 +229,13 @@ export class Parse {
   }
 
   checkImplictOperator(precedence: number): boolean {
-    if (!this.config.implicitOperators[precedence]) {
+    const implicitCheck = this.config.implicitOperators[precedence];
+    if (implicitCheck == null) {
       return false;
     }
     this.skipWhitespace();
-    return !(
-      this.isAtEnd() ||
-      // TODO: After we converted to our own parser this became very hacky.
-      // Ideally we want to have a version of each node which only checks,
-      // and use it here.
-      this.check("#") ||
-      this.check(")") ||
-      this.check("\n") ||
-      this.checkRegex(this.config.operators)
-    );
+    // return false;
+    return implicitCheck(this);
   }
 
   ArithOpRegex(op: RegExp): boolean {

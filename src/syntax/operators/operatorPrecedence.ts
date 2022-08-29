@@ -23,7 +23,10 @@ export const operatorsByPrecedence = byPrecedence.map(
     new RegExp("^(" + operators.map(({ regex }) => regex).join("|") + ")")
 );
 
-export const implicitOperators = byPrecedence.map(
-  (operators) =>
-    operators.filter((operator) => "implicit" in operator).length > 0
-);
+export const implicitOperators = byPrecedence.map((operators) => {
+  const implicitOperator = operators.filter(
+    (operator) => "implicit" in operator
+  )[0];
+  // @ts-ignore
+  return implicitOperator?.implicit;
+});

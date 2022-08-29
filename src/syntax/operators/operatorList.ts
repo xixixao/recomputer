@@ -2,6 +2,7 @@ import { BigNum } from "../../core/evaluate/BigNum";
 import { FloatNum, canConvertToFloat } from "../../core/evaluate/FloatNum";
 import { Units } from "../../core/evaluate/Units";
 import { Value } from "../../core/evaluate/Value";
+import { Parse } from "../../core/parser/parser";
 
 export const add = {
   symbol: "+",
@@ -31,7 +32,18 @@ export const subtract = {
 export const multiply = {
   symbol: "*",
   regex: "\\*",
-  implicit: true,
+  implicit(parse: Parse) {
+    return !(
+      parse.isAtEnd() ||
+      // TODO: After we converted to our own parser this became very hacky.
+      // Ideally we want to have a version of each node which only checks,
+      // and use it here.
+      parse.check("#") ||
+      parse.check(")") ||
+      parse.check("\n") ||
+      parse.checkRegex(parse.config.operators)
+    );
+  },
   docs: "Multiplies two values.",
   docsPos: "3",
   example: "3 * 2",
