@@ -19,7 +19,7 @@ import { NODE_SET, Term } from "./terms";
 import { allSymbolsPattern } from "./tokens";
 
 type ParserConfig = {
-  operators: Array<string>;
+  operators: RegExp;
   prefixes: RegExp;
   names: Array<string>;
   scopes: Scopes | null;
@@ -241,7 +241,7 @@ export class Parse {
       this.check("#") ||
       this.check(")") ||
       this.check("\n") ||
-      this.checkRegex(new RegExp(`^(${this.config.operators.join("|")})`))
+      this.checkRegex(this.config.operators)
     );
   }
 

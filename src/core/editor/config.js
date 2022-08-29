@@ -37,9 +37,12 @@ const parserConfig = {
     .map((operator) => operator.symbol)
     .concat([LAST_RESULT_SYMBOL, LIST_SYMBOL])
     .concat(Array.from(constants().keys())),
-  operators: operatorList
-    .filter((operator) => operator.regex != null)
-    .map((operator) => operator.regex),
+  operators: new RegExp(
+    `^(${operatorList
+      .filter((operator) => operator.regex != null)
+      .map((operator) => operator.regex)
+      .join("|")})`
+  ),
   operatorsByPrecedence,
   implicitOperators,
 };
