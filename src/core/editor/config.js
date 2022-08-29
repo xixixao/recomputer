@@ -18,17 +18,20 @@ const operatorList = Object.values(operators).concat(
 const parserConfig = {
   // Prefixes need to be treated differently from names, because
   // postfix units can be exponentiated, so "m3" is "m^3", but "$3" is "3 $"
-  prefixes: measures
-    .map(({ units }) =>
-      Object.values(units)
-        .map((unit) => Array.from(unit.prefixSymbols))
-        .flat()
-    )
-    .flat()
-    // TODO: Push this to config
-    .map((symbol) => symbol.replace("$", "\\$"))
-    // TODO: Figure out how also treat "√" ala prefix but also as a function
-    .concat("~"),
+  prefixes: new RegExp(
+    `^(${measures
+      .map(({ units }) =>
+        Object.values(units)
+          .map((unit) => Array.from(unit.prefixSymbols))
+          .flat()
+      )
+      .flat()
+      // TODO: Push this to config
+      .map((symbol) => symbol.replace("$", "\\$"))
+      // TODO: Figure out how also treat "√" ala prefix but also as a function
+      .concat("~")
+      .join("|")})`
+  ),
   names: operatorList
     .filter((operator) => operator.regex == null)
     .map((operator) => operator.symbol)

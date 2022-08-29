@@ -1,6 +1,7 @@
 import { textAt } from "../../core/evaluate/astCursor.js";
 import { Dictionary } from "../../core/evaluate/Dictionary.js";
 import { Units } from "../../core/evaluate/Units.js";
+import { Parse } from "../../core/parser/newParser.js";
 import { Term } from "../../core/parser/terms.js";
 
 export function testPrefixes(assertEvals) {
@@ -64,23 +65,31 @@ export function docs() {
 }
 const TERM = Term.Unit;
 
-// export function tokenizerPrefixUnit({ prefixes }) {
-//   const prefixPattern = new RegExp(`^(${prefixes.join("|")})`);
-//   return (line, token) => matchToken(line, prefixPattern, token, TERM);
-// }
+const INVALID_CHARS = "[+-/*%^=()]";
+const VALID_FIRST_CHAR = /\S/.source;
+const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
 
-// const VALID_FIRST_CHAR = /\S/.source;
-// const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
-// export function tokenizerUnit(tokenConfig) {
-//   const allSymbolOr = allSymbolsPattern(tokenConfig);
+const FIRST_CHAR_PATTERN = `(?!${INVALID_CHARS})${VALID_FIRST_CHAR}`;
+const MORE_CHARS_PATTERN = `${FIRST_CHAR_PATTERN}((?:(?!${INVALID_CHARS})${VALID_END_CHAR})+)*`;
+const UNIT_PATTERN = new RegExp(
+  `^(${MORE_CHARS_PATTERN}|${FIRST_CHAR_PATTERN})`
+);
 
-//   const first_char_pattern = `(?!${allSymbolOr})${VALID_FIRST_CHAR}`;
-//   const more_chars_pattern = `${first_char_pattern}((?:(?!${allSymbolOr})${VALID_END_CHAR})+)*`;
-//   const unitPattern = new RegExp(
-//     `^(${more_chars_pattern}|${first_char_pattern})`
-//   );
-//   return (line, token) => matchToken(line, unitPattern, token, TERM);
-// }
+export function Unit(parse: Parse): boolean {
+  parse.startNode();
+  if (!parse.matchRegex(UNIT_PATTERN)) {
+    return parse.endNode();
+  }
+  return parse.addNode(Term.Unit);
+}
+
+export function PrefixUnit(parse: Parse): boolean {
+  parse.startNode();
+  if (!parse.matchRegex(parse.config.prefixes)) {
+    return parse.endNode();
+  }
+  return parse.addNode(Term.Unit);
+}
 
 export function evaluateUnit() {
   return {
@@ -150,7 +159,20 @@ function lookupUnit(state, symbol) {
 
 const SET = new Set();
 
-export function prepareUnits(measures) {
+type Measure = {
+  name: string;
+  units: Array<{
+    name: string;
+    prefixes: Array<string>;
+    measureName: string;
+    prefixSymbols: Set<string>;
+    postfixSymbols: Set<string>;
+    pluralToSingular: Map<string, string>;
+    singularToPlural: Map<string, string>;
+  }>;
+};
+
+export function prepareUnits(measures: Array<Measure>) {
   const unitNameToUnit = new Map();
   const symbolToUnitName = new Map();
   measures.forEach(({ units }) => {
@@ -166,7 +188,7 @@ export function prepareUnits(measures) {
   });
 
   const prefixLookup = new Map();
-  const magnitude = measures.find((measure) => measure.name === "magnitude");
+  const magnitude = measures.find((measure) => measure.name === "magnitude")!;
   Object.values(magnitude.units).forEach((unit) =>
     unit.prefixes.forEach((prefix) => {
       prefixLookup.set(prefix, unit);

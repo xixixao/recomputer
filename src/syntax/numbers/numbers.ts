@@ -105,7 +105,7 @@ export function docs() {
 const NODE = Term.Number;
 
 const numberPattern =
-  /^(~?-?\d(?: (?=\d)|[.,\d])*(?:(?:[KM](?=$|\s|[+-/*%^]))|E-?\d+)?%?(?:±[.,\d]+)?)/;
+  /^(~?-?\d(?: (?=\d)|[.,\d])*(?:(?:[KM](?=$|\s|[+-/*%^=()]))|E-?\d+)?%?(?:±[.,\d]+)?)/;
 
 export function Number(parse: Parse): boolean {
   // Disambiguates 3K from 3Kelvin

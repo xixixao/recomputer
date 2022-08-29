@@ -12,13 +12,14 @@ import { Comment } from "../../syntax/comments/comments";
 import { commentStyleTags } from "../../syntax/comments/comments";
 import { nameDeclarationPattern } from "../../syntax/names/names";
 import { Number } from "../../syntax/numbers/numbers";
+import { PrefixUnit, Unit } from "../../syntax/units/units";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
 import { NODE_SET, Term } from "./terms";
 import { allSymbolsPattern } from "./tokens";
 
 type ParserConfig = {
   operators: Array<string>;
-  prefixes: Array<string>;
+  prefixes: RegExp;
   names: Array<string>;
   scopes: Scopes | null;
   shouldAnalyzeForNames: boolean;
@@ -246,15 +247,6 @@ export class Parse {
     return this.BinaryExpression();
   }
 
-  PrefixUnit(): boolean {
-    const prefixPattern = new RegExp(`^(${this.config.prefixes.join("|")})`);
-    this.startNode();
-    if (!this.matchRegex(prefixPattern)) {
-      return this.endNode();
-    }
-    return this.addNode(Term.Unit);
-  }
-
   Reference(): boolean {
     // Skip for results editor
     const { shouldAnalyzeForNames } = this.config;
@@ -283,23 +275,6 @@ export class Parse {
     this.startNode();
     this.pos += name.length;
     return this.addNode(Term.Reference);
-  }
-
-  Unit(): boolean {
-    const VALID_FIRST_CHAR = /\S/.source;
-    const VALID_END_CHAR = `(${VALID_FIRST_CHAR}|[0-9])`;
-    const allSymbolOr = allSymbolsPattern(this.config);
-
-    const first_char_pattern = `(?!${allSymbolOr})${VALID_FIRST_CHAR}`;
-    const more_chars_pattern = `${first_char_pattern}((?:(?!${allSymbolOr})${VALID_END_CHAR})+)*`;
-    const unitPattern = new RegExp(
-      `^(${more_chars_pattern}|${first_char_pattern})`
-    );
-    this.startNode();
-    if (!this.matchRegex(unitPattern)) {
-      return this.endNode();
-    }
-    return this.addNode(Term.Unit);
   }
 
   Parens(): boolean {
@@ -365,9 +340,9 @@ export class Parse {
       Comment(this) ||
       this.Parens() ||
       Number(this) ||
-      this.PrefixUnit() ||
+      PrefixUnit(this) ||
       this.Reference() ||
-      this.Unit()
+      Unit(this)
     );
   }
 
