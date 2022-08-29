@@ -1,17 +1,17 @@
 import { ExternalTokenizer } from "@lezer/lr";
-import * as Term from "./parser.terms";
 import {
   tokenizerCommentContent,
   tokenizerCommentLink,
   tokenizerNormalStart,
   tokenizerStrongStart,
 } from "../../syntax/comments/comments";
-import { tokenizerMinus, tokenizerNumber } from "../../syntax/numbers/numbers";
-import { tokenizerPrefixUnit, tokenizerUnit } from "../../syntax/units/units";
 import {
   tokenizerNameDeclaration,
   tokenizerReference,
 } from "../../syntax/names/names";
+import { tokenizerMinus, tokenizerNumber } from "../../syntax/numbers/numbers";
+import { tokenizerPrefixUnit, tokenizerUnit } from "../../syntax/units/units";
+import { Term } from "./terms";
 
 export const nameTID = "name";
 export const nameTokenizer = buildLineTokenizer([tokenizerNameDeclaration]);

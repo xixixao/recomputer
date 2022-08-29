@@ -11,6 +11,7 @@ import { styleTags, tags as t } from "@lezer/highlight";
 import { commentStyleTags } from "../../syntax/comments/comments";
 import { nameDeclarationPattern } from "../../syntax/names/names";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
+import { NODE_SET, Term } from "./terms";
 import { allSymbolsPattern } from "./tokens";
 
 type ParserConfig = {
@@ -84,78 +85,6 @@ export class MyParser extends Parser {
   }
 }
 
-let nodeTypeID = 0;
-
-function newNodeType(name) {
-  return NodeType.define({ id: nodeTypeID++, name });
-}
-
-// I wouldn't need these names if the highlight package wasn't so uber
-// convoluted - this is all super error prone and should be just a plain list
-const Err = newNodeType("Err");
-const Document = newNodeType("Document");
-const BlankLine = newNodeType("BlankLine");
-const Comment = newNodeType("Comment");
-const StrongComment = newNodeType("StrongComment");
-const NormalComment = newNodeType("NormalComment");
-const Statement = newNodeType("Statement");
-const Name = newNodeType("Name");
-const URL = newNodeType("URL");
-const Number = newNodeType("Number");
-const Reference = newNodeType("Reference");
-const Unit = newNodeType("Unit");
-const BinOp = newNodeType("BinOp");
-const Assignment = newNodeType("Assignment");
-const Parens = newNodeType("Parens");
-const BinaryExpression = newNodeType("BinaryExpression");
-const Expression = newNodeType("Expression");
-const NestedStatements = newNodeType("NestedStatements");
-const ArithOp = newNodeType("ArithOp");
-const NODE_SET = [
-  Err,
-  Document,
-  BlankLine,
-  Comment,
-  StrongComment,
-  NormalComment,
-  Statement,
-  Name,
-  URL,
-  Number,
-  Reference,
-  Unit,
-  BinOp,
-  Assignment,
-  Parens,
-  BinaryExpression,
-  Expression,
-  NestedStatements,
-  ArithOp,
-];
-export const Term = Object.entries({
-  Err,
-  Document,
-  BlankLine,
-  Comment,
-  StrongComment,
-  NormalComment,
-  Statement,
-  Name,
-  URL,
-  Number,
-  Reference,
-  Unit,
-  BinOp,
-  Assignment,
-  Parens,
-  BinaryExpression,
-  Expression,
-  NestedStatements,
-  ArithOp,
-})
-  .map(([name, node]) => [name, node.id])
-  .reduce((object, [name, id]) => ({ ...object, [name]: id }), {});
-
 class Parse {
   input: Input;
   config: ParserConfig;
@@ -199,27 +128,27 @@ class Parse {
     return false;
   }
 
-  // [11, 0, 1, 4, 12, 2, 4, 4, 10, 0, 4, 12]
-  addNode(nodeType: NodeType): boolean {
-    const fromPos = this.fromPosStack.pop()!;
-    const numNodes = this.childrenCountStack.pop()! + 1;
-    slog(nodeType.id + " " + nodeType.name, this.input.read(fromPos, this.pos));
-    const length = numNodes * 4;
-    this.buffer.push(nodeType.id, fromPos, this.pos, length);
+  addNode(nodeType: NodeType["id"]): boolean {
+    const [_, numNodes] = this.writeNode(nodeType);
     incLast(this.childrenCountStack, numNodes);
     return true;
   }
 
-  addNodeAndStartEnclosing(nodeType: NodeType): boolean {
-    const fromPos = this.fromPosStack.pop()!;
-    const numNodes = this.childrenCountStack.pop()! + 1;
-    slog(nodeType.id + " " + nodeType.name, this.input.read(fromPos, this.pos));
-    const length = numNodes * 4;
-    this.buffer.push(nodeType.id, fromPos, this.pos, length);
+  addNodeAndStartEnclosing(nodeType: NodeType["id"]): boolean {
+    const [fromPos, numNodes] = this.writeNode(nodeType);
     // Double up the node
     this.childrenCountStack.push(numNodes);
     this.fromPosStack.push(fromPos);
     return true;
+  }
+
+  writeNode(nodeType: NodeType["id"]): [number, number] {
+    const fromPos = this.fromPosStack.pop()!;
+    const numNodes = this.childrenCountStack.pop()! + 1;
+    slog("Node id " + nodeType, this.input.read(fromPos, this.pos));
+    const length = numNodes * 4;
+    this.buffer.push(nodeType, fromPos, this.pos, length);
+    return [fromPos, numNodes];
   }
 
   Document() {
@@ -238,7 +167,7 @@ class Parse {
     if (!this.match("\n")) {
       return this.endNode();
     }
-    return this.addNode(BlankLine);
+    return this.addNode(Term.BlankLine);
   }
 
   Comment(): boolean {
@@ -246,7 +175,7 @@ class Parse {
     if (!(this.StrongComment() || this.NormalComment())) {
       return this.endNode();
     }
-    return this.addNode(Comment);
+    return this.addNode(Term.Comment);
   }
 
   StrongComment(): boolean {
@@ -255,7 +184,7 @@ class Parse {
       return this.endNode();
     }
     this.consumeRegex(/[^\n]*/);
-    return this.addNode(StrongComment);
+    return this.addNode(Term.StrongComment);
   }
 
   NormalComment(): boolean {
@@ -264,7 +193,7 @@ class Parse {
       return this.endNode();
     }
     this.consumeRegex(/[^\n]*/);
-    return this.addNode(NormalComment);
+    return this.addNode(Term.NormalComment);
   }
 
   Statement(): boolean {
@@ -273,7 +202,7 @@ class Parse {
     this.Comment();
     this.NestedStatements();
     this.requiredNewline();
-    return this.addNode(Statement);
+    return this.addNode(Term.Statement);
   }
 
   requiredNewline() {
@@ -297,7 +226,7 @@ class Parse {
       this.BlankLine() || this.Statement();
     }
     this.dedent();
-    return this.addNode(NestedStatements);
+    return this.addNode(Term.NestedStatements);
   }
 
   indent() {
@@ -336,13 +265,13 @@ class Parse {
     }
     this.consumeRegex(/ *= */);
     this.expression();
-    return this.addNode(Assignment);
+    return this.addNode(Term.Assignment);
   }
 
   Expression(): boolean {
     this.startNode();
     this.expression();
-    return this.addNode(Expression);
+    return this.addNode(Term.Expression);
   }
 
   expression(): boolean {
@@ -355,7 +284,7 @@ class Parse {
     if (!this.matchRegex(prefixPattern)) {
       return this.endNode();
     }
-    return this.addNode(Unit);
+    return this.addNode(Term.Unit);
   }
 
   Reference(): boolean {
@@ -385,7 +314,7 @@ class Parse {
     }
     this.startNode();
     this.pos += name.length;
-    return this.addNode(Reference);
+    return this.addNode(Term.Reference);
   }
 
   Number(): boolean {
@@ -398,7 +327,7 @@ class Parse {
     if (!this.matchRegex(numberPattern)) {
       return this.endNode();
     }
-    return this.addNode(Number);
+    return this.addNode(Term.Number);
   }
 
   Unit(): boolean {
@@ -415,7 +344,7 @@ class Parse {
     if (!this.matchRegex(unitPattern)) {
       return this.endNode();
     }
-    return this.addNode(Unit);
+    return this.addNode(Term.Unit);
   }
 
   Parens(): boolean {
@@ -425,7 +354,7 @@ class Parse {
     }
     this.expression();
     this.match(")");
-    return this.addNode(Parens);
+    return this.addNode(Term.Parens);
   }
 
   BinaryExpression(): boolean {
@@ -443,7 +372,7 @@ class Parse {
       this.checkImplictOperator(precedence)
     ) {
       this.binaryExpression(precedence - 1);
-      this.addNodeAndStartEnclosing(BinaryExpression);
+      this.addNodeAndStartEnclosing(Term.BinaryExpression);
     }
     this.endNode();
     return result;
@@ -472,7 +401,7 @@ class Parse {
     if (!this.matchRegex(op)) {
       return this.endNode();
     }
-    return this.addNode(ArithOp);
+    return this.addNode(Term.ArithOp);
   }
 
   primaryExpression(): boolean {
@@ -492,7 +421,7 @@ class Parse {
     if (!this.matchRegex(nameDeclarationPattern)) {
       return this.endNode();
     }
-    return this.addNode(Name);
+    return this.addNode(Term.Name);
   }
 
   match(token: string) {
@@ -636,7 +565,7 @@ class ScopesParse extends Parse {
 //   minus
 // }
 
-function buildTree(buffer) {
+function buildTree(buffer: Array<number>) {
   return Tree.build({
     // buffer: [1, 0, 1, 4, 12, 2, 4, 4, 0, 0, 4, 12],
     buffer,
@@ -654,16 +583,10 @@ function buildTree(buffer) {
         // "( )": t.paren
       })
     ),
-    topID: Document.id,
+    topID: Term.Document,
   });
 }
 
-function last<T>(array: Array<T>): T {
-  return array[array.length - 1];
-}
-// function setLast(array, x) {
-//   return (array[array.length - 1] = x);
-// }
 function incLast(array: Array<number>, x: number) {
   array[array.length - 1] += x;
 }

@@ -1,4 +1,4 @@
-import { Term } from "../parser/newParser";
+import { Term } from "../parser/terms";
 import { forEachStatement, textAt } from "./astCursor";
 import { Dictionary } from "./Dictionary";
 

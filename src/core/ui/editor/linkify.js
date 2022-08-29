@@ -1,6 +1,6 @@
 import { syntaxTree } from "@codemirror/language";
 import { Decoration, ViewPlugin } from "@codemirror/view";
-import { Term } from "../../parser/newParser";
+import { Term } from "../../parser/terms";
 
 export const linkify = ViewPlugin.fromClass(
   class {

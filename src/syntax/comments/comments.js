@@ -1,5 +1,5 @@
 import { tags } from "@lezer/highlight";
-import * as Term from "../../core/parser/parser.terms.js";
+import { Term } from "../../core/parser/terms";
 import { matchToken } from "../../core/parser/tokens";
 
 export function testStrongComments(assertEvals) {

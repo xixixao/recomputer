@@ -7,7 +7,6 @@
   "scripts": {
     "build": "cd ../recomputer.github.io && git reset --hard 3d30fce && cd ../recomputer && npx snowpack build && find build/* -maxdepth 0 ! -name 'index.html' ! -name 'src' -exec rm -r {} + && mv build/* ../recomputer.github.io/ && rm -r build && cd ../recomputer.github.io && touch .nojekyll && perl -pi -w -e 's&<!--stats-->&<script defer src='\"'\"'https://static.cloudflareinsights.com/beacon.min.js'\"'\"' data-cf-beacon='\"'\"'{\"token\": \"0701565b4e494a109d62174c015e387d\"}'\"'\"'></script>&' index.html && git add . && git commit -m 'Built'",
     "start": "snowpack dev",
-    "parser": "lezer-generator src/core/parser/grammar.lezer -o src/core/parser/parser.js",
     "currencies": "node --es-module-specifier-resolution=node src/currency/build/buildCurrencies.js > src/core/evaluate/measures/currencyUnits.js"
   },
   "keywords": [

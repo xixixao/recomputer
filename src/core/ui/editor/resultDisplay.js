@@ -3,7 +3,7 @@ import { StateEffect, StateField } from "@codemirror/state";
 import { Decoration, EditorView } from "@codemirror/view";
 import { shouldForceEvaluate } from "../../editor/forceEvaluate";
 import { forEachLine } from "../../evaluate/astCursor";
-import { Term } from "../../parser/newParser";
+import { Term } from "../../parser/terms";
 import { highlightLineEffect } from "./highlightEditorActiveLine";
 
 export const resultDisplay = (evaluator, views) => (update) => {

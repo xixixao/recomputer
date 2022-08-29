@@ -1,4 +1,4 @@
-import { Term } from "../parser/newParser";
+import { Term } from "../parser/terms";
 
 export function textAt({ doc, cursor }) {
   return doc.sliceString(cursor.from, cursor.to);
