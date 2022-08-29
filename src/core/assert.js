@@ -1,7 +1,7 @@
 import { LAST_RESULT_SYMBOL } from "../syntax/preceding/preceding";
 import { editorParser, evaluator } from "./editor/config";
 import { stringToChunkedInput } from "./parser/input";
-import { stringToDoc } from "./parser/newParser";
+import { stringToDoc } from "./parser/parser";
 
 export function assertEvals(docString, result) {
   try {

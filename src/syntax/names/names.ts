@@ -50,6 +50,16 @@ result 4 = 1/2
 `;
 }
 
+export function Assignment(parse: Parse): boolean {
+  parse.startNode();
+  if (!Name(parse)) {
+    return parse.endNode();
+  }
+  parse.consumeRegex(/ *= */);
+  parse.expression();
+  return parse.addNode(Term.Assignment);
+}
+
 // TODO: Dont hardcode comment syntax
 const NAME_DECLARATION_PATTERN = /^([^= .#](?:[^=]*[^= ])?) *=/;
 

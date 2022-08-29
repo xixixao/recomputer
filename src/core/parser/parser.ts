@@ -10,7 +10,8 @@ import {
 import { styleTags, tags as t } from "@lezer/highlight";
 import { Comment } from "../../syntax/comments/comments";
 import { commentStyleTags } from "../../syntax/comments/comments";
-import { Name, Reference } from "../../syntax/names/names";
+import { Assignment, Name, Reference } from "../../syntax/names/names";
+import { NestedStatements } from "../../syntax/nesting/nesting";
 import { Number } from "../../syntax/numbers/numbers";
 import { PrefixUnit, Unit } from "../../syntax/units/units";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
@@ -167,9 +168,9 @@ export class Parse {
 
   Statement(): boolean {
     this.startNode();
-    this.Assignment() || this.Expression();
+    Assignment(this) || this.Expression();
     Comment(this);
-    this.NestedStatements();
+    NestedStatements(this);
     this.requiredNewline();
     return this.addNode(Term.Statement);
   }
@@ -184,57 +185,6 @@ export class Parse {
       this.match("\n");
     }
     return true;
-  }
-
-  NestedStatements() {
-    this.startNode();
-    if (!this.indent()) {
-      return this.endNode();
-    }
-    while (this.sameIndent()) {
-      this.BlankLine() || this.Statement();
-    }
-    this.dedent();
-    return this.addNode(Term.NestedStatements);
-  }
-
-  indent() {
-    if (!this.check("\n")) {
-      return false;
-    }
-    // Check if there is an increased indent after the newline
-    const isIndent = /^\t+$/.test(this.peekFrom(1, this.indentLevel + 1));
-    if (!isIndent) {
-      return false;
-    }
-    this.match("\n");
-    this.indentLevel++;
-    return true;
-  }
-
-  sameIndent() {
-    const isSamedent = /\t/.test(this.peek(this.indentLevel));
-    if (!isSamedent) {
-      return;
-    }
-    this.pos += this.indentLevel;
-    return true;
-  }
-
-  dedent() {
-    this.indentLevel--;
-    // Go back before the new line so that Statement can consume it
-    this.pos--;
-  }
-
-  Assignment(): boolean {
-    this.startNode();
-    if (!Name(this)) {
-      return this.endNode();
-    }
-    this.consumeRegex(/ *= */);
-    this.expression();
-    return this.addNode(Term.Assignment);
   }
 
   Expression(): boolean {
