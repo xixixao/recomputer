@@ -10,7 +10,7 @@ import {
 import { styleTags, tags as t } from "@lezer/highlight";
 import { Comment } from "../../syntax/comments/comments";
 import { commentStyleTags } from "../../syntax/comments/comments";
-import { nameDeclarationPattern } from "../../syntax/names/names";
+import { Name, Reference } from "../../syntax/names/names";
 import { Number } from "../../syntax/numbers/numbers";
 import { PrefixUnit, Unit } from "../../syntax/units/units";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
@@ -229,7 +229,7 @@ export class Parse {
 
   Assignment(): boolean {
     this.startNode();
-    if (!this.Name()) {
+    if (!Name(this)) {
       return this.endNode();
     }
     this.consumeRegex(/ *= */);
@@ -245,36 +245,6 @@ export class Parse {
 
   expression(): boolean {
     return this.BinaryExpression();
-  }
-
-  Reference(): boolean {
-    // Skip for results editor
-    const { shouldAnalyzeForNames } = this.config;
-    if (!shouldAnalyzeForNames) {
-      return false;
-    }
-
-    const nameEndPattern = new RegExp(
-      `^(?:$|\\s|${allSymbolsPattern(this.config)})`
-    );
-
-    if (this.scopesCursor == null) {
-      return false;
-    }
-
-    const line = this.input.chunk(this.pos);
-    const name = this.scopesCursor.search(
-      this.indentLevel,
-      this.pos,
-      (length: number) => line[length],
-      (length: number) => nameEndPattern.test(line.slice(length))
-    );
-    if (name == null) {
-      return false;
-    }
-    this.startNode();
-    this.pos += name.length;
-    return this.addNode(Term.Reference);
   }
 
   Parens(): boolean {
@@ -341,17 +311,9 @@ export class Parse {
       this.Parens() ||
       Number(this) ||
       PrefixUnit(this) ||
-      this.Reference() ||
+      Reference(this) ||
       Unit(this)
     );
-  }
-
-  Name(): boolean {
-    this.startNode();
-    if (!this.matchRegex(nameDeclarationPattern)) {
-      return this.endNode();
-    }
-    return this.addNode(Term.Name);
   }
 
   match(token: string) {

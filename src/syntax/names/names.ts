@@ -1,4 +1,5 @@
 import { textAt } from "../../core/evaluate/astCursor.js";
+import { Parse } from "../../core/parser/newParser.js";
 import { Term } from "../../core/parser/terms.js";
 import { allSymbolsPattern } from "../../core/parser/tokens";
 import { maybeResetList } from "../list/list.js";
@@ -50,52 +51,42 @@ result 4 = 1/2
 }
 
 // TODO: Dont hardcode comment syntax
-export const nameDeclarationPattern = /^([^= .#](?:[^=]*[^= ])?) *=/;
-// export const tokenizerNameDeclaration = () => {
-//   return (line, token) =>
-//     matchToken(line, nameDeclarationPattern, token, Term.Name);
-// };
+const NAME_DECLARATION_PATTERN = /^([^= .#](?:[^=]*[^= ])?) *=/;
 
-export function tokenizerReference(tokenConfig) {
-  const { shouldAnalyzeForNames } = tokenConfig;
-  if (!shouldAnalyzeForNames) {
-    return () => false;
+export function Name(parse: Parse): boolean {
+  parse.startNode();
+  if (!parse.matchRegex(NAME_DECLARATION_PATTERN)) {
+    return parse.endNode();
   }
-  const nameEndPattern = new RegExp(
-    `^(?:$|\\s|${allSymbolsPattern(tokenConfig)})`
-  );
-
-  return (line, token, stack) => {
-    const { firstPassResult } = stack.parser;
-    if (firstPassResult != null && firstPassResult.scopeCursor == null) {
-      firstPassResult.scopeCursor = firstPassResult.cursor();
-    }
-
-    return (
-      firstPassResult != null &&
-      matchName(
-        line,
-        token,
-        stack.context.depth,
-        firstPassResult.scopeCursor,
-        nameEndPattern
-      )
-    );
-  };
+  return parse.addNode(Term.Name);
 }
 
-function matchName(line, token, indent, names, nameEndPattern) {
-  const name = names.search(
-    indent,
-    token.start,
-    (length) => line[length],
-    (length) => nameEndPattern.test(line.slice(length))
+const NAME_END_PATTERN = /^(?:$|\s|[+-/*%^=()])/;
+
+export function Reference(parse: Parse): boolean {
+  // Skip for results editor
+  const { shouldAnalyzeForNames } = parse.config;
+  if (!shouldAnalyzeForNames) {
+    return false;
+  }
+
+  if (parse.scopesCursor == null) {
+    return false;
+  }
+
+  const line = parse.input.chunk(parse.pos);
+  const name = parse.scopesCursor.search(
+    parse.indentLevel,
+    parse.pos,
+    (length: number) => line[length],
+    (length: number) => NAME_END_PATTERN.test(line.slice(length))
   );
   if (name == null) {
     return false;
   }
-  token.accept(Term.Reference, token.start + name.length);
-  return true;
+  parse.startNode();
+  parse.pos += name.length;
+  return parse.addNode(Term.Reference);
 }
 
 export function evaluateReference() {
