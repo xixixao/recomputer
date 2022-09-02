@@ -1,13 +1,23 @@
 import { syntaxTree } from "@codemirror/language";
-import { Decoration, ViewPlugin, WidgetType } from "@codemirror/view";
+import {
+  EditorView,
+  Decoration,
+  ViewPlugin,
+  WidgetType,
+  DecorationSet,
+  ViewUpdate,
+} from "@codemirror/view";
+import { Range } from "@codemirror/state";
 
 export const resultTransform = ViewPlugin.fromClass(
   class {
-    constructor(view) {
+    decorations: DecorationSet;
+
+    constructor(view: EditorView) {
       this.decorations = transforms(view);
     }
 
-    update(update) {
+    update(update: ViewUpdate) {
       if (update.docChanged || update.viewportChanged)
         this.decorations = transforms(update.view);
     }
@@ -17,12 +27,13 @@ export const resultTransform = ViewPlugin.fromClass(
   }
 );
 
-function transforms(view) {
-  let marks = [];
+function transforms(view: EditorView) {
+  let marks: Array<Range<Decoration>> = [];
   const ast = syntaxTree(view.state);
   ast.iterate({
-    enter: (type, from, to) => {
-      switch (type.name) {
+    enter: (nodeRef) => {
+      const { name, from, to } = nodeRef;
+      switch (name) {
         case "Number": {
           const text = view.state.doc.sliceString(from, to);
           if (text.includes("E")) {
@@ -31,7 +42,7 @@ function transforms(view) {
                 class: "expOp",
               }).range(from, to)
             );
-            const [_, number, exponent] = text.match(/(.*)E(.*)/);
+            const [_, number, exponent] = text.match(/(.*)E(.*)/)!;
             marks.push(
               Decoration.widget({
                 widget: new Span(
@@ -52,7 +63,7 @@ function transforms(view) {
                 }).range(from, to)
               );
               // starts at the parent BinaryExpression
-              const cursor = ast.resolve(from).cursor;
+              const cursor = nodeRef.node.cursor();
               cursor.firstChild();
               cursor.nextSibling();
               cursor.nextSibling();
@@ -85,12 +96,14 @@ function transforms(view) {
 }
 
 class Span extends WidgetType {
-  constructor(content) {
+  content: string;
+
+  constructor(content: string) {
     super();
     this.content = content;
   }
 
-  eq(other) {
+  eq(other: Span) {
     return other.content == this.content;
   }
 
