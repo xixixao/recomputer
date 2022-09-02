@@ -48,11 +48,9 @@ export class Units {
         }),
       numberOrPartsFromNumerator
     );
-    const parts =
-      numberOrPartsFromBoth instanceof BigNum
-        ? numberOrPartsFromBoth.toStringParts()
-        : numberOrPartsFromBoth;
-    return printParts(parts);
+    return numberOrPartsFromBoth.parts === PARTS
+      ? printParts(numberOrPartsFromBoth)
+      : numberOrPartsFromBoth.toDisplayString();
   }
 
   isScalar() {

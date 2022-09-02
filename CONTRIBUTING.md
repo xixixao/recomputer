@@ -59,8 +59,9 @@ Supported:
     - BigInt (max n digit integer)
     - BigFrac (fraction of two BigInts)
   - ImpreciseNumbers
-    - Float (52 bit floating point with precision tracking) [-1E324, 1E308]
-    - ScientificFloat (52 bit floating with BigInt exponent and precision tracking) [-1EINF, 1EINF]
+    - Float (64 bit floating point with precision correction) [-1E324, 1E308]
+    - SignificantFloat (64 bit floating point with significant figures tracking) [-1E2E52, 1E2E52]
+    - ScientificFloat (64 bit floating with 52bit exponent and precision tracking) [-1E2E52, 1E2E52]
 
 In general:
 

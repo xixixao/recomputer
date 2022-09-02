@@ -2,6 +2,7 @@ import { textAt } from "../../core/evaluate/astCursor";
 import { BigNum } from "../../core/evaluate/BigNum";
 import { FloatNum } from "../../core/evaluate/FloatNum";
 import { SciFloatNum } from "../../core/evaluate/SciFloatNum";
+import { evaluateSigFloatNum } from "../../core/evaluate/SigFloatNum";
 import { Parse } from "../../core/parser/parser";
 import { Term } from "../../core/parser/terms";
 import { allSymbolsPattern } from "../../core/parser/tokens";
@@ -133,7 +134,7 @@ export function evaluateNumber() {
 
       // TODO: Consider rejecting numbers with multiple decimal separators
       const match = textInENLocale.match(
-        /(~?)(-?[0-9.]+)(K|M|E-?\d+)?(%)?(±[.,\d]+)?/
+        /([~±]?)(-?[0-9.]+)(K|M|E-?\d+)?(%)?(±[.,\d]+)?/
       );
       if (match == null) {
         return null;
@@ -141,19 +142,15 @@ export function evaluateNumber() {
       const [_, uncertaintySymbol, numString, exponent, percent, error] = match;
       // TODO: Really this should be split into each module with its own
       // parsing rules for each type of a number
-      const isUncertain = uncertaintySymbol !== "" || error != null;
-      const isLessThan10 = /^-?[0-9](\.|$)/.test(numString);
+      const shouldUseSignificantFigures = uncertaintySymbol === "~";
+      const shouldUseError = uncertaintySymbol === "±" || error != null;
       // const isInteger = /^-?[0-9]+$/.test(numString) && (!percent || >1000 );
       const isScientific = /E/.test(exponent);
-      if (isUncertain && isLessThan10 && isScientific) {
-        if (percent != null) {
-          // TODO: Support instead of error
-          console.error("Percent and scientific uncertain num not supported");
-          return null;
-        }
-        return evaluateSciFloatNum(numString, exponent, error);
-      } else if (isUncertain) {
-        return evaluateFloatNum(numString, exponent, percent, error);
+      if (shouldUseError) {
+        return null;
+        return evaluateSciFloatNum(numString, exponent, error, percent);
+      } else if (shouldUseSignificantFigures) {
+        return evaluateSigFloatNum(numString, exponent, percent);
         // } else if (isInteger) {
         //   evaluateBigIntNum(numString, )
         // }
@@ -166,7 +163,7 @@ export function evaluateNumber() {
   };
 }
 
-function evaluateSciFloatNum(numString, exponent, error) {
+function evaluateSciFloatNum(numString, exponent, error, percent) {
   const float = evaluateFloat(numString);
   if (float == null) {
     return null;
