@@ -1,5 +1,5 @@
+import { floatOperators } from "../../syntax/operators/floatOperators";
 import { declare } from "../../syntax/operators/operatorDeclaration";
-import { FloatNum } from "./FloatNum";
 import {
   abs,
   add,
@@ -14,6 +14,7 @@ import {
   sqrt,
   subtract,
 } from "../../syntax/operators/operatorList";
+import { FloatNum } from "./FloatNum";
 
 export const FloatOps = [
   declare(
@@ -90,6 +91,18 @@ export const FloatOps = [
   declare(
     error,
     nullIfNotFloatNum((a) => (Number.EPSILON * a.value) / 2)
+  ),
+
+  ...floatOperators.map((operator) =>
+    declare(operator, (a) => {
+      if (!(a instanceof FloatNum)) {
+        return null;
+      }
+      console.log(operator, a);
+      const result = operator.f(a.value);
+      const error = Math.max(a.error, (result * Number.EPSILON) / 2);
+      return new FloatNum(result, error);
+    })
   ),
 ];
 

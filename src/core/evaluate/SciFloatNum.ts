@@ -1,5 +1,3 @@
-import { FloatNum } from "./FloatNum";
-
 export class SciFloatNum {
   value: number;
   exponent: bigint;
@@ -13,7 +11,7 @@ export class SciFloatNum {
 
   toFloat() {
     // TODO: Handle out-of-range errors, pass down precision
-    return new FloatNum(Math.pow(this.value, Number(this.exponent)));
+    return Math.pow(this.value, Number(this.exponent));
   }
 
   // TODO: Localization
@@ -32,8 +30,8 @@ export class SciFloatNum {
     );
 
     // return this.value.toPrecision(Math.abs(Math.log10(this.error)));
-    // @ts-ignore
     return (
+      // @ts-ignore
       this.value.toLocaleString(window.navigator.locale, {
         maximumSignificantDigits,
         maximumFractionDigits,

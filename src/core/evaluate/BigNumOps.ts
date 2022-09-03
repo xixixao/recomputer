@@ -56,8 +56,8 @@ export const BigNumOps = [
         return a;
       }
       if (exponent == null || a.approximate) {
-        const aFloat = a.toFloat()?.value;
-        const floatExponent = b.toFloat()?.value;
+        const aFloat = a.toFloat();
+        const floatExponent = b.toFloat();
         if (aFloat == null || floatExponent == null) {
           return null;
         }

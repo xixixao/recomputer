@@ -5,7 +5,6 @@ import { SigFloatOps } from "../../core/evaluate/SigFloatOps";
 import { ValueOps } from "../../core/evaluate/ValueOps";
 import { ListOps } from "../list/ListOps";
 import { AliasesOps } from "./operatorAliasesOps";
-import * as operators from "./operatorList";
 
 // TODO move this to the right module
 const declarationLookup = new Map();
@@ -17,10 +16,7 @@ const declarationLookup = new Map();
     SigFloatOps,
     ValueOps,
     AliasesOps,
-    ListOps,
-    Object.values(operators)
-      .filter((operator) => operator.declaration != null)
-      .map((operator) => operator.declaration)
+    ListOps
   )
   .forEach(([operator, declaration]) => {
     const declarationList = declarationLookup.get(operator) ?? [];

@@ -4,6 +4,7 @@ import * as list from "./list/list";
 import * as names from "./names/names";
 import * as nesting from "./nesting/nesting";
 import * as numbers from "./numbers/numbers";
+import * as significantFigures from "./numbers/significantFigures";
 import * as operators from "./operators/operators";
 import * as preceding from "./preceding/preceding";
 import * as units from "./units/units";
@@ -18,6 +19,7 @@ export const modules = {
   names,
   preceding,
   numbers,
+  significantFigures,
   units,
   comments,
   nesting,

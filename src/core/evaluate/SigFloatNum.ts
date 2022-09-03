@@ -57,13 +57,14 @@ export class SigFloatNum {
     this.significantDigits = significantDigits;
   }
 
-  // toFloat() {
-  //   return this;
-  // }
+  toFloat() {
+    return this.value;
+  }
 
-  // static fromNullable(value: number | null | undefined): FloatNum | null {
-  //   return value == null ? null : new FloatNum(value);
-  // }
+  apply(get: (value: number) => number) {
+    const result = get(this.value);
+    return new SigFloatNum(result, this.significantDigits);
+  }
 
   // TODO: Localization
   toDisplayString(): string {

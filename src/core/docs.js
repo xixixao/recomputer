@@ -14,13 +14,15 @@ export function testDocs(assertEvals) {
   Object.entries(modules).map(([module, { docs }]) => {
     const text = docs();
     const lines = text.split("\n");
-    lines.forEach((line, i) => {
+    let input = "";
+    lines.forEach((line) => {
       try {
-        const nextLine = lines[i + 1];
-        if (nextLine?.startsWith(TEST_PREFIX)) {
-          const input = line;
-          const output = nextLine.slice(1);
+        if (line?.startsWith(TEST_PREFIX)) {
+          const output = line.slice(1);
           assertEvals(input, output);
+          input = "";
+        } else {
+          input += "\n" + line;
         }
       } catch (error) {
         throw new Error(`In \`${module}\`: ${error.message}`);

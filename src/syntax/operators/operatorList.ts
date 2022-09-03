@@ -1,7 +1,3 @@
-import { BigNum } from "../../core/evaluate/BigNum";
-import { FloatNum, canConvertToFloat } from "../../core/evaluate/FloatNum";
-import { Units } from "../../core/evaluate/Units";
-import { Value } from "../../core/evaluate/Value";
 import { Parse } from "../../core/parser/parser";
 
 export const add = {
@@ -160,41 +156,45 @@ export const root = {
   // apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
 };
 
-export const exp = floatOperator({
+export const exp = {
   symbol: "exp",
   docs: "The number e to the power of the value.",
   docsPos: "9",
   example: "exp 3",
   result: "20.085536923187668",
   f: Math.exp,
-});
+  template: (left: unknown) => {},
+};
 
-export const log = floatOperator({
+export const log = {
   symbol: "log",
   docs: "The natural logarithm of the value.",
   docsPos: "10",
   example: "log 3",
   result: "1.098612288668110",
   f: Math.log,
-});
+  template: (left: unknown) => {},
+};
 
-export const log2 = floatOperator({
+export const log2 = {
   symbol: "log2",
   docs: "The base-2 logarithm of the value.",
   docsPos: "11",
   example: "log2 3",
   result: "1.584962500721156",
   f: Math.log2,
-});
+  template: (left: unknown) => {},
+};
 
-export const log10 = floatOperator({
+export const log10 = {
   symbol: "log10",
   docs: "The base-10 logarithm of the value.",
   docsPos: "12",
   example: "log10 3",
   result: "0.477121254719662",
   f: Math.log10,
-});
+  template: (left: unknown) => {},
+};
 
 export const abs = {
   symbol: "abs",
@@ -206,92 +206,80 @@ export const abs = {
 };
 
 // TODO: Document trig functions
-export const sin = floatOperator({
+export const sin = {
   symbol: "sin",
   f: Math.sin,
-});
+  template: (left: unknown) => {},
+};
 
-export const sinh = floatOperator({
+export const sinh = {
   symbol: "sinh",
   f: Math.sinh,
-});
+  template: (left: unknown) => {},
+};
 
-export const asin = floatOperator({
+export const asin = {
   symbol: "asin",
   f: Math.asin,
-});
+  template: (left: unknown) => {},
+};
 
-export const asinh = floatOperator({
+export const asinh = {
   symbol: "asinh",
   f: Math.asinh,
-});
+  template: (left: unknown) => {},
+};
 
-export const cos = floatOperator({
+export const cos = {
   symbol: "cos",
   f: Math.cos,
-});
+  template: (left: unknown) => {},
+};
 
-export const cosh = floatOperator({
+export const cosh = {
   symbol: "cosh",
   f: Math.cosh,
-});
+  template: (left: unknown) => {},
+};
 
-export const acos = floatOperator({
+export const acos = {
   symbol: "acos",
   f: Math.acos,
-});
+  template: (left: unknown) => {},
+};
 
-export const acosh = floatOperator({
+export const acosh = {
   symbol: "acosh",
   f: Math.acosh,
-});
+  template: (left: unknown) => {},
+};
 
-export const tan = floatOperator({
+export const tan = {
   symbol: "tan",
   f: Math.tan,
-});
+  template: (left: unknown) => {},
+};
 
-export const tanh = floatOperator({
+export const tanh = {
   symbol: "tanh",
   f: Math.tanh,
-});
+  template: (left: unknown) => {},
+};
 
-export const atan = floatOperator({
+export const atan = {
   symbol: "atan",
   f: Math.atan,
-});
+  template: (left: unknown) => {},
+};
 
-export const atanh = floatOperator({
+export const atanh = {
   symbol: "atanh",
   f: Math.atanh,
-});
+  template: (left: unknown) => {},
+};
 
 // TODO: design this properly, right now for debugging
 export const error = {
   symbol: "error",
   template: (value: unknown) => {},
 };
-
-function floatOperator({ f, ...spec }) {
-  spec.declaration = [
-    spec,
-    (value: unknown) => {
-      if (!canConvertToFloat(value)) {
-        // TODO: Error
-        return null;
-      }
-      // TODO: Probably should convert to FloatNum as we will need to
-      // propagate `precision`
-      const float = value.toFloat();
-      if (float == null) {
-        // TODO: Error
-        return null;
-      }
-      const result = f(float.value);
-      const error = Math.max(float.error, (result * Number.EPSILON) / 2);
-      return new FloatNum(result, error);
-      // return Value.fromNumber(BigNum.fromNumber(fn(value.number.toFloat()), true));
-    },
-  ];
-  return spec;
-}

@@ -1,3 +1,4 @@
+import { floatOperators } from "../../syntax/operators/floatOperators";
 import { declare } from "../../syntax/operators/operatorDeclaration";
 import {
   abs,
@@ -106,6 +107,16 @@ export const SigFloatOps = [
     sqrt,
     nullIfNotSigFloatNum((a) => Math.sqrt(a))
   ),
+
+  ...floatOperators.map((operator) =>
+    declare(operator, (a) => {
+      if (!(a instanceof SigFloatNum)) {
+        return null;
+      }
+      const result = operator.f(a.value);
+      return new SigFloatNum(result, a.significantDigits);
+    })
+  ),
 ];
 
 function nullIfNotSigFloatNums(
@@ -125,13 +136,13 @@ function convertToFloats(f: (a: number, b: number) => number) {
     if (a instanceof SigFloatNum === b instanceof SigFloatNum) {
       return null;
     }
-    const aValue = toFloat(a);
+    const aValue = toMaybeFloat(a);
     if (aValue == null) {
       // TODO: This null is different, we should not try to execute
       // other methods
       return null;
     }
-    const bValue = toFloat(b);
+    const bValue = toMaybeFloat(b);
     if (bValue == null) {
       return null;
     }
@@ -176,7 +187,7 @@ function fewestSignificantDigits(a: SigFloatNum, b: SigFloatNum) {
   return Math.min(a.significantDigits, b.significantDigits);
 }
 
-function toFloat(x: unknown) {
+function toMaybeFloat(x: unknown) {
   return x instanceof SigFloatNum
     ? x.value
     : canConvertToFloat(x)

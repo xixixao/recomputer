@@ -103,13 +103,9 @@ export class Units {
     );
   }
 
-  exponentiate(exponentNum) {
+  exponentiate(exponentFloat) {
     if (this.isScalar()) {
       return Value.one();
-    }
-    const exponentFloat = exponentNum.toFloat()?.value;
-    if (exponentFloat == null) {
-      return null;
     }
     return UnitsValue(
       this.compounds.map(({ exponent, ...compound }) => ({

@@ -1,11 +1,3 @@
-export type Floatable = {
-  toFloat: () => FloatNum;
-};
-
-export function canConvertToFloat(a: unknown): a is Floatable {
-  return a instanceof Object && "toFloat" in a;
-}
-
 export class FloatNum {
   value: number;
   error: number;
@@ -16,7 +8,7 @@ export class FloatNum {
   }
 
   toFloat() {
-    return this;
+    return this.value;
   }
 
   static fromNullable(value: number | null | undefined): FloatNum | null {
