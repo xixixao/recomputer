@@ -8,15 +8,13 @@ import {
   TreeFragment,
 } from "@lezer/common";
 import { styleTags, tags as t } from "@lezer/highlight";
-import { Comment } from "../../syntax/comments/comments";
-import { commentStyleTags } from "../../syntax/comments/comments";
-import { Assignment, Name, Reference } from "../../syntax/names/names";
+import { Comment, commentStyleTags } from "../../syntax/comments/comments";
+import { Assignment, Reference } from "../../syntax/names/names";
 import { NestedStatements } from "../../syntax/nesting/nesting";
 import { Number } from "../../syntax/numbers/numbers";
 import { PrefixUnit, Unit } from "../../syntax/units/units";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
 import { NODE_SET, Term } from "./terms";
-import { allSymbolsPattern } from "./tokens";
 
 type ParserConfig = {
   operators: RegExp;
@@ -74,7 +72,6 @@ export class MyParser extends Parser {
 
   analyzeScopes(input: Input) {
     const buffer = new ScopesParse(input, this.config).toTreeBuffer();
-    // console.log("anal tree", buffer);
     const tree = buildTree(buffer);
     const scopes = analyzePass(tree, input, this.config);
     return { ...this.config, scopes };
@@ -141,7 +138,7 @@ export class Parse {
   writeNode(nodeType: NodeType["id"]): [number, number] {
     const fromPos = this.fromPosStack.pop()!;
     const numNodes = this.childrenCountStack.pop()! + 1;
-    slog("Node id " + nodeType, this.input.read(fromPos, this.pos));
+    slog("Node " + NODE_SET[nodeType].name, this.input.read(fromPos, this.pos));
     const length = numNodes * 4;
     this.buffer.push(nodeType, fromPos, this.pos, length);
     return [fromPos, numNodes];
@@ -309,9 +306,8 @@ export class Parse {
 }
 
 class ScopesParse extends Parse {
-  Expression(): boolean {
+  expression(): boolean {
     this.pos += this.input.chunk(this.pos).length;
-    this.match("\n");
     return true;
   }
 }

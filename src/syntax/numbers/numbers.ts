@@ -5,7 +5,6 @@ import { SciFloatNum } from "../../core/evaluate/SciFloatNum";
 import { evaluateSigFloatNum } from "../../core/evaluate/SigFloatNum";
 import { Parse } from "../../core/parser/parser";
 import { Term } from "../../core/parser/terms";
-import { allSymbolsPattern } from "../../core/parser/tokens";
 import { decimalSeparator, groupSeparator } from "./separators.js";
 
 export function testIntegers(assertEvals) {
