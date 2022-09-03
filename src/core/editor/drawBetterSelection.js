@@ -1,5 +1,10 @@
-import { drawSelection, ViewPlugin, Direction } from "@codemirror/view";
-import { combineConfig, Facet, EditorSelection } from "@codemirror/state";
+import { combineConfig, EditorSelection, Facet } from "@codemirror/state";
+import {
+  BlockType,
+  Direction,
+  drawSelection,
+  ViewPlugin,
+} from "@codemirror/view";
 
 const [_, _2, hideNativeSelection] = drawSelection();
 
@@ -56,10 +61,12 @@ const drawSelectionPlugin = ViewPlugin.fromClass(
       view.requestMeasure(this.measureReq);
       this.setBlinkRate();
     }
+
     setBlinkRate() {
       this.cursorLayer.style.animationDuration =
         this.view.state.facet(selectionConfig).cursorBlinkRate + "ms";
     }
+
     update(update) {
       let confChanged =
         update.startState.facet(selectionConfig) !=
@@ -78,6 +85,7 @@ const drawSelectionPlugin = ViewPlugin.fromClass(
             : "cm-blink";
       if (confChanged) this.setBlinkRate();
     }
+
     readPos() {
       let { state } = this.view,
         conf = state.facet(selectionConfig);
@@ -94,6 +102,7 @@ const drawSelectionPlugin = ViewPlugin.fromClass(
       }
       return { rangePieces, cursors };
     }
+
     drawSel({ rangePieces, cursors }) {
       if (
         rangePieces.length != this.rangePieces.length ||
@@ -117,6 +126,7 @@ const drawSelectionPlugin = ViewPlugin.fromClass(
         this.cursors = cursors;
       }
     }
+
     destroy() {
       this.selectionLayer.remove();
       this.cursorLayer.remove();
@@ -176,6 +186,21 @@ function wrappedLine(view, pos, inside) {
     to: Math.min(inside.to, view.moveToLineBoundary(range, true, true).from),
   };
 }
+function nextLineBoundary(view, pos) {
+  return view.moveToLineBoundary(EditorSelection.cursor(pos), true, true).from;
+}
+function blockAt(view, pos) {
+  let line = view.lineBlockAt(pos);
+  if (Array.isArray(line.type))
+    for (let l of line.type) {
+      if (
+        l.to > pos ||
+        (l.to == pos && (l.to == line.to || l.type == BlockType.Text))
+      )
+        return l;
+    }
+  return line;
+}
 function measureRange(view, range) {
   if (range.to <= view.viewport.from || range.from >= view.viewport.to)
     return [];
@@ -186,40 +211,55 @@ function measureRange(view, range) {
     contentRect = content.getBoundingClientRect(),
     base = getBase(view);
   let lineStyle = window.getComputedStyle(content.firstChild);
-  let leftSide = contentRect.left + parseInt(lineStyle.paddingLeft);
+  let leftSide =
+    contentRect.left +
+    parseInt(lineStyle.paddingLeft) +
+    Math.min(0, parseInt(lineStyle.textIndent));
   let rightSide = contentRect.right - parseInt(lineStyle.paddingRight);
-  let visualStart = view.lineBlockAt(from);
-  let visualEnd = view.lineBlockAt(to);
+  let startBlock = blockAt(view, from),
+    endBlock = blockAt(view, to);
+  let visualStart = startBlock.type == BlockType.Text ? startBlock : null;
+  let visualEnd = endBlock.type == BlockType.Text ? endBlock : null;
   if (view.lineWrapping) {
-    visualStart = wrappedLine(view, from, visualStart);
-    visualEnd = wrappedLine(view, to, visualEnd);
+    if (visualStart) visualStart = wrappedLine(view, from, visualStart);
+    if (visualEnd) visualEnd = wrappedLine(view, to, visualEnd);
   }
-  if (visualStart.from == visualEnd.from) {
+  if (visualStart && visualEnd && visualStart.from == visualEnd.from) {
     return pieces(drawForLine(range.from, range.to, visualStart));
   } else {
-    let top = drawForLine(range.from, null, visualStart);
-    let bottom = drawForLine(null, range.to, visualEnd);
+    let top = visualStart
+      ? drawForLine(range.from, null, visualStart)
+      : drawForWidget(startBlock, false);
+    let bottom = visualEnd
+      ? drawForLine(null, range.to, visualEnd)
+      : drawForWidget(endBlock, true);
     let between = [];
-    if (visualStart.to < visualEnd.from - 1) {
+    if ((visualStart || startBlock).to < (visualEnd || endBlock).from - 1) {
       // RECOMPUTER CHANGE START
       // between.push(piece(leftSide, top.bottom, rightSide, bottom.top));
       while (visualStart.to < visualEnd.from - 1) {
-        const line = view.lineBlockAt(visualStart.to + 1);
-        between.push(pieces(drawForLine(null, null, line, true)));
-        visualStart = line;
+        const visualLine = {
+          from: visualStart.to + 1,
+          to: nextLineBoundary(view, visualStart.to + 1),
+        };
+        between.push(pieces(drawForLine(null, null, visualLine, true)));
+        visualStart = visualLine;
       }
       between = between.flat();
       // RECOMPUTER CHANGE END
-    } else if (top.bottom < bottom.top && bottom.top - top.bottom < 4)
+    } else if (
+      top.bottom < bottom.top &&
+      view.elementAtHeight((top.bottom + bottom.top) / 2).type == BlockType.Text
+    )
       top.bottom = bottom.top = (top.bottom + bottom.top) / 2;
     return pieces(top).concat(between).concat(pieces(bottom));
   }
   function piece(left, top, right, bottom) {
     return new Piece(
       left - base.left,
-      top - base.top,
+      top - base.top - 0.01,
       right - left,
-      bottom - top,
+      bottom - top + 0.01,
       "cm-selectionBackground"
     );
   }
@@ -235,8 +275,12 @@ function measureRange(view, range) {
       bottom = -1e9,
       horizontal = [];
     function addSpan(from, fromOpen, to, toOpen, dir) {
-      let fromCoords = view.coordsAtPos(from, from == line.to ? -1 : 1);
-      let toCoords = view.coordsAtPos(to, to == line.from ? 1 : -1);
+      // Passing 2/-2 is a kludge to force the view to return
+      // coordinates on the proper side of block widgets, since
+      // normalizing the side there, though appropriate for most
+      // coordsAtPos queries, would break selection drawing.
+      let fromCoords = view.coordsAtPos(from, from == line.to ? -2 : 2);
+      let toCoords = view.coordsAtPos(to, to == line.from ? 2 : -2);
       top =
         Math.min(fromCoords.top, toCoords.top, top) -
         (fromOpen || isMiddle ? 5 : 0);
@@ -289,6 +333,10 @@ function measureRange(view, range) {
     if (horizontal.length == 0)
       addSpan(start, from == null, end, to == null, view.textDirection);
     return { top, bottom, horizontal };
+  }
+  function drawForWidget(block, top) {
+    let y = contentRect.top + (top ? block.top : block.bottom);
+    return { top: y, bottom: y, horizontal: [] };
   }
 }
 function measureCursor(view, cursor, primary) {
