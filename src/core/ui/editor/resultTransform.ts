@@ -1,13 +1,13 @@
 import { syntaxTree } from "@codemirror/language";
-import {
-  EditorView,
-  Decoration,
-  ViewPlugin,
-  WidgetType,
-  DecorationSet,
-  ViewUpdate,
-} from "@codemirror/view";
 import { Range } from "@codemirror/state";
+import {
+  Decoration,
+  DecorationSet,
+  EditorView,
+  ViewPlugin,
+  ViewUpdate,
+  WidgetType,
+} from "@codemirror/view";
 
 export const resultTransform = ViewPlugin.fromClass(
   class {
@@ -37,17 +37,16 @@ function transforms(view: EditorView) {
         case "Number": {
           const text = view.state.doc.sliceString(from, to);
           if (text.includes("E")) {
+            const [number, exponent] = text.split("E");
+            const exponentStart = from + number.length;
             marks.push(
               Decoration.mark({
                 class: "expOp",
-              }).range(from, to)
+              }).range(exponentStart, to)
             );
-            const [_, number, exponent] = text.match(/(.*)E(.*)/)!;
             marks.push(
               Decoration.widget({
-                widget: new Span(
-                  number + "×10" + "<sup>" + exponent + "</sup>"
-                ),
+                widget: new Span("×10" + "<sup>" + exponent + "</sup>"),
               }).range(to)
             );
           }
