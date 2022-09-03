@@ -1,6 +1,7 @@
 import { BigNumOps } from "../../core/evaluate/BigNumOps";
 import { FloatBigNumsOps } from "../../core/evaluate/FloatBigNumsOps";
 import { FloatOps } from "../../core/evaluate/FloatOps";
+import { SigFloatOps } from "../../core/evaluate/SigFloatOps";
 import { ValueOps } from "../../core/evaluate/ValueOps";
 import { ListOps } from "../list/ListOps";
 import { AliasesOps } from "./operatorAliasesOps";
@@ -13,6 +14,7 @@ const declarationLookup = new Map();
     BigNumOps,
     FloatOps,
     FloatBigNumsOps,
+    SigFloatOps,
     ValueOps,
     AliasesOps,
     ListOps,
@@ -33,6 +35,7 @@ export function evaluateOperator(operator, ...args) {
   const declarationList = declarationLookup.get(operator);
   if (declarationList == null) {
     // TODO: Error
+    console.error("Unknown operator", operator);
     return null;
   }
   for (let declaration of declarationList) {
@@ -42,5 +45,6 @@ export function evaluateOperator(operator, ...args) {
     }
   }
   // TODO: Error
+  console.error("Could not evaluate", operator, args);
   return null;
 }

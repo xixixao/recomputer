@@ -1,19 +1,4 @@
 import { decimalSeparator } from "../../syntax/numbers/separators";
-import { declare, Evaluate } from "../../syntax/operators/operatorDeclaration";
-import {
-  abs,
-  add,
-  ceil,
-  divide,
-  exponentiate,
-  floor,
-  multiply,
-  root,
-  round,
-  sqrt,
-  subtract,
-} from "../../syntax/operators/operatorList";
-import { FloatNum } from "./FloatNum";
 
 // @ts-ignore
 const currentLocaleNumberFormat = Intl.NumberFormat(window.navigator.locale);
@@ -147,17 +132,16 @@ export class BigNum {
     return numberIfAccurateOrNull(numerator);
   }
 
-  // TODO: This is not good, as even if numerator or denominator
-  // cannot be represented we could still get a Number
-  // by converting via string first?
-  // Also TODO: Pull this out into a separate module
   toFloat() {
     const numerator = numberIfAccurateOrNull(this.numerator);
     const denominator = numberIfAccurateOrNull(this.denominator);
-    if (numerator == null || denominator == null) {
-      return null;
+    if (numerator != null && denominator != null) {
+      return numerator / denominator;
     }
-    return new FloatNum(numerator / denominator);
+    const { fraction } = this.fractionString(100);
+    return parseFloat(
+      String(this.numerator / this.denominator) + "." + fraction
+    );
   }
 
   isZero() {

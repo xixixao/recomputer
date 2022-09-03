@@ -73,6 +73,7 @@ export class SigFloatNum {
   }
 
   toDisplayStringWithTrailingSpace() {
-    return this.toDisplayString();
+    const result = this.toDisplayString();
+    return result + (/[.E]/.test(result) ? " " : "");
   }
 }

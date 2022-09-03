@@ -1,11 +1,9 @@
 import { declare } from "../../syntax/operators/operatorDeclaration";
-import { FloatNum } from "./FloatNum";
 import {
   abs,
   add,
   ceil,
   divide,
-  error,
   exponentiate,
   floor,
   multiply,
@@ -14,112 +12,174 @@ import {
   sqrt,
   subtract,
 } from "../../syntax/operators/operatorList";
+import { canConvertToFloat } from "./floatable";
 import { SigFloatNum } from "./SigFloatNum";
 
-export const FloatOps = [
+export const SigFloatOps = [
   declare(
     add,
-    nullIfNotFloatNums(
-      (a, b) => a.value + b.value,
-      (a, b) => Math.hypot(a.error, b.error)
-    )
+    nullIfNotSigFloatNums((a, b) => a + b, largestUncertainty)
   ),
 
   declare(
     subtract,
-    nullIfNotFloatNums(
-      (a, b) => a.value - b.value,
-      (a, b) => Math.hypot(a.error, b.error)
-    )
+    nullIfNotSigFloatNums((a, b) => a - b, largestUncertainty)
   ),
 
   declare(
     multiply,
-    nullIfNotFloatNums(
-      (a, b) => a.value * b.value,
-      (a, b, c) => c * Math.hypot(a.error / a.value, b.error / b.value)
-    )
+    nullIfNotSigFloatNums((a, b) => a * b, fewestSignificantDigits)
   ),
 
   declare(
     divide,
-    nullIfNotFloatNums(
-      (a, b) => a.value / b.value,
-      (a, b, c) => c * Math.hypot(a.error / a.value, b.error / b.value)
-    )
+    nullIfNotSigFloatNums((a, b) => a / b, fewestSignificantDigits)
   ),
 
   declare(
     exponentiate,
-    nullIfNotFloatNums(
-      (a, b) => Math.pow(a.value, b.value),
-      (a, b, c) => (c * b.value * a.error) / a.value
+    nullIfNotSigFloatNums(
+      (a, b) => Math.pow(a, b),
+      (a, b) => a.significantDigits
     )
   ),
 
   declare(
-    abs,
-    nullIfNotFloatNum((a) => Math.abs(a.value))
+    root,
+    nullIfNotSigFloatNums(
+      (a, b) => Math.pow(a, 1 / b),
+      (a) => a.significantDigits
+    )
   ),
 
   declare(
-    floor,
-    nullIfNotFloatNum((a) => Math.floor(a.value))
+    add,
+    convertToFloats((a, b) => a + b)
   ),
 
   declare(
-    ceil,
-    nullIfNotFloatNum((a) => Math.ceil(a.value))
+    subtract,
+    convertToFloats((a, b) => a - b)
   ),
 
   declare(
-    round,
-    nullIfNotFloatNum((a) => Math.round(a.value))
+    multiply,
+    convertToFloats((a, b) => a * b)
   ),
 
   declare(
-    sqrt,
-    nullIfNotFloatNum((a) => Math.sqrt(a.value))
+    divide,
+    convertToFloats((a, b) => a / b)
+  ),
+
+  declare(
+    exponentiate,
+    convertToFloats((a, b) => Math.pow(a, b))
   ),
 
   declare(
     root,
-    nullIfNotFloatNums((a, b) => Math.pow(a.value, 1 / b.value))
+    convertToFloats((a, b) => Math.pow(a, 1 / b))
   ),
 
-  // TODO: Track precision separately
   declare(
-    error,
-    nullIfNotFloatNum((a) => (Number.EPSILON * a.value) / 2)
+    abs,
+    nullIfNotSigFloatNum((a) => Math.abs(a))
+  ),
+
+  declare(
+    floor,
+    nullIfNotSigFloatNum((a) => Math.floor(a))
+  ),
+
+  declare(
+    ceil,
+    nullIfNotSigFloatNum((a) => Math.ceil(a))
+  ),
+
+  declare(
+    round,
+    nullIfNotSigFloatNum((a) => Math.round(a))
+  ),
+
+  declare(
+    sqrt,
+    nullIfNotSigFloatNum((a) => Math.sqrt(a))
   ),
 ];
 
-function none() {
-  return undefined;
-}
-
-function nullIfNotFloatNums(
-  f: (a: SigFloatNum, b: SigFloatNum) => number,
-  precision: (
-    a: SigFloatNum,
-    b: SigFloatNum,
-    c: number
-  ) => number | undefined = none
+function nullIfNotSigFloatNums(
+  f: (a: number, b: number) => number,
+  precision: (a: SigFloatNum, b: SigFloatNum, c: number) => number
 ) {
   return (a: unknown, b: unknown) => {
     if (!(a instanceof SigFloatNum && b instanceof SigFloatNum)) {
       return null;
     }
-    const value = f(a, b);
+    const value = f(a.value, b.value);
     return new SigFloatNum(value, precision(a, b, value));
   };
 }
+function convertToFloats(f: (a: number, b: number) => number) {
+  return (a: unknown, b: unknown) => {
+    if (a instanceof SigFloatNum === b instanceof SigFloatNum) {
+      return null;
+    }
+    const aValue = toFloat(a);
+    if (aValue == null) {
+      // TODO: This null is different, we should not try to execute
+      // other methods
+      return null;
+    }
+    const bValue = toFloat(b);
+    if (bValue == null) {
+      return null;
+    }
+    const value = f(aValue, bValue);
+    // TODO: What about SciFloat + SigFloat, should compute significant digits
+    // for the SciFloat? Probably.
+    return new SigFloatNum(
+      value,
+      a instanceof SigFloatNum
+        ? a.significantDigits
+        : (b as SigFloatNum).significantDigits
+    );
+  };
+}
 
-function nullIfNotFloatNum(f: (a: SigFloatNum) => number) {
+function nullIfNotSigFloatNum(f: (a: number) => number) {
   return (a: unknown) => {
     if (!(a instanceof SigFloatNum)) {
       return null;
     }
-    return new SigFloatNum(f(a));
+    return new SigFloatNum(f(a.value), a.significantDigits);
   };
+}
+
+function largestUncertainty(a: SigFloatNum, b: SigFloatNum, c: number) {
+  const newNumberOfSignificantDecimalDigits = Math.min(
+    numberOfSignificantDecimalDigits(a),
+    numberOfSignificantDecimalDigits(b)
+  );
+  return numberOfIntegerDigits(c) + newNumberOfSignificantDecimalDigits;
+}
+
+function numberOfIntegerDigits(x: number) {
+  return Math.floor(Math.log10(Math.abs(x)) + 1);
+}
+
+function numberOfSignificantDecimalDigits(x: SigFloatNum) {
+  return Math.max(0, x.significantDigits - numberOfIntegerDigits(x.value));
+}
+
+function fewestSignificantDigits(a: SigFloatNum, b: SigFloatNum) {
+  return Math.min(a.significantDigits, b.significantDigits);
+}
+
+function toFloat(x: unknown) {
+  return x instanceof SigFloatNum
+    ? x.value
+    : canConvertToFloat(x)
+    ? x.toFloat()
+    : null;
 }
