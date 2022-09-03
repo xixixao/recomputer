@@ -114,6 +114,7 @@ const resultsViewStyles = EditorView.theme({
   ".cm-content": {
     overflowX: "hidden",
     minWidth: "0 !important",
+    maxWidth: "100%",
   },
   ".cm-line": {
     overflowX: "hidden",
