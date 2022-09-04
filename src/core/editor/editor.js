@@ -5,6 +5,7 @@ import { measure as currency } from "../../measures/currency/currency";
 import { language } from "../parser/language";
 import { test } from "../tests";
 import { highlightedLines } from "../ui/editor/highlightEditorActiveLine";
+import { inputTransform } from "../ui/editor/inputTransform";
 import { linkify } from "../ui/editor/linkify";
 import {
   resultDisplay,
@@ -48,6 +49,7 @@ export function initializeEditor(leftPane, rightPane, storage) {
         EditorView.lineWrapping,
         linkify, // This used be Prec.fallback, so should be Prec.low()?
         editorStyles(),
+        inputTransform,
         language(editorParser),
         EditorView.updateListener.of(resultDisplay(evaluator, views)),
         ...(storage != null

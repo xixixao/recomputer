@@ -85,6 +85,26 @@ const sharedCodemirrorStyles = EditorView.theme(
     ".cm-panels :focus-visible": {
       outline: "white solid 1px",
     },
+    ".subStart": {
+      opacity: 0,
+      fontSize: "0.1rem",
+    },
+    ".sub": {
+      verticalAlign: "bottom",
+      // position: "relative",
+      bottom: "-0.1rem",
+      fontSize: "smaller",
+    },
+    ".supStart": {
+      opacity: 0,
+      fontSize: "0.1rem",
+    },
+    ".sup": {
+      verticalAlign: "top",
+      // position: "relative",
+      top: "-0.1rem",
+      fontSize: "smaller",
+    },
   },
   { dark: true }
 );
