@@ -27,7 +27,7 @@ export function docs() {
 salary = (1 - tax) * gross salary
 \ttax = 5%
 \tgross salary = $800 / week
-net salary # no corresponding value exists
+gross salary # no corresponding value exists
 `;
 }
 
