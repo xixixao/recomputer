@@ -41,25 +41,6 @@ function transforms(view: EditorView) {
           let text = view.state.doc.sliceString(from, to);
           const tokenLength = text.length;
           const subStart = text.lastIndexOf("_");
-          const supEnd = subStart > 0 ? subStart : tokenLength;
-          const supStart = text.lastIndexOf("^", supEnd);
-          if (
-            supStart > 0 &&
-            supStart < supEnd - 1 &&
-            supStart < tokenLength - 1
-          ) {
-            const absSupStart = from + supStart;
-            const absSupEnd = from + supEnd;
-            marks.push(
-              Decoration.mark({
-                class: "supStart",
-              }).range(absSupStart, absSupStart + 1),
-              Decoration.mark({
-                class: "sup",
-                inclusive: true,
-              }).range(absSupStart + 1, absSupEnd)
-            );
-          }
           if (subStart > 0 && subStart < tokenLength - 1) {
             const absSubStart = from + subStart;
             marks.push(

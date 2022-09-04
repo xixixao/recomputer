@@ -95,16 +95,6 @@ const sharedCodemirrorStyles = EditorView.theme(
       bottom: "-0.1rem",
       fontSize: "smaller",
     },
-    ".supStart": {
-      opacity: 0,
-      fontSize: "0.1rem",
-    },
-    ".sup": {
-      verticalAlign: "top",
-      // position: "relative",
-      top: "-0.1rem",
-      fontSize: "smaller",
-    },
   },
   { dark: true }
 );
