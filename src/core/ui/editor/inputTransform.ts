@@ -66,7 +66,7 @@ function transforms(view: EditorView) {
           if (
             firstOperand.type.id === Term.ArithOp ||
             secondOperand.type.id === Term.ArithOp ||
-            operator?.type.id === Term.ArithOp
+            !isMultiplication(operator, view)
           ) {
             return;
           }
@@ -76,11 +76,38 @@ function transforms(view: EditorView) {
                 widget: new Span("\u00B7"),
               }).range(...singleCharRange(firstOperand.to, secondOperand.from))
             );
+          } else if (
+            isNumber(firstOperand.type) &&
+            isNumber(secondOperand.type)
+          ) {
+            statementMarks.push(
+              Decoration.replace({
+                widget: new Span("\u00D7"),
+              }).range(...singleCharRange(firstOperand.to, secondOperand.from))
+            );
           }
           break;
         }
         case Term.Statement: {
           pushStatementMarks();
+          break;
+        }
+        case Term.Number: {
+          const text = view.state.doc.sliceString(from, to);
+          if (text.includes("E")) {
+            const [number, _exponent] = text.split("E");
+            const exponentStart = from + number.length;
+            marks.push(
+              Decoration.replace({
+                widget: new Span("\u00D710"),
+              }).range(exponentStart, exponentStart + 1)
+            );
+            marks.push(
+              Decoration.mark({
+                class: "sup",
+              }).range(exponentStart + 1, to)
+            );
+          }
           break;
         }
       }
@@ -110,6 +137,17 @@ function lastLeaf(node: SyntaxNode) {
 
 function isWord(type: NodeType) {
   return type.id === Term.Reference || type.id === Term.Unit;
+}
+
+function isNumber(type: NodeType) {
+  return type.id === Term.Number;
+}
+
+function isMultiplication(operator: SyntaxNode | null, view: EditorView) {
+  return (
+    operator?.type.id !== Term.ArithOp ||
+    view.state.doc.sliceString(operator.from, operator.to) === "*"
+  );
 }
 
 function singleCharRange(from: number, to: number): [number, number] {

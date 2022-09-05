@@ -89,7 +89,7 @@ export function docs() {
 =10,005,000
 5% * 100
 =5
-# Scientific notation is supported via E suffix:
+# Scientific notation is supported via E suffix, like \`6.3E8\`:
 6.3E8
 =630,000,000
 6.3E-8
