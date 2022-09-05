@@ -6,7 +6,9 @@ import {
   EditorView,
   ViewPlugin,
   ViewUpdate,
+  WidgetType,
 } from "@codemirror/view";
+import { NodeType, SyntaxNode } from "@lezer/common";
 import { Term } from "../../parser/terms";
 
 export const inputTransform = ViewPlugin.fromClass(
@@ -30,9 +32,10 @@ export const inputTransform = ViewPlugin.fromClass(
 function transforms(view: EditorView) {
   let marks: Array<Range<Decoration>> = [];
   const ast = syntaxTree(view.state);
+  let statementMarks: Array<Range<Decoration>> = [];
   ast.iterate({
     enter: (nodeRef) => {
-      const { type, from, to } = nodeRef;
+      const { type, from, to, node } = nodeRef;
       const { id } = type;
       switch (id) {
         case Term.Name:
@@ -55,8 +58,80 @@ function transforms(view: EditorView) {
           }
           break;
         }
+        case Term.BinaryExpression: {
+          const firstChild = node.firstChild!;
+          const operator = firstChild.nextSibling;
+          const firstOperand = lastLeaf(firstChild);
+          const secondOperand = firstLeaf(node.lastChild!);
+          if (
+            firstOperand.type.id === Term.ArithOp ||
+            secondOperand.type.id === Term.ArithOp ||
+            operator?.type.id === Term.ArithOp
+          ) {
+            return;
+          }
+          if (isWord(firstOperand.type) && isWord(secondOperand.type)) {
+            statementMarks.push(
+              Decoration.replace({
+                widget: new Span("\u00B7"),
+              }).range(...singleCharRange(firstOperand.to, secondOperand.from))
+            );
+          }
+          break;
+        }
+        case Term.Statement: {
+          pushStatementMarks();
+          break;
+        }
       }
     },
   });
+  pushStatementMarks();
   return Decoration.set(marks);
+
+  function pushStatementMarks() {
+    statementMarks.sort((a, b) => a.from - b.from);
+    marks.push(...statementMarks);
+    statementMarks = [];
+  }
+}
+
+function firstLeaf(node: SyntaxNode) {
+  const cursor = node.cursor();
+  while (cursor.firstChild()) {}
+  return cursor.node;
+}
+
+function lastLeaf(node: SyntaxNode) {
+  const cursor = node.cursor();
+  while (cursor.lastChild()) {}
+  return cursor.node;
+}
+
+function isWord(type: NodeType) {
+  return type.id === Term.Reference || type.id === Term.Unit;
+}
+
+function singleCharRange(from: number, to: number): [number, number] {
+  const mid = Math.ceil((to - from) / 2);
+  return [from + mid - 1, from + mid];
+}
+
+class Span extends WidgetType {
+  content: string;
+
+  constructor(content: string) {
+    super();
+    this.content = content;
+  }
+
+  eq(other: Span) {
+    return other.content == this.content;
+  }
+
+  toDOM() {
+    let wrap = document.createElement("span");
+    wrap.innerHTML = this.content;
+    return wrap;
+  }
 }
