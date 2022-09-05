@@ -94,6 +94,7 @@ const sharedCodemirrorStyles = EditorView.theme(
       // position: "relative",
       bottom: "-0.1rem",
       fontSize: "smaller",
+      fontWeight: 500,
     },
   },
   { dark: true }
@@ -120,6 +121,7 @@ const resultsViewStyles = EditorView.theme({
     verticalAlign: "top",
     position: "relative",
     top: "-0.1rem",
+    fontWeight: 500,
   },
   ".cm-content": {
     overflowX: "hidden",

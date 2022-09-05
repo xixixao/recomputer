@@ -46,6 +46,8 @@ my income = $100
 =$100.00
 result 4 = 1/2
 =0.5
+# Subscripts are supported via \`_\` (underscore), like \`mass_Earth\`:
+mass_Earth = 5.9722 zettatons
 `;
 }
 

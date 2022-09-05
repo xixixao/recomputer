@@ -19,7 +19,7 @@ export const measure = prepareMeasure({
       baseUnitValue: 1,
     },
     ton: {
-      postfixSymbols: ["t", ["tonne", "tonnes"]],
+      postfixSymbols: ["t", ["ton", "tons", "tonne", "tonnes"]],
       baseUnitValue: 1000000,
     },
     ounce: {
