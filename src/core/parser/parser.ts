@@ -218,7 +218,9 @@ export class Parse {
       this.ArithOpRegex(this.config.operatorsByPrecedence[precedence]) ||
       this.checkImplictOperator(precedence)
     ) {
-      this.binaryExpression(precedence - 1);
+      if (!this.binaryExpression(precedence - 1)) {
+        return this.endNode();
+      }
       this.addNodeAndStartEnclosing(Term.BinaryExpression);
     }
     this.endNode();
