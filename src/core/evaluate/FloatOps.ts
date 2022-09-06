@@ -98,7 +98,6 @@ export const FloatOps = [
       if (!(a instanceof FloatNum)) {
         return null;
       }
-      console.log(operator, a);
       const result = operator.f(a.value);
       const error = Math.max(a.error, (result * Number.EPSILON) / 2);
       return new FloatNum(result, error);

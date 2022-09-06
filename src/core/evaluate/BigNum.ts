@@ -58,8 +58,12 @@ export class BigNum {
   toStringWithoutLocaleFormat(precision) {
     const { denominator } = this;
     const numerator = this.positiveNumerator();
-    const { fraction } = this.fractionString(precision);
-    return decimalString(this, String(numerator / denominator), fraction);
+    const { fraction, carry } = this.fractionString(precision);
+    return decimalString(
+      this,
+      String(numerator / denominator + carry),
+      fraction
+    );
   }
 
   toDisplayString() {
@@ -83,7 +87,7 @@ export class BigNum {
     }
     const { fraction, isExact } = this.fractionString(precision);
     if (isExact) {
-      return { numerator: decimalStringInLocale(this, fraction) };
+      return { numerator: decimalStringInLocale(this, fraction, 0n) };
     }
     return {
       numerator: currentLocaleNumberFormat.format(numerator),
@@ -92,8 +96,8 @@ export class BigNum {
   }
 
   toDecimalString(precision) {
-    const { fraction } = this.fractionString(precision);
-    return decimalStringInLocale(this, fraction);
+    const { fraction, carry } = this.fractionString(precision);
+    return decimalStringInLocale(this, fraction, carry);
   }
 
   // TODO: Change this to significant digits, so that
@@ -103,16 +107,31 @@ export class BigNum {
     const numerator = this.positiveNumerator();
     let remainder = (numerator % denominator) * 10n;
     if (remainder === 0n) {
-      return { fraction: null, isExact: true };
+      return { fraction: null, isExact: true, carry: 0n };
     }
-    let fraction = "";
+    let fraction: Array<number> = [];
     precision = precision ?? 14;
     precision = Math.max(2, precision - fraction.length);
     for (let i = precision; remainder > 0 && i > 0; i--) {
-      fraction += remainder / denominator;
+      fraction.push(Number(remainder / denominator));
       remainder = (remainder % denominator) * 10n;
     }
-    return { fraction, isExact: remainder === 0n };
+    if (remainder / denominator >= 5) {
+      fraction[fraction.length - 1]++;
+    }
+    let i: number;
+    for (i = fraction.length - 1; fraction[i] === 10 && i > 0; i--) {
+      fraction[i - 1]++;
+    }
+    let carry = 0n;
+    if (i === 0 && fraction[i] === 10) {
+      carry = 1n;
+      fraction = [];
+    } else {
+      fraction.splice(i + 1);
+    }
+
+    return { fraction: fraction.join(""), carry, isExact: remainder === 0n };
   }
 
   signString() {
@@ -138,9 +157,9 @@ export class BigNum {
     if (numerator != null && denominator != null) {
       return numerator / denominator;
     }
-    const { fraction } = this.fractionString(100);
+    const { fraction, carry } = this.fractionString(100);
     return parseFloat(
-      String(this.numerator / this.denominator) + "." + fraction
+      String(this.numerator / this.denominator + carry) + "." + fraction
     );
   }
 
@@ -211,17 +230,17 @@ function largestCommonDivisor(a, b) {
   return largestCommonDivisor(b, a % b);
 }
 
-function decimalStringInLocale(number, fraction) {
+function decimalStringInLocale(number, fraction, carry) {
   const { denominator } = number;
   const integerString = currentLocaleNumberFormat.format(
-    number.positiveNumerator() / denominator
+    number.positiveNumerator() / denominator + carry
   );
   return decimalString(number, integerString, fraction);
 }
 
 function decimalString(number, integerString, fraction) {
   const signedIntegerString = number.signString() + integerString;
-  if (fraction == null) {
+  if (fraction == null || fraction === "") {
     return signedIntegerString;
   }
   return signedIntegerString + decimalSeparator + fraction;

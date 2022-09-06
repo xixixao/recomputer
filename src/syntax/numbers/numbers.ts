@@ -50,7 +50,7 @@ export function testFraction(assertEvals) {
 }
 
 export function testApproximation(assertEvals) {
-  assertEvals(`sqrt 10`, `3.16227766016837`);
+  assertEvals(`sqrt 10`, `3.16227766016838`);
   assertEvals(`sqrt 4`, `2`);
   // assertEvals(`sqrt 4 / (sqrt 9)`, `2/3`);
   assertEvals(`sin τ`, `0`);
@@ -63,6 +63,8 @@ export function testApproximation(assertEvals) {
   // assertEvals(`~10/3`, `3.33333333333333`);
   // assertEvals(`~10 / (~3)`, `3.33333333333333`);
   // assertEvals(`$~10/3`, `~$3.33`);
+  assertEvals(`~ 299999999999999999999/300000000000000000000`, `1`);
+  assertEvals(`$299999999999999999999/300000000000000000000`, `~$1.00`);
 }
 
 export function testAccuracy(assertEvals) {
@@ -98,7 +100,7 @@ export function docs() {
 10/6
 =5/3
 ~ 10/6
-=1.66666666666666
+=1.66666666666667
 `;
 }
 
