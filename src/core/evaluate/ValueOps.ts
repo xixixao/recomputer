@@ -1,3 +1,4 @@
+import { floatOperators } from "../../syntax/operators/floatOperators";
 import { declare, Evaluate } from "../../syntax/operators/operatorDeclaration";
 import {
   add,
@@ -84,6 +85,19 @@ export const ValueOps = [
     }
     return evaluate(exponentiate, b, evaluate(divide, BigNum.one(), a));
   }),
+
+  ...floatOperators.map((operator) =>
+    declare(operator, (a, evaluate) => {
+      if (!(a instanceof Value)) {
+        return null;
+      }
+      if (!a.unit.isScalar()) {
+        // TODO: Error
+        return null;
+      }
+      return evaluate(operator, a.number);
+    })
+  ),
 ];
 
 function declareAddLike(operator: typeof add) {

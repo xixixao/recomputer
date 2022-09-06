@@ -52,6 +52,10 @@ export function testAccuracy(assertEvals) {
   // assertEvals(`~20m + (~5.0m/s2) (~1.1s)^2`, `26m`);
 }
 
+export function testScalarUnits(assertEvals) {
+  assertEvals(`sin (0 m/m)`, `0`);
+}
+
 export function docs() {
   return `
 ### Units
