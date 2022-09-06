@@ -53,6 +53,8 @@ export function testAccuracy(assertEvals) {
 }
 
 export function testScalarUnits(assertEvals) {
+  assertEvals(`sin (0 rad)`, `0`);
+  assertEvals(`sin (0 deg)`, `0`);
   assertEvals(`sin (0 m/m)`, `0`);
 }
 

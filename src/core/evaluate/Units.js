@@ -54,7 +54,7 @@ export class Units {
   }
 
   isScalar() {
-    return this.visible().length === 0;
+    return this.visible().filter(({ unit }) => !unit.scalar).length === 0;
   }
 
   isCurrency() {

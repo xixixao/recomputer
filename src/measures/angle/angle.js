@@ -15,6 +15,8 @@ export function docs() {
 }
 export const measure = prepareMeasure({
   name: "angle",
+  // Fake unit basically, it can be converted to numbers at any power
+  scalar: true,
   units: {
     radian: {
       postfixSymbols: ["rad", ["radian", "radians"]],
