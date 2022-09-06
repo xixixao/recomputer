@@ -73,6 +73,7 @@ function transforms(view: EditorView) {
             return;
           }
           if (
+            firstOperand.type.id === secondOperand.type.id &&
             isWord(firstOperand.type) &&
             isWord(secondOperand.type) &&
             !isOperator(firstOperand, view)
