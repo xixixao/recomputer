@@ -4,11 +4,12 @@ import {
   closeBracketsKeymap,
   completionKeymap,
 } from "@codemirror/autocomplete";
-import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import { history, historyKeymap } from "@codemirror/commands";
 import {
   bracketMatching,
   defaultHighlightStyle,
-  indentOnInput,
+  indentService,
+  indentUnit,
   syntaxHighlighting,
 } from "@codemirror/language";
 import { lintKeymap } from "@codemirror/lint";
@@ -27,7 +28,9 @@ export const editorBasics = [
   history(),
   drawBetterSelection(),
   EditorState.allowMultipleSelections.of(true),
-  indentOnInput(),
+  indentUnit.of("\t"),
+  // Preserves current indent
+  indentService.of((context, pos) => context.lineIndent(pos, -1)),
   syntaxHighlighting(defaultHighlightStyle, { fallback: true }),
   bracketMatching(),
   closeBrackets(),
@@ -36,8 +39,6 @@ export const editorBasics = [
   highlightActiveLine(),
   keymap.of([
     ...closeBracketsKeymap,
-    // Fixed in latest codemirror
-    ...defaultKeymap.filter(({ mac }) => mac != "Alt-v"),
     ...searchKeymap,
     ...historyKeymap,
     ...completionKeymap,
