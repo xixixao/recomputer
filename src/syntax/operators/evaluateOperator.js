@@ -2,6 +2,7 @@ import { BigNumOps } from "../../core/evaluate/BigNumOps";
 import { FloatBigNumsOps } from "../../core/evaluate/FloatBigNumsOps";
 import { FloatOps } from "../../core/evaluate/FloatOps";
 import { SigFloatOps } from "../../core/evaluate/SigFloatOps";
+import { UnitOps } from "../../core/evaluate/UnitOps";
 import { ValueOps } from "../../core/evaluate/ValueOps";
 import { ListOps } from "../list/ListOps";
 import { AliasesOps } from "./operatorAliasesOps";
@@ -16,7 +17,8 @@ const declarationLookup = new Map();
     SigFloatOps,
     ValueOps,
     AliasesOps,
-    ListOps
+    ListOps,
+    UnitOps
   )
   .forEach(([operator, declaration]) => {
     const declarationList = declarationLookup.get(operator) ?? [];

@@ -48,36 +48,39 @@ export const BigNumOps = [
     nullIfNotBigNums((a, b) => a.divide(b))
   ),
 
-  declare(
-    exponentiate,
-    nullIfNotBigNums((a, b) => {
-      const exponent = b.toInteger();
-      if (exponent === 1) {
-        return a;
+  declare(exponentiate, (a, b) => {
+    if (
+      !(a instanceof BigNum && (b instanceof BigNum || typeof b === "number"))
+    ) {
+      return null;
+    }
+    const integerExponent =
+      typeof b === "number" ? (b % 1 === 0 ? b : null) : b.toInteger();
+    if (integerExponent === 1) {
+      return a;
+    }
+    if (integerExponent == null || a.approximate) {
+      const aFloat = a.toFloat();
+      const floatExponent = typeof b === "number" ? b : b.toFloat();
+      if (aFloat == null || floatExponent == null) {
+        return null;
       }
-      if (exponent == null || a.approximate) {
-        const aFloat = a.toFloat();
-        const floatExponent = b.toFloat();
-        if (aFloat == null || floatExponent == null) {
-          return null;
-        }
-        const result = aFloat ** floatExponent;
-        // There is no simple way to tell whether the floating point
-        // exponentiation is approximate or not, but this is convenient
-        // approximation of whether there is approximation.
-        return BigNum.fromNumber(result, result % 1 !== 0);
-      }
-      let positiveExponent = Math.abs(exponent);
-      const [numerator, denominator] =
-        exponent > 0
-          ? [a.numerator, a.denominator]
-          : [a.denominator, a.numerator];
-      return new BigNum(
-        numerator ** BigInt(positiveExponent),
-        denominator ** BigInt(positiveExponent)
-      );
-    })
-  ),
+      const result = aFloat ** floatExponent;
+      // There is no simple way to tell whether the floating point
+      // exponentiation is approximate or not, but this is convenient
+      // approximation of whether there is approximation.
+      return BigNum.fromNumber(result, result % 1 !== 0);
+    }
+    let positiveExponent = Math.abs(integerExponent);
+    const [numerator, denominator] =
+      integerExponent > 0
+        ? [a.numerator, a.denominator]
+        : [a.denominator, a.numerator];
+    return new BigNum(
+      numerator ** BigInt(positiveExponent),
+      denominator ** BigInt(positiveExponent)
+    );
+  }),
 
   declare(
     abs,

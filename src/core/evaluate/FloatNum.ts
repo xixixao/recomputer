@@ -42,11 +42,9 @@ export class FloatNum {
       .toUpperCase()
       .replace("E+", "E");
 
-    // Handles sign but hides accuracy
-    // TODO: log e should be 1
-    // TODO: sin τ should be 0
-    const isZero = /^-?0(\.0+)$/.test(result);
-    return isZero ? "0" : result;
+    return result.includes("E")
+      ? result
+      : result.replace(/(?:([1-9])0+|\.0+)$/, "$1").replace(/^-0$/, "0");
   }
 
   toDisplayStringWithTrailingSpace() {

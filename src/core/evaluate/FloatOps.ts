@@ -57,6 +57,13 @@ export const FloatOps = [
     )
   ),
 
+  declare(exponentiate, (a, b, evaluate) => {
+    if (!(a instanceof FloatNum && typeof b === "number")) {
+      return null;
+    }
+    return evaluate(exponentiate, a, new FloatNum(b));
+  }),
+
   declare(
     abs,
     nullIfNotFloatNum((a) => Math.abs(a.value))

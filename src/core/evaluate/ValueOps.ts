@@ -10,7 +10,6 @@ import {
   subtract,
 } from "../../syntax/operators/operatorList";
 import { BigNum } from "./BigNum";
-import { canConvertToFloat } from "./floatable";
 import { Units } from "./Units";
 import { Value } from "./Value";
 
@@ -36,21 +35,9 @@ export const ValueOps = [
   declareAddLike(subtract),
 
   declareMultiplyLike(multiply),
-  declare(multiply, (a, b) => {
-    if (!(a instanceof Units && b instanceof Units)) {
-      return null;
-    }
-    return a.multiply(b);
-  }),
 
   // @ts-ignore
   declareMultiplyLike(divide),
-  declare(divide, (a, b) => {
-    if (!(a instanceof Units && b instanceof Units)) {
-      return null;
-    }
-    return a.divide(b);
-  }),
 
   // TODO: From before we had multiple dispatch, implement:
   //
@@ -71,12 +58,6 @@ export const ValueOps = [
       return null;
     }
     return combine(evaluate(exponentiate, a.number, b), unitsValue, evaluate);
-  }),
-  declare(exponentiate, (a, b) => {
-    if (!(a instanceof Units && canConvertToFloat(b))) {
-      return null;
-    }
-    return a.exponentiate(b.toFloat());
   }),
 
   declare(root, (a, b, evaluate) => {

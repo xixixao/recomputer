@@ -38,6 +38,7 @@ export class BigNum {
     return new BigNum(BigInt(integer), 1n);
   }
 
+  // TODO: Remove `approximate` from BigNum
   static fromNumber(number, approximate) {
     return BigNum.fromString(`${number}`, approximate);
   }

@@ -171,7 +171,7 @@ export const log = {
   docs: "The natural logarithm of the value.",
   docsPos: "10",
   example: "log 3",
-  result: "1.098612288668110",
+  result: "1.09861228866811",
   f: Math.log,
   template: (left: unknown) => {},
 };

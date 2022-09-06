@@ -1,3 +1,4 @@
+import { FloatNum } from "../../core/evaluate/FloatNum";
 import { prepareAsyncMeasure } from "../../core/evaluate/measures";
 import { currencyUnits } from "./currencyUnits";
 
@@ -39,8 +40,7 @@ export const measure = prepareAsyncMeasure({
         Object.keys(rates).forEach((currency) => {
           const currencyUnit = units[currency];
           if (currencyUnit != null) {
-            currencyUnit.baseUnitValue = 1 / rates[currency];
-            currencyUnit.baseUnitValueApproximate = true;
+            currencyUnit.baseUnitValue = new FloatNum(1 / rates[currency]);
           } else {
             // console.log(`Rate for a new currency ${currency}`);
           }

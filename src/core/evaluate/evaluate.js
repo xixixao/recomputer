@@ -32,11 +32,15 @@ export const evaluateDocument = (operators, measures) => {
     // console.log(state.cursor.name);
     forEachStatement(state, evaluateStatement, () => maybeResetList(state));
     return {
-      byPos: (from) => state.results.get(from)?.toDisplayString(),
-      byName: (name) => state.values.get(name)?.toDisplayString(),
+      byPos: (from) => valueToString(state.results.get(from)),
+      byName: (name) => valueToString(state.values.get(name)),
     };
   };
 };
+
+function valueToString(x) {
+  return x?.toDisplayString();
+}
 
 function evaluateStatement(state) {
   const { cursor } = state;

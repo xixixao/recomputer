@@ -1,8 +1,11 @@
+import { FloatNum } from "../../core/evaluate/FloatNum";
 import { prepareMeasure } from "../../core/evaluate/measures";
 
 export function testAngleMeasure(assertEvals) {
   assertEvals(`1°`, `1°`);
   assertEvals(`90deg in °`, `90°`);
+  assertEvals(`360 deg in rad`, `6.283185307179586rad`);
+  assertEvals(`τ rad in deg`, `360deg`);
 }
 
 export function docs() {
@@ -24,11 +27,11 @@ export const measure = prepareMeasure({
     },
     degree: {
       postfixSymbols: ["deg", "°", ["degree", "degrees"]],
-      baseUnitValue: Math.PI / 180,
+      baseUnitValue: new FloatNum(Math.PI / 180),
     },
     turn: {
       postfixSymbols: [["turn", "turns"]],
-      baseUnitValue: 2 * Math.PI,
+      baseUnitValue: new FloatNum(2 * Math.PI),
     },
   },
 });

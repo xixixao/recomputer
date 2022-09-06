@@ -1,5 +1,17 @@
+import {
+  divide,
+  exponentiate,
+  multiply,
+} from "../../syntax/operators/operatorList";
 import { BigNum } from "./BigNum";
 import { Value } from "./Value";
+
+type Compound = {
+  exponent: number;
+  unit: any;
+  fromDerived: boolean;
+  required: boolean;
+};
 
 // Nomenclature:
 //   Measure = length
@@ -11,6 +23,8 @@ import { Value } from "./Value";
 //   Compound = km^3
 //   Units = km^3 s^-2
 export class Units {
+  compounds: Array<Compound>;
+
   constructor(compounds) {
     this.compounds = compounds;
   }
@@ -87,39 +101,12 @@ export class Units {
   static fromCompounds(compounds) {
     return Value.fromUnit(new Units(compounds));
   }
-
-  multiply(b) {
-    return UnitsValue(this.compounds.concat(b.compounds));
-  }
-
-  divide(b) {
-    return UnitsValue(
-      this.compounds.concat(
-        b.compounds.map(({ exponent, ...compound }) => ({
-          ...compound,
-          exponent: -1 * exponent,
-        }))
-      )
-    );
-  }
-
-  exponentiate(exponentFloat) {
-    if (this.isScalar()) {
-      return Value.one();
-    }
-    return UnitsValue(
-      this.compounds.map(({ exponent, ...compound }) => ({
-        ...compound,
-        exponent: exponent * exponentFloat,
-      }))
-    );
-  }
 }
 
 // Very mutable algo, so beware!
-function UnitsValue(compounds, initialScalar) {
+export function UnitsValue(compounds, evaluate) {
   // Mutated throughout
-  let scalar = initialScalar ?? BigNum.one();
+  let scalar = BigNum.one();
   // Handle approx symbol
   const nonApproximate = compounds.filter((compound) => {
     if (compound.symbol === "~") {
@@ -160,17 +147,17 @@ function UnitsValue(compounds, initialScalar) {
   });
   // Normalize
   // Compounds in this array are mutated by `combineCompounds`
-  const normalizedCompounds = [];
+  const normalizedCompounds: Array<Compound> = [];
   expandedCompounds.forEach((compound) => {
     let combinationScalar = null;
     for (const modelCompound of normalizedCompounds) {
-      combinationScalar = combineCompounds(modelCompound, compound);
+      combinationScalar = combineCompounds(modelCompound, compound, evaluate);
       if (combinationScalar != null) {
         break;
       }
     }
     if (combinationScalar != null) {
-      scalar = scalar.multiply(combinationScalar);
+      scalar = evaluate(multiply, scalar, combinationScalar);
     } else {
       normalizedCompounds.push({ ...compound });
     }
@@ -182,10 +169,11 @@ function UnitsValue(compounds, initialScalar) {
       let combinationScalar = recombineDerivedCompound(
         compound,
         normalizedCompounds,
-        index
+        index,
+        evaluate
       );
       if (combinationScalar != null) {
-        scalar = scalar.multiply(combinationScalar);
+        scalar = evaluate(multiply, scalar, combinationScalar);
       }
     }
   });
@@ -242,7 +230,7 @@ function collectCompounds(compound, parentExponent, expandedCompounds) {
   );
 }
 
-function combineCompounds(model, compound) {
+function combineCompounds(model, compound, evaluate) {
   model?.unit?.use != null ? model.unit.use() : 0;
 
   if (model.unit.measureName !== compound.unit.measureName) {
@@ -256,10 +244,16 @@ function combineCompounds(model, compound) {
   if (exponentConversion % 1 !== 0) {
     return null;
   }
-  const unitConversion = convertUnitValues(model, compound, exponentConversion);
+  const unitConversion = convertUnitValues(
+    model,
+    compound,
+    exponentConversion,
+    evaluate
+  );
+
   const prefixConversion = convertPrefixes(model, compound, exponentConversion);
   model.exponent += exponentConversion;
-  return unitConversion.multiply(prefixConversion);
+  return evaluate(multiply, unitConversion, prefixConversion);
 }
 
 function convertUnitExponents(model, compound) {
@@ -277,26 +271,32 @@ function convertUnitExponents(model, compound) {
   return compound.exponent;
 }
 
-function convertUnitValues(model, compound, exponentConversion) {
+function convertUnitValues(model, compound, exponentConversion, evaluate) {
   if (
     model != null &&
     model.symbol !== compound.symbol &&
     model.unit?.baseUnitValue != null &&
     compound.unit?.baseUnitValue != null
   ) {
-    return BigNum.fromNumber(
-      compound.unit.baseUnitValue,
-      compound.unit.baseUnitValueApproximate
-    )
-      .exponentiate(compound.exponent)
-      .divide(
-        BigNum.fromNumber(
-          model.unit.baseUnitValue,
-          model.unit.baseUnitValueApproximate
-        ).exponentiate(exponentConversion)
-      );
+    return evaluate(
+      divide,
+      evaluate(
+        exponentiate,
+        defaultToBigNum(compound.unit.baseUnitValue),
+        compound.exponent
+      ),
+      evaluate(
+        exponentiate,
+        defaultToBigNum(model.unit.baseUnitValue),
+        exponentConversion
+      )
+    );
   }
   return BigNum.one();
+}
+
+function defaultToBigNum(x) {
+  return typeof x === "number" ? BigNum.fromNumber(x, false) : x;
 }
 
 function convertPrefixes(model, compound, exponentConversion) {
@@ -313,10 +313,15 @@ function convertPrefixes(model, compound, exponentConversion) {
   return BigNum.one();
 }
 
-function recombineDerivedCompound(derivedCompound, compounds, _index) {
+function recombineDerivedCompound(
+  derivedCompound,
+  compounds,
+  _index,
+  evaluate
+) {
   // First find the exponent for the derived unit
   let maxExponents = Infinity;
-  let exponentsSign = null;
+  let exponentsSign: number | null = null;
   const modelCompounds = derivedCompound.unit.expandedDefinition.unit.compounds;
   for (const model of modelCompounds) {
     if (model.unit.definition != null) {
@@ -360,7 +365,7 @@ function recombineDerivedCompound(derivedCompound, compounds, _index) {
     }
   }
 
-  const derivedExponent = maxExponents * exponentsSign;
+  const derivedExponent = maxExponents * exponentsSign!;
   let scalar = BigNum.one();
   derivedCompound.exponent += derivedExponent;
   for (const model of modelCompounds) {
@@ -368,7 +373,9 @@ function recombineDerivedCompound(derivedCompound, compounds, _index) {
       const compound = compounds[i];
       if (compound.unit.name === model.unit.name) {
         compound.exponent -= derivedExponent * model.exponent;
-        scalar = scalar.multiply(
+        scalar = evaluate(
+          multiply,
+          scalar,
           convertPrefixes(model, compound, derivedExponent)
         );
         break;
@@ -406,6 +413,7 @@ function printNormalValue(valueOrParts) {
 // TODO: Consider that we're ignoring symbol here,
 // unlike in other scenarios
 function printCurrencyValue(value, compound) {
+  // @ts-ignore
   const localizedParts = Intl.NumberFormat(window.navigator.locale, {
     style: "currency",
     currency: compound.unit.name,
