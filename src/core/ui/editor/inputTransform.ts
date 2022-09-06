@@ -9,6 +9,8 @@ import {
   WidgetType,
 } from "@codemirror/view";
 import { NodeType, SyntaxNode } from "@lezer/common";
+import { prepareOperators } from "../../../syntax/operators/operators";
+import { operatorList } from "../../editor/config";
 import { Term } from "../../parser/terms";
 
 export const inputTransform = ViewPlugin.fromClass(
@@ -70,7 +72,11 @@ function transforms(view: EditorView) {
           ) {
             return;
           }
-          if (isWord(firstOperand.type) && isWord(secondOperand.type)) {
+          if (
+            isWord(firstOperand.type) &&
+            isWord(secondOperand.type) &&
+            !isOperator(firstOperand, view)
+          ) {
             statementMarks.push(
               Decoration.replace({
                 widget: new Span("\u00B7"),
@@ -142,6 +148,14 @@ function isWord(type: NodeType) {
 function isNumber(type: NodeType) {
   return type.id === Term.Number;
 }
+
+// TODO: No functions here should need text testing, sufficient information
+// should be stored by the parser in each node (props?).
+function isOperator(node: SyntaxNode, view: EditorView) {
+  return operatorLookup.has(view.state.doc.sliceString(node.from, node.to));
+}
+
+const operatorLookup = prepareOperators(operatorList);
 
 function isMultiplication(operator: SyntaxNode | null, view: EditorView) {
   return (

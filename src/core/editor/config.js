@@ -11,7 +11,7 @@ import { LAST_RESULT_SYMBOL } from "../../syntax/preceding/preceding";
 import { evaluateDocument } from "../evaluate/evaluate";
 import { configuredParser } from "../parser/language";
 
-const operatorList = Object.values(operators).concat(
+export const operatorList = Object.values(operators).concat(
   Object.values(listFunctions)
 );
 
