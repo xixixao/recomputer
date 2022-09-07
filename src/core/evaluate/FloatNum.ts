@@ -50,4 +50,8 @@ export class FloatNum {
   toDisplayStringWithTrailingSpace() {
     return this.toDisplayString();
   }
+
+  toStringWithoutLocaleFormat() {
+    return this.toDisplayString();
+  }
 }
