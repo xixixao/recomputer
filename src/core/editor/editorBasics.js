@@ -26,7 +26,7 @@ import { drawBetterSelection } from "./drawBetterSelection";
 export const editorBasics = [
   highlightSpecialChars(),
   history(),
-  drawBetterSelection(),
+  // drawBetterSelection(),
   EditorState.allowMultipleSelections.of(true),
   indentUnit.of("\t"),
   // Preserves current indent
