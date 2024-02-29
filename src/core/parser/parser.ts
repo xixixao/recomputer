@@ -8,7 +8,11 @@ import {
   TreeFragment,
 } from "@lezer/common";
 import { styleTags, tags as t } from "@lezer/highlight";
-import { Comment, commentStyleTags } from "../../syntax/comments/comments";
+import {
+  Comment,
+  DefaultToComment,
+  commentStyleTags,
+} from "../../syntax/comments/comments";
 import { Assignment, Reference } from "../../syntax/names/names";
 import { NestedStatements } from "../../syntax/nesting/nesting";
 import { Number } from "../../syntax/numbers/numbers";
@@ -149,7 +153,8 @@ export class Parse {
     while (!this.isAtEnd()) {
       this.BlankLine() ||
         (Comment(this) && this.requiredNewline()) ||
-        this.Statement();
+        this.Statement() ||
+        DefaultToComment(this);
     }
     /// Lezer's buildTree does this implicitly
     /// this.addNode(Document);
@@ -166,7 +171,7 @@ export class Parse {
   Statement(): boolean {
     this.startNode();
     Assignment(this) || this.Expression();
-    Comment(this);
+    // Comment(this);
     NestedStatements(this);
     this.requiredNewline();
     return this.addNode(Term.Statement);

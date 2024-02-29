@@ -34,16 +34,23 @@ export function Comment(parse: Parse): boolean {
 
 export function StrongComment(parse: Parse): boolean {
   parse.startNode();
-  if (!parse.match("##")) {
+  if (!parse.match("#")) {
     return parse.endNode();
   }
   parse.matchRegex(/([^\n]*)/);
   return parse.addNode(Term.StrongComment);
 }
 
+export function DefaultToComment(parse: Parse): boolean {
+  parse.startNode();
+  NormalComment(parse);
+  return parse.addNode(Term.Comment);
+}
+
 export function NormalComment(parse: Parse): boolean {
   parse.startNode();
-  if (!parse.match("#")) {
+
+  if (!parse.matchRegex(/([^\n]*[.\:]$)/)) {
     return parse.endNode();
   }
   parse.matchRegex(/([^\n]*)/);
