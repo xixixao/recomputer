@@ -81,22 +81,22 @@ export function testAccuracy(assertEvals) {
 export function docs() {
   return `
 ### Numbers
-# You can use arbitrarily large decimal numbers, with decimal point and group (thousand) separators depending on your browser's language (usually the language of your OS). Spaces can be used as well:
+You can use arbitrarily large decimal numbers, with decimal point and group (thousand) separators depending on your browser's language (usually the language of your OS). Spaces can be used as well:
 6543210.05
 =6,543,210.05
 100 000
 =100,000
-# Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
+Numbers can be suffixed with \`K\`, \`M\` or the \`%\` (percent) sign:
 5K + 10M
 =10,005,000
 5% * 100
 =5
-# Scientific notation is supported via E suffix, like \`6.3E8\`:
+Scientific notation is supported via E suffix, like \`6.3E8\`:
 6.3E8
 =630,000,000
 6.3E-8
 =0.000000063
-# Rational numbers (fractions) that cannot be printed exactly as decimal will be printed as fractions. To force a decimal printing use the \`~\` (tilde) symbol with a space (TODO WIP):
+Rational numbers (fractions) that cannot be printed exactly as decimal will be printed as fractions. To force a decimal printing use the \`~\` (tilde) symbol with a space:
 10/6
 =5/3
 ~ 10/6

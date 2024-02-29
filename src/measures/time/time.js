@@ -3,7 +3,7 @@ import { prepareMeasure } from "../../core/evaluate/measures";
 export function docs() {
   return `
 ### Time
-# Seconds, minutes, hours, days, weeks, months and years.
+Seconds, minutes, hours, days, weeks, months and years.
 second + minute + hour
 =3,661 seconds
 1 day + 1 week

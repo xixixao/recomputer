@@ -44,7 +44,7 @@ export function docs() {
   operatorsWithDocs.sort((a, b) => a.docsPos - b.docsPos);
   return `
 ### Operators and Functions
-# Standard mathematical operators and functions are available:
+Standard mathematical operators and functions are available:
 ${operatorsWithDocs
   .map(
     ({ example, result, docs }) => `${example} # ${docs}

@@ -3,7 +3,7 @@ import { prepareMeasure } from "../../core/evaluate/measures";
 export function docs() {
   return `
 ### Temperature
-# TBD
+TBD
 `;
 }
 export const measure = prepareMeasure({

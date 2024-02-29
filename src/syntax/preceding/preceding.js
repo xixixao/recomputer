@@ -16,7 +16,7 @@ _`,
 export function docs() {
   return `
 ### Last result
-# To quickly refer to the last result use the \`_\` (underscore) symbol.
+To quickly refer to the last result use the \`_\` (underscore) symbol.
 6 * 8
 =48
 _ + 2

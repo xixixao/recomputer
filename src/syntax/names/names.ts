@@ -39,14 +39,14 @@ x + y`,
 export function docs() {
   return `
 ### Names
-# Values can be assigned names. Names can contain any characters, except for the equal sign, and cannot start with a digit:
+Values can be assigned names. Names can contain any characters, except for the equal sign, and cannot start with a digit:
 x = 3
 =3
 my income = $100
 =$100.00
 result 4 = 1/2
 =0.5
-# Subscripts are supported via \`_\` (underscore), like \`mass_Earth\`:
+Subscripts are supported via \`_\` (underscore), like \`mass_Earth\`:
 mass_Earth = 5.9722 zettatons
 `;
 }

@@ -23,7 +23,7 @@ salary`,
 export function docs() {
   return `
 ### Nesting
-# You can nest expressions to limit their scope and declare them below their use:
+You can nest expressions to limit their scope and declare them below their use:
 salary = (1 - tax) * gross salary
 \ttax = 5%
 \tgross salary = $800 / week

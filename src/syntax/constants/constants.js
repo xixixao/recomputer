@@ -12,7 +12,7 @@ export function testConstants(assertEvals) {
 export function docs() {
   return `
 ### Constants
-# Predefined mathematical constants include:
+Predefined mathematical constants include:
 π # or \`PI\`
 =3.141592653589793
 τ # type it with Alt+T or use \`TAU\`

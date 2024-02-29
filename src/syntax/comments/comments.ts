@@ -18,7 +18,7 @@ export function testPostfixComments(assertEvals) {
 export function docs() {
   return `
 ## Text (Comments)
-# As you can see throughout this introduction, free form text can follow a \`#\` (hash). Two or more \`#\`s are highlighted.
+As you can see throughout this introduction, free form text can follow a \`#\` (hash). Two or more \`#\`s are highlighted.
 x = 1 # Including at the end of a line!
 =1
 `;

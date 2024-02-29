@@ -46,7 +46,7 @@ export function testOtherDerivedUnits(assertEvals) {
 export function docs() {
   return `
 ### Derived units
-# The following derived units are supported:
+The following derived units are supported:
 ${Object.values(measures)
   .map(({ docs }) => docs().trim())
   .join("\n")}

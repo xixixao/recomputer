@@ -41,7 +41,7 @@ avg __
 export function docs() {
   return `
 ### Lists
-# There is basic support for computing totals and other functions over a series of values. To refer to the preceding list of values, use the \`__\` (two underscores) symbol:
+There is basic support for computing totals and other functions over a series of values. To refer to the preceding list of values, use the \`__\` (two underscores) symbol:
 1
 2
 3

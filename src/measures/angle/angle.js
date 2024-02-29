@@ -11,7 +11,7 @@ export function testAngleMeasure(assertEvals) {
 export function docs() {
   return `
 ### Angle
-# Degrees and radians, and converting between them, are supported:
+Degrees and radians, and converting between them, are supported:
 90° to rad
 τ rad to degrees
 `;

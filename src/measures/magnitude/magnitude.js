@@ -9,7 +9,7 @@ export function testMagnitudePrefix(assertEvals) {
 export function docs() {
   return `
 ### Prefixes
-# A metric prefix can be used with any physical measurement unit:
+A metric prefix can be used with any physical measurement unit:
 10km
 =10km
 1ML

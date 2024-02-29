@@ -9,7 +9,7 @@ export function docs() {
   return (
     `
 ## Keyboard
-# Some useful key combinations:
+Some useful key combinations:
 ` + validShortcuts.map((text) => "# " + text).join("\n")
   );
 }

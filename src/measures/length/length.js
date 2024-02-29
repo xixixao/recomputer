@@ -15,7 +15,7 @@ export function testLengthMeasure(assertEvals) {
 export function docs() {
   return `
 ### Length, Area, Volume
-# Meters, ares, litres and imperial units (inches, feet, yards, miles, acres, teaspoons, tablespoons, fluid-ounces, cups, pints, quarts and gallons) are supported:
+Meters, ares, litres and imperial units (inches, feet, yards, miles, acres, teaspoons, tablespoons, fluid-ounces, cups, pints, quarts and gallons) are supported:
 ~10m + 2 inches + 3ft + 4yd + 5mi
 ~10ha + 5ac
 ~10l + 5L + 1tsp + 2tbsp + 3floz + 3 cups + 1pt + 1qt + 1gal

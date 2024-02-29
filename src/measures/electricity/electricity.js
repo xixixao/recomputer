@@ -7,7 +7,7 @@ export function testElectricMeasure(assertEvals) {
 export function docs() {
   return `
 ### Electricty
-# Electric current:
+Electric current:
 3A
 =3A
 `;

@@ -18,7 +18,7 @@ export function testApproximationSymbol(assertEvals) {
 export function docs() {
   return `
 ### Currency
-# Over 150 common currencies and conversions between them are supported. Both three-letter codes and common symbols can be used. Currency values are prefixed with \`~\` if they involve rounding or currency conversion.
+Over 150 common currencies and conversions between them are supported. Both three-letter codes and common symbols can be used. Currency values are prefixed with \`~\` if they involve rounding or currency conversion.
 £100 in $
 100Kč in AUD
 `;

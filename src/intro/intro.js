@@ -3,7 +3,7 @@ import { EditorSelection } from "@codemirror/state";
 import { syncEditorFocusToResultDisplay } from "../core/editor/syncFocus";
 
 const INTRO = `## Welcome to Recomputer
-# Recomputer is a better, smarter calculator. Let me show you:
+Recomputer is a better, smarter calculator. Let me show you:
 
 `;
 

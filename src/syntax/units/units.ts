@@ -61,10 +61,10 @@ export function testScalarUnits(assertEvals) {
 export function docs() {
   return `
 ### Units
-# Units can be any of the predefined units which are listed in later sections, or a custom unit which is a single word:
+Units can be any of the predefined units which are listed in later sections, or a custom unit which is a single word:
 (36 potatoes / year) * 1 month
 =3 potatoes
-# A single digit can be suffixed to a unit for easy exponentiation:
+A single digit can be suffixed to a unit for easy exponentiation:
 14m2
 =14m^2
 `;
