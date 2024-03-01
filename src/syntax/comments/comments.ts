@@ -50,7 +50,7 @@ export function DefaultToComment(parse: Parse): boolean {
 export function NormalComment(parse: Parse): boolean {
   parse.startNode();
 
-  if (!parse.matchRegex(/([^\n]*[.\:]$)/)) {
+  if (!parse.matchRegex(/([^\n]*[.\:\!]$)/)) {
     return parse.endNode();
   }
   parse.matchRegex(/([^\n]*)/);

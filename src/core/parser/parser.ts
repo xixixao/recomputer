@@ -170,7 +170,9 @@ export class Parse {
 
   Statement(): boolean {
     this.startNode();
-    Assignment(this) || this.Expression();
+    if (!(Assignment(this) || this.Expression())) {
+      return this.endNode();
+    }
     // Comment(this);
     NestedStatements(this);
     this.requiredNewline();
@@ -191,12 +193,12 @@ export class Parse {
 
   Expression(): boolean {
     this.startNode();
-    this.expression();
+    this.expression(true);
     return this.addNode(Term.Expression);
   }
 
-  expression(): boolean {
-    return this.BinaryExpression();
+  expression(strict: boolean): boolean {
+    return this.BinaryExpression(strict);
   }
 
   Parens(): boolean {
@@ -204,32 +206,38 @@ export class Parse {
     if (!this.match("(")) {
       return this.endNode();
     }
-    this.expression();
+    this.expression(false);
     this.match(")");
     return this.addNode(Term.Parens);
   }
 
-  BinaryExpression(): boolean {
-    return this.binaryExpression(this.config.operatorsByPrecedence.length - 1);
+  BinaryExpression(strict: boolean): boolean {
+    return this.binaryExpression(
+      this.config.operatorsByPrecedence.length - 1,
+      strict
+    );
   }
 
-  binaryExpression(precedence: number): boolean {
+  binaryExpression(precedence: number, strict: boolean): boolean {
     if (precedence === -1) {
-      return this.primaryExpression();
+      return this.primaryExpression(strict);
     }
     this.startNode();
-    let result = this.binaryExpression(precedence - 1);
+    let result = this.binaryExpression(precedence - 1, strict);
+    if (!result) {
+      return this.endNode();
+    }
     while (
       this.ArithOpRegex(this.config.operatorsByPrecedence[precedence]) ||
       this.checkImplictOperator(precedence)
     ) {
-      if (!this.binaryExpression(precedence - 1)) {
+      if (!this.binaryExpression(precedence - 1, false)) {
         return this.endNode();
       }
       this.addNodeAndStartEnclosing(Term.BinaryExpression);
     }
     this.endNode();
-    return result;
+    return true;
   }
 
   checkImplictOperator(precedence: number): boolean {
@@ -251,15 +259,15 @@ export class Parse {
     return this.addNode(Term.ArithOp);
   }
 
-  primaryExpression(): boolean {
+  primaryExpression(strict: boolean): boolean {
     this.skipWhitespace();
     return (
-      Comment(this) ||
+      // Comment(this) ||
       this.Parens() ||
       Number(this) ||
       PrefixUnit(this) ||
       Reference(this) ||
-      Unit(this)
+      (!strict && Unit(this))
     );
   }
 
