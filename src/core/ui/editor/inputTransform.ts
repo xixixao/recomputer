@@ -124,8 +124,8 @@ function transforms(view: EditorView) {
   return Decoration.set(marks);
 
   function pushStatementMarks() {
-    statementMarks.sort((a, b) => a.from - b.from);
     marks.push(...statementMarks);
+    marks.sort((a, b) => a.from - b.from);
     statementMarks = [];
   }
 }
