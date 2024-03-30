@@ -53,7 +53,6 @@ export function NormalComment(parse: Parse): boolean {
   if (!parse.matchRegex(/([^\n]*[.\:\!]$)/)) {
     return parse.endNode();
   }
-  parse.matchRegex(/([^\n]*)/);
   return parse.addNode(Term.NormalComment);
 }
 

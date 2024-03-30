@@ -3,7 +3,7 @@ import { Parse } from "../../core/parser/parser";
 export const add = {
   symbol: "+",
   regex: "\\+",
-  docs: "Adds two values.",
+  docs: "Adds two values",
   docsPos: "1",
   example: "1 + 2",
   result: "3",
@@ -15,7 +15,7 @@ export const add = {
 export const subtract = {
   symbol: "-",
   regex: "\\-(?!\\d)",
-  docs: "Subtracts right value from left value.",
+  docs: "Subtracts right value from left value",
   docsPos: "2",
   example: "2 - 3",
   result: "-1",
@@ -40,7 +40,7 @@ export const multiply = {
       parse.checkRegex(parse.config.operators)
     );
   },
-  docs: "Multiplies two values.",
+  docs: "Multiplies two values",
   docsPos: "3",
   example: "3 * 2",
   result: "6",
@@ -53,7 +53,7 @@ export const multiply = {
 export const divide = {
   symbol: "/",
   regex: "\\/",
-  docs: "Divides left value by right value.",
+  docs: "Divides left value by right value",
   docsPos: "4",
   example: "10 / 5",
   result: "2",
@@ -69,14 +69,14 @@ export const exponentiate = {
   example: "3 ^ 2",
   result: "9",
   docsPos: "5",
-  docs: "Raises left value to the power of right value.",
+  docs: "Raises left value to the power of right value",
   template: (left: unknown, right: unknown) => {},
   // apply: (left, right) => left.exponentiate(right),
 };
 
 // export const modulo = {
 //   symbol: "%",
-//   docs: "The positive remainder of dividing left value by right value",
+//   docs: "The positive remainder of dividing left value by right valu",
 //   example: "10 % 3",
 //   regex: "%",
 //   template: (left: unknown, right: unknown) => {},
@@ -97,7 +97,7 @@ export const convertUnits2 = {
 
 export const floor = {
   symbol: "floor",
-  docs: "The closest smaller integer value.",
+  docs: "The closest smaller integer value",
   docsPos: "6",
   example: "floor 4.49",
   result: "4",
@@ -107,7 +107,7 @@ export const floor = {
 
 export const ceil = {
   symbol: "ceil",
-  docs: "The closest bigger integer value.",
+  docs: "The closest bigger integer value",
   docsPos: "6.1",
   example: "ceil 4.49",
   result: "5",
@@ -117,7 +117,7 @@ export const ceil = {
 
 export const round = {
   symbol: "round",
-  docs: "The closest integer value.",
+  docs: "The closest integer value",
   docsPos: "6.2",
   example: "round 4.49",
   result: "4",
@@ -127,7 +127,7 @@ export const round = {
 
 export const sqrt = {
   symbol: "sqrt",
-  docs: "The square (2nd) root.",
+  docs: "The square (2nd) root",
   docsPos: "7",
   example: "sqrt 16",
   result: "4",
@@ -137,7 +137,7 @@ export const sqrt = {
 
 export const sqrt2 = {
   symbol: "√",
-  docs: "The square (2nd) root.",
+  docs: "The square (2nd) root",
   docsPos: "7.2",
   example: "√ 36",
   result: "6",
@@ -148,7 +148,7 @@ export const sqrt2 = {
 export const root = {
   symbol: "rt",
   regex: "\\brt\\b",
-  docs: "The left value root of the right value.",
+  docs: "The left value root of the right value",
   docsPos: "8",
   example: "3rt 27",
   result: "3",
@@ -158,7 +158,7 @@ export const root = {
 
 export const exp = {
   symbol: "exp",
-  docs: "The number e to the power of the value.",
+  docs: "The number e to the power of the value",
   docsPos: "9",
   example: "exp 3",
   result: "20.085536923187668",
@@ -168,7 +168,7 @@ export const exp = {
 
 export const log = {
   symbol: "log",
-  docs: "The natural logarithm of the value.",
+  docs: "The natural logarithm of the value",
   docsPos: "10",
   example: "log 3",
   result: "1.09861228866811",
@@ -178,7 +178,7 @@ export const log = {
 
 export const log2 = {
   symbol: "log2",
-  docs: "The base-2 logarithm of the value.",
+  docs: "The base-2 logarithm of the value",
   docsPos: "11",
   example: "log2 3",
   result: "1.584962500721156",
@@ -188,7 +188,7 @@ export const log2 = {
 
 export const log10 = {
   symbol: "log10",
-  docs: "The base-10 logarithm of the value.",
+  docs: "The base-10 logarithm of the value",
   docsPos: "12",
   example: "log10 3",
   result: "0.477121254719662",
@@ -198,7 +198,7 @@ export const log10 = {
 
 export const abs = {
   symbol: "abs",
-  docs: "The absolute value of the number.",
+  docs: "The absolute value of the number",
   docsPos: "13",
   example: "abs -2",
   result: "2",
