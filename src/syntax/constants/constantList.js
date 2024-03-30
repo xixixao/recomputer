@@ -19,3 +19,8 @@ export const TAU = {
   symbol: "τ",
   value: new FloatNum(2 * Math.PI),
 };
+
+export const TAU2 = {
+  symbol: "TAU",
+  value: new FloatNum(2 * Math.PI),
+};

@@ -57,7 +57,7 @@ export function Assignment(parse: Parse): boolean {
     return parse.endNode();
   }
   parse.matchRegex(/( *= *)/);
-  parse.expression();
+  parse.expression(false);
   return parse.addNode(Term.Assignment);
 }
 
@@ -72,7 +72,7 @@ export function Name(parse: Parse): boolean {
   return parse.addNode(Term.Name);
 }
 
-const NAME_END_PATTERN = /^(?:$|\s|[+-/*%^=()])/;
+export const NAME_END_PATTERN = /^(?:$|\s|[+-/*%^=()])/;
 
 export function Reference(parse: Parse): boolean {
   // Skip for results editor

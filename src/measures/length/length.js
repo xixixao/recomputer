@@ -7,9 +7,9 @@ export function testLengthMeasure(assertEvals) {
   assertEvals(`1l in m3`, `0.001m^3`);
   assertEvals(`1000cm3 in m3`, `0.001m^3`);
   assertEvals(`1000cm3 in m`, `0.001m^3`);
-  assertEvals(`L/m`, `1L/m`);
-  assertEvals(`L/dm in dm2`, `1dm^2`);
-  assertEvals(`L in dm in dm3`, `1dm^3`);
+  assertEvals(`1L/m`, `1L/m`);
+  assertEvals(`1L/dm in dm2`, `1dm^2`);
+  assertEvals(`1L in dm in dm3`, `1dm^3`);
 }
 
 export function docs() {

@@ -16,13 +16,14 @@ import {
 import { Assignment, Reference } from "../../syntax/names/names";
 import { NestedStatements } from "../../syntax/nesting/nesting";
 import { Number } from "../../syntax/numbers/numbers";
-import { PrefixUnit, Unit } from "../../syntax/units/units";
+import { PredefinedUnit, PrefixUnit, Unit } from "../../syntax/units/units";
 import { analyzeDocument, Scopes, ScopesCursor } from "../evaluate/analyze";
 import { NODE_SET, Term } from "./terms";
 
 type ParserConfig = {
   operators: RegExp;
   prefixes: RegExp;
+  predefinedUnits: RegExp;
   names: Array<string>;
   scopes: Scopes | null;
   shouldAnalyzeForNames: boolean;
@@ -267,6 +268,7 @@ export class Parse {
       Number(this) ||
       PrefixUnit(this) ||
       Reference(this) ||
+      PredefinedUnit(this) ||
       (!strict && Unit(this))
     );
   }

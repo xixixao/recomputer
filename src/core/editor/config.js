@@ -2,6 +2,7 @@ import { measures } from "../../measures/measures";
 import { constants } from "../../syntax/constants/constants";
 import { LIST_SYMBOL } from "../../syntax/list/list";
 import * as listFunctions from "../../syntax/list/listFunctions";
+import { NAME_END_PATTERN } from "../../syntax/names/names";
 import * as operators from "../../syntax/operators/operatorList";
 import {
   implicitOperators,
@@ -31,6 +32,16 @@ const parserConfig = {
       // TODO: Figure out how also treat "√" ala prefix but also as a function
       .concat("~")
       .join("|")})`
+  ),
+  predefinedUnits: new RegExp(
+    `^(${measures
+      .map(({ units }) =>
+        Object.values(units)
+          .map((unit) => Array.from(unit.postfixSymbols))
+          .flat()
+      )
+      .flat()
+      .join("|")})${NAME_END_PATTERN.source.slice(1)}`
   ),
   names: operatorList
     .filter((operator) => operator.regex == null)

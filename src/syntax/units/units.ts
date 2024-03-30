@@ -81,6 +81,14 @@ const UNIT_PATTERN = new RegExp(
   `^(${MORE_CHARS_PATTERN}|${FIRST_CHAR_PATTERN})`
 );
 
+export function PredefinedUnit(parse: Parse): boolean {
+  parse.startNode();
+  if (!parse.matchRegex(parse.config.predefinedUnits)) {
+    return parse.endNode();
+  }
+  return parse.addNode(Term.Unit);
+}
+
 export function Unit(parse: Parse): boolean {
   parse.startNode();
   if (!parse.matchRegex(UNIT_PATTERN)) {
