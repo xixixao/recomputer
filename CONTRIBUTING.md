@@ -1,8 +1,8 @@
 # Build/run
 
-Use npm "scripts". `npm start`.
+Use npm "scripts". `npm run dev`.
 
-Currently uses Snowpack, should be migrated to Vite.
+Uses Vite.
 
 Publishing:
 `npm run build; and ../recomputer.github.io; and gp -f`

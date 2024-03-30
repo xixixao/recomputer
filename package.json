@@ -1,34 +1,23 @@
 {
-  "name": "recomputer",
-  "version": "0.0.1",
-  "description": "Advanced calculator",
-  "main": "editor/editor.js",
+  "name": "recomputer2",
+  "private": true,
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "build": "cd ../recomputer.github.io && git reset --hard 3d30fce && cd ../recomputer && npx snowpack build && find build/* -maxdepth 0 ! -name 'index.html' ! -name 'src' -exec rm -r {} + && mv build/* ../recomputer.github.io/ && rm -r build && cd ../recomputer.github.io && touch .nojekyll && perl -pi -w -e 's&<!--stats-->&<script defer src='\"'\"'https://static.cloudflareinsights.com/beacon.min.js'\"'\"' data-cf-beacon='\"'\"'{\"token\": \"0701565b4e494a109d62174c015e387d\"}'\"'\"'></script>&' index.html && git add . && git commit -m 'Built'",
-    "start": "snowpack dev",
-    "currencies": "node --es-module-specifier-resolution=node src/currency/build/buildCurrencies.js > src/core/evaluate/measures/currencyUnits.js"
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
   },
-  "keywords": [
-    "calc"
-  ],
-  "author": "xixixao",
-  "license": "ISC",
   "devDependencies": {
-    "@lezer/generator": "^1.1.0",
-    "eslint": "^7.26.0",
-    "snowpack": "^3.5.2"
+    "typescript": "^5.2.2",
+    "vite": "^5.1.4"
   },
   "dependencies": {
-    "@codemirror/autocomplete": "^6.0.4",
-    "@codemirror/commands": "^6.0.1",
-    "@codemirror/language": "^6.2.0",
-    "@codemirror/lint": "^6.0.0",
-    "@codemirror/search": "^6.0.0",
-    "@codemirror/state": "^6.1.0",
-    "@codemirror/view": "^6.0.3",
-    "@lezer/common": "^1.0.0",
-    "@lezer/highlight": "^1.0.0",
-    "@lezer/lr": "^1.2.0"
+    "@codemirror/autocomplete": "^6.12.0",
+    "@codemirror/commands": "^6.3.3",
+    "@codemirror/lint": "^6.5.0",
+    "@codemirror/search": "^6.5.6",
+    "@codemirror/view": "^6.24.1",
+    "crelt": "^1.0.6"
   }
 }
