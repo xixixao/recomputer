@@ -130,7 +130,7 @@ export const BigNumOps = [
 
   declare(
     error,
-    nullIfNotBigNum((a) => BigNum.zero())
+    nullIfNotBigNum(() => BigNum.zero())
   ),
 
   // TODO: This should use biginteger modulo instead to be precise and

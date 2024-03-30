@@ -41,7 +41,7 @@ export const SigFloatOps = [
     exponentiate,
     nullIfNotSigFloatNums(
       (a, b) => Math.pow(a, b),
-      (a, b) => a.significantDigits
+      (a) => a.significantDigits
     )
   ),
 

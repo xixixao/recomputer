@@ -49,8 +49,8 @@ export class MyParser extends Parser {
 
   createParse(
     input: Input,
-    fragments: readonly TreeFragment[],
-    ranges: readonly { from: number; to: number }[]
+    _fragments: readonly TreeFragment[],
+    _ranges: readonly { from: number; to: number }[]
   ): PartialParse {
     if (!input.lineChunks) {
       throw new Error("Expected Input spliced into lines, but it isn't.");
@@ -68,7 +68,7 @@ export class MyParser extends Parser {
         return tree;
       },
       parsedPos: input.length,
-      stopAt(pos: number) {
+      stopAt(_pos: number) {
         // console.log("stopAt", pos);
       },
       stoppedAt: null,
@@ -355,6 +355,7 @@ function incLast(array: Array<number>, x: number) {
   array[array.length - 1] += x;
 }
 
+// @ts-expect-error ignore unused
 export function slog(tag: string, text: string) {
   // console.log(
   //   tag +

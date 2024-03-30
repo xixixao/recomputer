@@ -3,7 +3,6 @@ import {
   convertUnits,
   convertUnits2,
   divide,
-  exp,
   exponentiate,
   multiply,
   root,

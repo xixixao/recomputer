@@ -146,7 +146,7 @@ export function evaluateNumber() {
       const shouldUseSignificantFigures = uncertaintySymbol === "~";
       const shouldUseError = uncertaintySymbol === "±" || error != null;
       // const isInteger = /^-?[0-9]+$/.test(numString) && (!percent || >1000 );
-      const isScientific = /E/.test(exponent);
+      // const isScientific = /E/.test(exponent);
       if (shouldUseError) {
         return null;
         return evaluateSciFloatNum(numString, exponent, error, percent);
@@ -164,6 +164,7 @@ export function evaluateNumber() {
   };
 }
 
+// @ts-expect-error TODO: Unfinished implementation
 function evaluateSciFloatNum(numString, exponent, error, percent) {
   const float = evaluateFloat(numString);
   if (float == null) {
@@ -172,6 +173,7 @@ function evaluateSciFloatNum(numString, exponent, error, percent) {
   return new SciFloatNum(float, computeScientificExponent(exponent));
 }
 
+// @ts-expect-error TODO: Unfinished implementation
 function evaluateFloatNum(numString, exponent, percent, errorString) {
   let float = evaluateFloat(numString);
   // TODO: Support spaces/zeroes

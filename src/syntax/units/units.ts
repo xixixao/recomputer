@@ -48,6 +48,7 @@ export function testPrintingDenominator(assertEvals) {
   assertEvals(`2/3N/kg2`, `2/3 m/(kg*s^2)`);
 }
 
+// @ts-expect-error TODO: Finish this
 export function testAccuracy(assertEvals) {
   // assertEvals(`~20m + (~5.0m/s2) (~1.1s)^2`, `26m`);
 }

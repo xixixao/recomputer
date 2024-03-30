@@ -1,12 +1,4 @@
-import {
-  Input,
-  NodeSet,
-  NodeType,
-  Parser,
-  PartialParse,
-  Tree,
-  TreeFragment,
-} from "@lezer/common";
+import { NodeType } from "@lezer/common";
 
 let nodeTypeID = 0;
 

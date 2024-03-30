@@ -7,7 +7,7 @@ export const add = {
   docsPos: "1",
   example: "1 + 2",
   result: "3",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
   // convertUnits: true,
   // apply: (left, right) => left.add(right),
 };
@@ -19,7 +19,7 @@ export const subtract = {
   docsPos: "2",
   example: "2 - 3",
   result: "-1",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
   // convertUnits: true,
   // apply: (left, right) => left.subtract(right),
   // declare: declareBinary('subtract'),
@@ -44,7 +44,7 @@ export const multiply = {
   docsPos: "3",
   example: "3 * 2",
   result: "6",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
   // apply: (left, right) => left.multiply(right),
   // applyUnit: (leftUnit, rightUnit) => leftUnit.multiply(rightUnit),
   // applyNum: (leftNum, rightNum) => leftNum.multiply(rightNum),
@@ -57,7 +57,7 @@ export const divide = {
   docsPos: "4",
   example: "10 / 5",
   result: "2",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
   // apply: (left, right) => left.divide(right),
   // applyUnit: (leftUnit, rightUnit) => leftUnit.divide(rightUnit),
   // applyNum: (leftNum, rightNum) => leftNum.divide(rightNum),
@@ -70,7 +70,7 @@ export const exponentiate = {
   result: "9",
   docsPos: "5",
   docs: "Raises left value to the power of right value",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
   // apply: (left, right) => left.exponentiate(right),
 };
 
@@ -79,20 +79,20 @@ export const exponentiate = {
 //   docs: "The positive remainder of dividing left value by right valu",
 //   example: "10 % 3",
 //   regex: "%",
-//   template: (left: unknown, right: unknown) => {},
+//   template: (_left: unknown, _right: unknown) => {},
 // };
 
 // TODO: Move to separate module
 export const convertUnits = {
   symbol: "in",
   regex: "\\bin\\b",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
 };
 
 export const convertUnits2 = {
   symbol: "to",
   regex: "\\bto\\b",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
 };
 
 export const floor = {
@@ -101,7 +101,7 @@ export const floor = {
   docsPos: "6",
   example: "floor 4.49",
   result: "4",
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
   // apply: (value) => Value.from(value.number.floor(), value.unit),
 };
 
@@ -111,7 +111,7 @@ export const ceil = {
   docsPos: "6.1",
   example: "ceil 4.49",
   result: "5",
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
   // apply: (value) => Value.from(value.number.ceil(), value.unit),
 };
 
@@ -121,7 +121,7 @@ export const round = {
   docsPos: "6.2",
   example: "round 4.49",
   result: "4",
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
   // apply: (value) => Value.from(value.number.round(), value.unit),
 };
 
@@ -131,7 +131,7 @@ export const sqrt = {
   docsPos: "7",
   example: "sqrt 16",
   result: "4",
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
   // apply: (value) => root.apply(Value.fromNumber(BigNum.fromInteger(2)), value),
 };
 
@@ -141,7 +141,7 @@ export const sqrt2 = {
   docsPos: "7.2",
   example: "√ 36",
   result: "6",
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
   // apply: sqrt.apply,
 };
 
@@ -152,7 +152,7 @@ export const root = {
   docsPos: "8",
   example: "3rt 27",
   result: "3",
-  template: (left: unknown, right: unknown) => {},
+  template: (_left: unknown, _right: unknown) => {},
   // apply: (left, right) => right.exponentiate(Value.divide(Value.one(), left)),
 };
 
@@ -163,7 +163,7 @@ export const exp = {
   example: "exp 3",
   result: "20.085536923187668",
   f: Math.exp,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const log = {
@@ -173,7 +173,7 @@ export const log = {
   example: "log 3",
   result: "1.09861228866811",
   f: Math.log,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const log2 = {
@@ -183,7 +183,7 @@ export const log2 = {
   example: "log2 3",
   result: "1.584962500721156",
   f: Math.log2,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const log10 = {
@@ -193,7 +193,7 @@ export const log10 = {
   example: "log10 3",
   result: "0.477121254719662",
   f: Math.log10,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const abs = {
@@ -202,84 +202,84 @@ export const abs = {
   docsPos: "13",
   example: "abs -2",
   result: "2",
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 // TODO: Document trig functions
 export const sin = {
   symbol: "sin",
   f: Math.sin,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const sinh = {
   symbol: "sinh",
   f: Math.sinh,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const asin = {
   symbol: "asin",
   f: Math.asin,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const asinh = {
   symbol: "asinh",
   f: Math.asinh,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const cos = {
   symbol: "cos",
   f: Math.cos,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const cosh = {
   symbol: "cosh",
   f: Math.cosh,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const acos = {
   symbol: "acos",
   f: Math.acos,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const acosh = {
   symbol: "acosh",
   f: Math.acosh,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const tan = {
   symbol: "tan",
   f: Math.tan,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const tanh = {
   symbol: "tanh",
   f: Math.tanh,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const atan = {
   symbol: "atan",
   f: Math.atan,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 export const atanh = {
   symbol: "atanh",
   f: Math.atanh,
-  template: (left: unknown) => {},
+  template: (_left: unknown) => {},
 };
 
 // TODO: design this properly, right now for debugging
 export const error = {
   symbol: "error",
-  template: (value: unknown) => {},
+  template: (_value: unknown) => {},
 };
