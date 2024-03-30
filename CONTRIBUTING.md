@@ -41,6 +41,7 @@ Add `test=1` to URL.
     - Also better formalize the rules about these transformations
     - Also use superscript for tight exponents
   - m2 should just be m2, while 1m2 should be 1m2 - only include the number if it's present in the expression
+  - h + min + sec should siplify to secs, not hours
 
 # Notes
 
@@ -105,8 +106,10 @@ Recomputer should always assume that variables are independent
 
 ### Example to test
 
+```
 µ_s = ~0.96
 g = ~9.80m/s^2
 R = ~230m
 µ_s g R
 v_max = sqrt (µ_s g R)
+```

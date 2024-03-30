@@ -4,7 +4,7 @@ export function docs() {
   return `
 ### Mass
 Grams, tons and imperial units (ounces, pounds, stones, short tons) are supported:
-~ oz + lb + st + shortton in kg
+oz + lb + st + shortton in kg
 =914.01723468kg
 150t in Mg
 =150Mg

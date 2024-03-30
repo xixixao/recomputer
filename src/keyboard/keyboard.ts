@@ -10,7 +10,7 @@ export function docs() {
     `
 ## Keyboard
 Some useful key combinations:
-` + validShortcuts.map((text) => "# " + text).join("\n")
+` + validShortcuts.map((text) => text).join("\n")
   );
 }
 
@@ -19,9 +19,13 @@ const shortcuts = [
   {
     valid: () => /mac/i.test(window.navigator.platform),
     combos: [
-      `Option-P: \`π\``,
-      `Option-T: \`τ\``,
-      `Option-* (Option-Shift-8): \`°\``,
+      `Option-P: π`,
+      `Option-T: τ`,
+      `Option-* (Option-Shift-8): °`,
+      `Option-M: µ`,
+      `Option-J: ∆`,
+      `Option-D: ∂`,
+      // TODO: Add alpha, beta, gama, omega to basic keys
     ],
   },
 ];
