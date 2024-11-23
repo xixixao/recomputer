@@ -2,9 +2,9 @@
 
 A free web app, a smart calculator with instantly updating results.
 
-https://xixixao.github.io/recomputer
+[https://recomputer.github.io/](https://recomputer.github.io/)
 
-[Examples](https://xixixao.github.io/recomputer?examples) | [Guide](https://xixixao.github.io/recomputer?guide)
+[Examples]([https://recomputer.github.io/recomputer?examples) | [Guide](https://recomputer.github.io?guide)
 
 For bug reports file an issue.
 
